@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource>
+    <file alias="Icons/Medium/DesktopIcon.png">Icons/Medium/DesktopIcon.png</file>
+    <file alias="SplashScreen.png">Images/SplashScreen.png</file>
+    <file alias="Logo.png">Images/Logo.png</file>
+    <file alias="ModuleHome.png">Images/ModuleHome.png</file>
+  </qresource>
+</RCC>
