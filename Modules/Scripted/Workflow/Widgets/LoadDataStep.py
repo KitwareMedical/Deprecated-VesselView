@@ -47,12 +47,10 @@ class LoadDataStep( WorkflowStep ) :
     self.validateStep(validVolumes, desiredBranchId)
 
   def loadVolume1Node(self):
-    #self.loadFile('First Volume', 'VolumeFile', self.get('Volume1NodeComboBox'))
-    pass
+    self.loadFile('First Volume', 'VolumeFile', self.get('Volume1NodeComboBox'))
 
   def loadVolume2Node(self):
-    #self.loadFile('Second Volume', 'VolumeFile', self.get('Volume2NodeComboBox'))
-    pass
+    self.loadFile('Second Volume', 'VolumeFile', self.get('Volume2NodeComboBox'))
 
   def goToVolumesModule(self):
     self.openModule('Volumes')
