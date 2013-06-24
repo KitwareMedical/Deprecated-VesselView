@@ -32,12 +32,14 @@ set(MODULE_PYTHON_SCRIPTS
   Widgets/WorkflowStep.py
   Widgets/LoadDataStep.py
   Widgets/RegisterStep.py
+  Widgets/SegmentationStep.py
   )
 
 set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/UI/AdvancedSettingsPanel.ui
   Widgets/Resources/UI/LoadDataStep.ui
   Widgets/Resources/UI/RegisterStep.ui
+  Widgets/Resources/UI/SegmentationStep.ui
   )
 
 #-----------------------------------------------------------------------------

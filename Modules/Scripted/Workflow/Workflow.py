@@ -71,20 +71,21 @@ class WorkflowWidget:
     workflowWidget.workflowGroupBox().hideWidgetsOfNonCurrentSteps = True
 
     #Creating each step of the workflow
-    loadDataStep = Widgets.LoadDataStep()
-    registrationStep = Widgets.RegisterStep()
-
-    self.steps = []
-    self.steps.append(loadDataStep)
-    self.steps.append(registrationStep)
+    self.steps = [Widgets.LoadDataStep(),
+                  Widgets.RegisterStep(),
+                  Widgets.SegmentationStep(),
+                 ]
+    i = 0
     for step in self.steps:
       # \todo: b) steps should be able to access the workflow widget automatically
       step.Workflow = self
       # \todo: f) have an option to setup all the gui at startup
       step.createUserInterface()
 
-    #Connecting the created steps of the workflow
-    self.workflow.addTransition(loadDataStep, registrationStep)
+      #Connecting the created steps of the workflow
+      if i != 0:
+        self.workflow.addTransition(self.steps[i-1], self.steps[i])
+      i += 1
 
     self.layout.addWidget(workflowWidget)
 
@@ -112,7 +113,9 @@ class WorkflowWidget:
     self.workflow.start()
 
   def step(self, stepid):
-    return [s for s in self.steps if s.stepid == stepid][0]
+    for s in self.steps:
+      if s.stepid == stepid:
+        return s
 
   def reloadModule(self,moduleName=None):
     """Generic reload method for any scripted module.

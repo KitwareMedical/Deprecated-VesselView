@@ -27,7 +27,7 @@ class RegisterStep( WorkflowStep ) :
   def __init__( self ):
     super(RegisterStep, self).__init__()
 
-    self.initialize( 'Register' )
+    self.initialize( 'RegisterStep' )
     self.setName( 'Register images' )
     self.setDescription('Align the scans for a perfect overlay ')
 
