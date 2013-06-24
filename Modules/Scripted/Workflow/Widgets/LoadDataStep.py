@@ -23,6 +23,8 @@ from WorkflowStep import *
 class LoadDataStep( WorkflowStep ) :
 
   def __init__( self ):
+    super(LoadDataStep, self).__init__()
+
     self.initialize( 'LoadData' )
     self.setName( 'Load input scans' )
     self.setDescription('Load CT or MR images')

@@ -88,6 +88,12 @@ class WorkflowWidget:
 
     self.layout.addWidget(workflowWidget)
 
+    # Add CLI progress bar
+    self.CLIProgressBar = slicer.qSlicerCLIProgressBar()
+    self.CLIProgressBar.setStatusVisibility(self.CLIProgressBar.VisibleAfterCompletion)
+    self.CLIProgressBar.setProgressVisibility(self.CLIProgressBar.HiddenWhenIdle)
+    self.layout.addWidget(self.CLIProgressBar)
+
     # Advanced settings
     self.advancedSettings = self.loadUi('AdvancedSettingsPanel.ui')
     levelComboBox = self.findWidget(self.advancedSettings, 'WorkflowLevelComboBox')
@@ -183,3 +189,6 @@ class WorkflowWidget:
     self.level = level
     for step in self.steps:
       step.setWorkflowLevel(level)
+
+  def getProgressBar( self ):
+    return self.CLIProgressBar

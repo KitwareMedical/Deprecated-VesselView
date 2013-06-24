@@ -4,7 +4,7 @@ from __main__ import qt, ctk, vtk, slicer
 class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
 
   def __init__( self ):
-    pass
+    self.Observations = []
 
   def createUserInterface( self ):
     # if the user interface has already be created, quit
@@ -180,8 +180,35 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
     # Don't pass a valid step as it would automatically jump to the step.
     self.validate(None)
 
+    # Hide the Progress bar if nothing is happening
+    cliNode = self.Workflow.getProgressBar().commandLineModuleNode()
+    if cliNode != None and not cliNode.IsBusy():
+      self.Workflow.getProgressBar().setCommandLineModuleNode(0)
+
   def onExit(self, goingTo, transitionType):
     '''Can be reimplemented by the step'''
     goingToId = "None"
     if goingTo: goingToId = goingTo.id()
     super( WorkflowStep, self ).onExit(goingTo, transitionType)
+
+  def observeCLINode(self, cliNode, onCLINodeModified = None):
+    if cliNode != None and onCLINodeModified != None:
+      self.addObserver(cliNode,
+                       slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
+                       onCLINodeModified)
+    self.Workflow.getProgressBar().setCommandLineModuleNode(cliNode)
+
+  def createOutputIfNeeded( self, node, suffix, combobox ):
+    '''Create an output node for the given combox box with its name suffixed
+       by the given suffix if it doesn't already exists. If it does, then
+       this node is simpl set as the combobox current node.'''
+    if node == None:
+        return
+
+    nodeName = '%s-%s' % (node.GetName(), suffix)
+    oldNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
+    if oldNode == None:
+      newNode = combobox.addNode()
+      newNode.SetName(nodeName)
+    else:
+      combobox.setCurrentNode(oldNode)
