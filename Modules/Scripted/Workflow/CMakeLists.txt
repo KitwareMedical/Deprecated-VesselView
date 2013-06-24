@@ -33,6 +33,7 @@ set(MODULE_PYTHON_SCRIPTS
   Widgets/LoadDataStep.py
   Widgets/RegisterStep.py
   Widgets/SegmentationStep.py
+  Widgets/VesselExtractionStep.py
   )
 
 set(MODULE_PYTHON_RESOURCES
@@ -40,6 +41,7 @@ set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/UI/LoadDataStep.ui
   Widgets/Resources/UI/RegisterStep.ui
   Widgets/Resources/UI/SegmentationStep.ui
+  Widgets/Resources/UI/VesselExtractionStep.ui
   )
 
 #-----------------------------------------------------------------------------

@@ -74,6 +74,7 @@ class WorkflowWidget:
     self.steps = [Widgets.LoadDataStep(),
                   Widgets.RegisterStep(),
                   Widgets.SegmentationStep(),
+                  Widgets.VesselExtractionStep(),
                  ]
     i = 0
     for step in self.steps:
