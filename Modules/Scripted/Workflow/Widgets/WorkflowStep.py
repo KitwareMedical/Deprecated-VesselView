@@ -212,3 +212,15 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
       newNode.SetName(nodeName)
     else:
       combobox.setCurrentNode(oldNode)
+
+  def updateViews( self, activeNode, secondaryNode = None, labelNode = None ):
+    '''Update the slice view with the given volume nodes'''
+    if activeNode == None:
+      return
+
+    appLogic = slicer.app.applicationLogic()
+    selectionNode = appLogic.GetSelectionNode()
+    selectionNode.SetActiveVolumeID(activeNode.GetID())
+    selectionNode.SetSecondaryVolumeID(secondaryNode.GetID() if secondaryNode != None else None)
+    selectionNode.SetActiveLabelVolumeID(labelNode.GetID() if labelNode != None else None)
+    appLogic.PropagateVolumeSelection(1)

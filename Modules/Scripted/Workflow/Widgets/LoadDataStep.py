@@ -51,8 +51,14 @@ class LoadDataStep( WorkflowStep ) :
   def loadVolume1Node(self):
     self.loadFile('First Volume', 'VolumeFile', self.get('Volume1NodeComboBox'))
 
+    self.updateViews(self.get('Volume1NodeComboBox').currentNode(),
+                     self.get('Volume2NodeComboBox').currentNode())
+
   def loadVolume2Node(self):
     self.loadFile('Second Volume', 'VolumeFile', self.get('Volume2NodeComboBox'))
+
+    self.updateViews(self.get('Volume1NodeComboBox').currentNode(),
+                     self.get('Volume2NodeComboBox').currentNode())
 
   def goToVolumesModule(self):
     self.openModule('Volumes')
