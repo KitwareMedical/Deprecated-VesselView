@@ -70,7 +70,7 @@ class RegisterStep( WorkflowStep ) :
 
   def createRegisterOutput( self ):
     self.createOutputIfNeeded( self.get('RegisterMovingNodeComboBox').currentNode(),
-                               'Registered',
+                               'Reg',
                                self.get('RegisterOutputNodeComboBox') )
 
   def registerImageParameters( self ):

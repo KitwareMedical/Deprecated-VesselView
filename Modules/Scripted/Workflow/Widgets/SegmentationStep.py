@@ -68,7 +68,7 @@ class SegmentationStep( WorkflowStep ) :
 
   def createSegmentedOutput( self ):
     self.createOutputIfNeeded( self.get('SegmentInputNodeComboBox').currentNode(),
-                               'Segmented',
+                               'Seg',
                                self.get('SegmentOutputNodeComboBox') )
 
     # Set segmented node as a labelmap

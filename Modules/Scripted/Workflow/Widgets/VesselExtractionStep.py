@@ -70,7 +70,7 @@ class VesselExtractionStep( WorkflowStep ) :
 
   def createVesselExtractionOutput( self ):
     self.createOutputIfNeeded( self.get('VesselExtractionInputNodeComboBox').currentNode(),
-                               'Vessel',
+                               'Ves',
                                self.get('VesselExtractionOutputNodeComboBox') )
 
   def vesselExtractionParameters( self ):
