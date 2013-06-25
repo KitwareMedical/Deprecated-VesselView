@@ -59,7 +59,7 @@
       <item row="0" column="1" colspan="2">
        <widget class="qMRMLNodeComboBox" name="SegmentInputNodeComboBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>

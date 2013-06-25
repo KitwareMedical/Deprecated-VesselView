@@ -47,7 +47,7 @@
       <item row="1" column="1">
        <widget class="qMRMLNodeComboBox" name="Volume2NodeComboBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -74,7 +74,7 @@
       <item row="0" column="1">
        <widget class="qMRMLNodeComboBox" name="Volume1NodeComboBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
