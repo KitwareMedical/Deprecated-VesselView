@@ -86,6 +86,19 @@ class RegisterStep( WorkflowStep ) :
     parameters['useAffine'] = self.get('RegisterTypeComboBox').currentIndex >= 3
     parameters['useBSpline'] = self.get('RegisterTypeComboBox').currentIndex >= 4
 
+    # Get outptut image type from fixed image
+    type = self.get('RegisterMovingNodeComboBox').currentNode().GetImageData().GetScalarTypeAsString()
+    if type == "unsigned char":
+      parameters['outputVolumePixelType'] = "uchar"
+    elif type == "unsigned short":
+      parameters['outputVolumePixelType'] = "ushort"
+    elif type == "unsigned int":
+      parameters['outputVolumePixelType'] = "uint"
+    elif type == "int" or type == "short":
+      parameters['outputVolumePixelType'] = type
+    else:
+      parameters['outputVolumePixelType'] = "float"
+
     return parameters
 
   def runRegistration( self, run ):
