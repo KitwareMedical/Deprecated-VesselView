@@ -80,14 +80,12 @@ class RegisterStep( WorkflowStep ) :
     parameters['outputVolume'] = self.get('RegisterOutputNodeComboBox').currentNode()
 
     # One of these should be set to true at least
-    # \todo Add a selector/checkboxes in GUI for these ?
-    parameters['useRigid'] = False
-    parameters['useScaleVersor3D'] = False
-    parameters['useScaleSkewVersor3D'] = False
-    parameters['useBSpline'] = False
-    parameters['useAffine'] = True
-    parameters['useSyN'] = False
-    parameters['useComposite'] = False
+    parameters['useRigid'] = self.get('RegisterTypeComboBox').currentIndex >= 0
+    parameters['useScaleVersor3D'] = self.get('RegisterTypeComboBox').currentIndex >= 1
+    parameters['useScaleSkewVersor3D'] = self.get('RegisterTypeComboBox').currentIndex >= 2
+    parameters['useAffine'] = self.get('RegisterTypeComboBox').currentIndex >= 3
+    parameters['useBSpline'] = self.get('RegisterTypeComboBox').currentIndex >= 4
+
     return parameters
 
   def runRegistration( self, run ):

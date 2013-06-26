@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>379</width>
-    <height>145</height>
+    <height>171</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
       <number>5</number>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="3" column="0" colspan="3">
+      <item row="4" column="0" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <spacer name="horizontalSpacer_2">
@@ -274,6 +274,58 @@ p, li { white-space: pre-wrap; }
           <string>2</string>
          </stringlist>
         </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="RegisterTypeLabel">
+        <property name="text">
+         <string>Registration type</string>
+        </property>
+        <property name="workflow" stdset="0">
+         <stringlist>
+          <string>2</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QComboBox" name="RegisterTypeComboBox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="currentIndex">
+         <number>3</number>
+        </property>
+        <property name="workflow" stdset="0">
+         <stringlist>
+          <string>2</string>
+         </stringlist>
+        </property>
+        <item>
+         <property name="text">
+          <string>Rigid (6 DOF)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Rigid + Scale (7 DOF)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Rigid + Scale + Skew (8DOF)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Affine (12 DOF)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BSpline (&gt; 27 DOF)</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
