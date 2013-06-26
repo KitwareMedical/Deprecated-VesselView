@@ -55,7 +55,7 @@ class WorkflowWidget:
   def setup(self):
 
     self.level = 0
-    self.workflow = ctk.ctkWorkflow()
+    self.workflow = ctk.ctkWorkflow(self.parent)
 
     #workflowWidget = ctk.ctkWorkflowStackedWidget()
     workflowWidget = ctk.ctkWorkflowWidget()
