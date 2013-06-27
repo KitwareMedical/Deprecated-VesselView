@@ -197,3 +197,7 @@ class WorkflowWidget:
 
   def getProgressBar( self ):
     return self.CLIProgressBar
+
+  def enter(self):
+    for s in self.steps:
+      s.updateFromCLIParameters()

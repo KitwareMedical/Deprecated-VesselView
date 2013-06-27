@@ -49,7 +49,7 @@ class RegisterStep( WorkflowStep ) :
     self.get('RegisterGoToModulePushButton').connect('clicked()', self.openRegisterImageModule)
 
   def validate( self, desiredBranchId = None ):
-    cliNode = self.getCLINode(slicer.modules.brainsfit)
+    cliNode = self.getCLINode(slicer.modules.expertautomatedregistration)
     validRegistration = (cliNode.GetStatusString() == 'Completed')
     self.get('RegisterOutputSaveToolButton').enabled = validRegistration
     self.get('RegisterSaveToolButton').enabled = validRegistration
@@ -73,41 +73,47 @@ class RegisterStep( WorkflowStep ) :
                                'Reg',
                                self.get('RegisterOutputNodeComboBox') )
 
-  def registerImageParameters( self ):
+  def registerImageWorkflowParameters( self ):
     parameters = {}
-    parameters['fixedVolume'] = self.get('RegisterFixedNodeComboBox').currentNode()
-    parameters['movingVolume'] = self.get('RegisterMovingNodeComboBox').currentNode()
-    parameters['outputVolume'] = self.get('RegisterOutputNodeComboBox').currentNode()
+    parameters['fixedImage'] = self.get('RegisterFixedNodeComboBox').currentNode()
+    parameters['movingImage'] = self.get('RegisterMovingNodeComboBox').currentNode()
+    parameters['resampledImage'] = self.get('RegisterOutputNodeComboBox').currentNode()
 
-    # One of these should be set to true at least
-    parameters['useRigid'] = self.get('RegisterTypeComboBox').currentIndex >= 0
-    parameters['useScaleVersor3D'] = self.get('RegisterTypeComboBox').currentIndex >= 1
-    parameters['useScaleSkewVersor3D'] = self.get('RegisterTypeComboBox').currentIndex >= 2
-    parameters['useAffine'] = self.get('RegisterTypeComboBox').currentIndex >= 3
-    parameters['useBSpline'] = self.get('RegisterTypeComboBox').currentIndex >= 4
-
-    # Get outptut image type from fixed image
-    type = self.get('RegisterMovingNodeComboBox').currentNode().GetImageData().GetScalarTypeAsString()
-    if type == "unsigned char":
-      parameters['outputVolumePixelType'] = "uchar"
-    elif type == "unsigned short":
-      parameters['outputVolumePixelType'] = "ushort"
-    elif type == "unsigned int":
-      parameters['outputVolumePixelType'] = "uint"
-    elif type == "int" or type == "short":
-      parameters['outputVolumePixelType'] = type
+    registrationType = self.get('RegisterTypeComboBox').currentText
+    if registrationType == 'Initial':
+      parameters['registration'] = registrationType
     else:
-      parameters['outputVolumePixelType'] = "float"
+      parameters['registration'] = 'Pipeline' + registrationType
+
+    parameters['expectedOffset'] = self.get('RegisterExpectedOffsetSpinBox').value
+    parameters['expectedRotation'] = self.get('RegisterExpectedRotationSpinBox').value
+    parameters['expectedScale'] = self.get('RegisterExpectedScaleSpinBox').value
+    parameters['expectedSkew'] = self.get('RegisterExpectedSkewSpinBox').value
 
     return parameters
 
+  def updateFromCLIParameters( self ):
+    cliNode = self.getCLINode(slicer.modules.expertautomatedregistration)
+    self.get('RegisterFixedNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('fixedImage'))
+    self.get('RegisterMovingNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('movingImage'))
+    self.get('RegisterOutputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('resampledImage'))
+
+    index = self.get('RegisterTypeComboBox').findText(cliNode.GetParameterAsString('registration'))
+    if index != -1:
+      self.get('RegisterTypeComboBox').setCurrentIndex(index)
+
+    self.get('RegisterExpectedOffsetSpinBox').setValue(float(cliNode.GetParameterAsString('expectedOffset')))
+    self.get('RegisterExpectedRotationSpinBox').setValue(float(cliNode.GetParameterAsString('expectedRotation')))
+    self.get('RegisterExpectedScaleSpinBox').setValue(float(cliNode.GetParameterAsString('expectedScale')))
+    self.get('RegisterExpectedSkewSpinBox').setValue(float(cliNode.GetParameterAsString('expectedSkew')))
+
   def runRegistration( self, run ):
     if run:
-      cliNode = self.getCLINode(slicer.modules.brainsfit)
-      parameters = self.registerImageParameters()
+      cliNode = self.getCLINode(slicer.modules.expertautomatedregistration)
+      parameters = self.registerImageWorkflowParameters()
       self.get('RegisterApplyPushButton').setChecked(True)
       self.observeCLINode(cliNode, self.onRegistrationCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.brainsfit, cliNode, parameters, wait_for_completion = False)
+      cliNode = slicer.cli.run(slicer.modules.expertautomatedregistration, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(
         slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
@@ -124,12 +130,12 @@ class RegisterStep( WorkflowStep ) :
     if not cliNode.IsBusy():
       self.get('RegisterApplyPushButton').setChecked(False)
       self.get('RegisterApplyPushButton').enabled = True
-      print 'BRAINSFIT Registration %s' % cliNode.GetStatusString()
+      print 'Expert Automated Registration %s' % cliNode.GetStatusString()
       self.removeObservers(self.onRegistrationCLIModified)
 
   def openRegisterImageModule( self ):
-    self.openModule('BRAINSFit')
+    self.openModule('ExpertAutomatedRegistration')
 
-    cliNode = self.getCLINode(slicer.modules.brainsfit)
-    parameters = self.registerImageParameters()
+    cliNode = self.getCLINode(slicer.modules.expertautomatedregistration)
+    parameters = self.registerImageWorkflowParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)

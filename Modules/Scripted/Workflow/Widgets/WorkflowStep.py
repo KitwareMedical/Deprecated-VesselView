@@ -224,3 +224,9 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
     selectionNode.SetSecondaryVolumeID(secondaryNode.GetID() if secondaryNode != None else None)
     selectionNode.SetActiveLabelVolumeID(labelNode.GetID() if labelNode != None else None)
     appLogic.PropagateVolumeSelection(1)
+
+  def updateFromCLIParameters( self ):
+    '''Overload this function to udpate the necessary steps from the CLIs.
+       This is called by the workflow on enter.
+    '''
+    pass
