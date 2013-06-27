@@ -74,6 +74,7 @@ class WorkflowWidget:
     self.steps = [Widgets.InitialStep(),
                   Widgets.LoadDataStep(),
                   Widgets.RegisterStep(),
+                  Widgets.ResampleStep(),
                   Widgets.SegmentationStep(),
                   Widgets.VesselExtractionStep(),
                  ]

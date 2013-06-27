@@ -36,8 +36,8 @@ class SegmentationStep( WorkflowStep ) :
 
   def setupUi( self ):
     self.loadUi('SegmentationStep.ui')
-    self.step('RegisterStep').get('RegisterOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                                        self.get('SegmentInputNodeComboBox').setCurrentNode)
+    self.step('ResampleStep').get('ResampleHiddenOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
+                                                                              self.get('SegmentInputNodeComboBox').setCurrentNode)
     self.get('SegmentOutputNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
