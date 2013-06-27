@@ -30,6 +30,7 @@ set(MODULE_PYTHON_SCRIPTS
   Workflow.py
   Widgets/__init__.py
   Widgets/WorkflowStep.py
+  Widgets/InitialStep.py
   Widgets/LoadDataStep.py
   Widgets/RegisterStep.py
   Widgets/SegmentationStep.py
@@ -38,11 +39,24 @@ set(MODULE_PYTHON_SCRIPTS
 
 set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/UI/AdvancedSettingsPanel.ui
+  Widgets/Resources/UI/InitialStep.ui
   Widgets/Resources/UI/LoadDataStep.ui
   Widgets/Resources/UI/RegisterStep.ui
   Widgets/Resources/UI/SegmentationStep.ui
   Widgets/Resources/UI/VesselExtractionStep.ui
   )
+
+#-----------------------------------------------------------------------------
+# Resources
+set (${MODULE_NAME}_PRESET_RESOURCES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
+
+file(COPY ${${MODULE_NAME}_PRESET_RESOURCES_DIR}
+  DESTINATION ${CMAKE_BINARY_DIR}/${Slicer_QTSCRIPTEDMODULES_SHARE_DIR}/Workflow
+  )
+
+install(
+  FILES ${CMAKE_BINARY_DIR}/${Slicer_QTSCRIPTEDMODULES_DIR}/Workflow
+  DESTINATION ${Slicer_QTSCRIPTEDMODULES_SHARE_DIR}/Workflow COMPONENT Runtime)
 
 #-----------------------------------------------------------------------------
 ctkMacroCompilePythonScript(

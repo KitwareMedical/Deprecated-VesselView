@@ -71,7 +71,8 @@ class WorkflowWidget:
     workflowWidget.workflowGroupBox().hideWidgetsOfNonCurrentSteps = True
 
     #Creating each step of the workflow
-    self.steps = [Widgets.LoadDataStep(),
+    self.steps = [Widgets.InitialStep(),
+                  Widgets.LoadDataStep(),
                   Widgets.RegisterStep(),
                   Widgets.SegmentationStep(),
                   Widgets.VesselExtractionStep(),
