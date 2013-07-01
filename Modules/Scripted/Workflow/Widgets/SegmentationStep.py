@@ -19,7 +19,7 @@
 import os
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
-import EditorLib
+import Editor
 
 class SegmentationStep( WorkflowStep ) :
 
@@ -33,12 +33,12 @@ class SegmentationStep( WorkflowStep ) :
     self.setDescription('Segment the liver from the image')
 
     self.segmentedOutputCreated = False
+    self.MergeVolume = None
+    self.MergeVolumeValid = False
 
   def setupUi( self ):
     self.loadUi('SegmentationStep.ui')
-    self.step('ResampleStep').get('ResampleHiddenOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                                              self.get('SegmentInputNodeComboBox').setCurrentNode)
-    self.get('SegmentOutputNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
+    self.get('SegmentMergeNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
     self.get('SegmentSaveToolButton').icon = saveIcon
@@ -46,45 +46,98 @@ class SegmentationStep( WorkflowStep ) :
 
     self.get('SegmentGoToModulePushButton').connect('clicked()', self.openSegmentModule)
 
-    # \todo Set up editor GUI
+    # Set up editor GUI
+    placeHolderWidget = self.get('SegmentEditorPlaceHolderWidget')
+    self.EditorWidget = Editor.EditorWidget(parent=placeHolderWidget)
+    self.EditorWidget.setup()
+    placeHolderWidget.show()
+
+    # Hide the editor inputs
+    createAndSelectCollapsibeButton = placeHolderWidget.findChild('ctkCollapsibleButton')
+    createAndSelectCollapsibeButton.setVisible(False)
+
+    self.get('SegmentMasterNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
+                                                 self.EditorWidget.setMasterNode)
+
+    # Overload the setMRMLScene to catch the merge volume
+    self.addObserver(slicer.mrmlScene, slicer.mrmlScene.NodeAddedEvent, self.onNodeAddedEvent)
+    self.get('SegmentMergeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
+                                                  self.onMergeVolumeSelected)
 
   def validate( self, desiredBranchId = None ):
-    validSegmentation = (self.get('SegmentInputNodeComboBox').currentNode() != None and
-                         self.get('SegmentOutputNodeComboBox').currentNode() != None)
+    validSegmentation = (self.get('SegmentMasterNodeComboBox').currentNode() != None
+                         and self.MergeVolumeValid)
+
+    self.get('SegmentSaveToolButton').enabled = validSegmentation
 
     self.validateStep(validSegmentation, desiredBranchId)
 
   def onEntry(self, comingFrom, transitionType):
     super(SegmentationStep, self).onEntry(comingFrom, transitionType)
 
-    # Create output if necessary
-    if not self.segmentedOutputCreated:
-      self.get('SegmentInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createSegmentedOutput)
-      self.segmentedOutputCreated = True
-    self.createSegmentedOutput()
+    # Set master volume OnEntry() so the pop up windows doesnt bother the user too much
+    self.get('SegmentMasterNodeComboBox').setCurrentNode(
+      self.step('ResampleStep').get('ResampleHiddenOutputNodeComboBox').currentNode())
 
   def saveSegmentedImage( self ):
-    self.saveFile('Segmented Image', 'VolumeFile', '.mha', self.get('SegmentOutputNodeComboBox'))
-
-  def createSegmentedOutput( self ):
-    self.createOutputIfNeeded( self.get('SegmentInputNodeComboBox').currentNode(),
-                               'Seg',
-                               self.get('SegmentOutputNodeComboBox') )
-
-    # Set segmented node as a labelmap
-    segmentedNode = self.get('SegmentOutputNodeComboBox').currentNode()
-    if segmentedNode != None:
-      volumesLogic = slicer.modules.volumes.logic()
-      volumesLogic.SetVolumeAsLabelMap(segmentedNode, 1)
+    self.saveFile('Segmented Image', 'VolumeFile', '.mha', self.get('SegmentMergeNodeComboBox'))
 
   def openSegmentModule( self ):
     self.openModule('Editor')
 
     editorWidget = slicer.modules.editor.widgetRepresentation()
     masterVolumeNodeComboBox = editorWidget.findChild('qMRMLNodeComboBox')
-    masterVolumeNodeComboBox.addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
-    masterVolumeNodeComboBox.setCurrentNode(self.get('SegmentOutputNodeComboBox').currentNode())
-    setButton = editorWidget.findChild('QPushButton')
-    setButton.click()
+    masterVolumeNodeComboBox.setCurrentNode(self.get('SegmentMasterNodeComboBox').currentNode())
+    #setButton = editorWidget.findChild('QPushButton')
+    #setButton.click()
 
     # \todo Set up editor mode too ?
+
+  def onNodeAddedEvent( self, scene, event ):
+    if not scene:
+      return
+
+    masterVolume = self.get('SegmentMasterNodeComboBox').currentNode()
+    if not masterVolume:
+      return
+
+    # Look for the node with potentialy the correct name in the scene.
+    mergeVolumeName = '%s-label' % masterVolume.GetName()
+    nodes = scene.GetNodesByClass('vtkMRMLScalarVolumeNode')
+    for i in range(0, nodes.GetNumberOfItems()):
+      volumeNode = nodes.GetItemAsObject(i)
+
+      if volumeNode and self.startsWith(volumeNode.GetName(), mergeVolumeName):
+        self.get('SegmentMergeNodeComboBox').setCurrentNode(volumeNode)
+        break
+
+  def startsWith( self, string, stringStart ):
+    return string.find(stringStart) == 0
+
+  def isMergeVolumeValid( self, volumeNode ):
+    if not volumeNode or not volumeNode.GetImageData():
+      return False
+
+    # Segmentation is valid if it has at least 2 labels
+    range = volumeNode.GetImageData().GetScalarRange()
+    return range[0] != range[1]
+
+  def onMergeVolumeSelected( self, mergeVolume ):
+    if self.MergeVolume:
+      self.removeObservers(self.onMergeVolumeModified)
+
+    self.MergeVolume = mergeVolume
+    if self.MergeVolume:
+      self.EditorWidget.setMergeNode(self.MergeVolume)
+      self.addObserver(self.MergeVolume, 'ModifiedEvent', self.onMergeVolumeModified)
+
+    self.onMergeVolumeModified(self.MergeVolume)
+
+  def onMergeVolumeModified( self, mergeVolume, event = 'ModifiedEvent' ):
+    if not mergeVolume:
+      return
+
+    self.MergeVolumeValid = self.isMergeVolumeValid(mergeVolume)
+    if self.MergeVolumeValid:
+      self.removeObservers(self.onMergeVolumeModified)
+    self.validate()

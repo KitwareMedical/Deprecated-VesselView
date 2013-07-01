@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>379</width>
-    <height>119</height>
+    <height>161</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Register</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -23,7 +23,7 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="0" column="0" colspan="2">
+   <item>
     <widget class="ctkCollapsibleGroupBox" name="SegmentCollapsibleGroupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -36,6 +36,12 @@
      </property>
      <property name="collapsedHeight">
       <number>5</number>
+     </property>
+     <property name="workflow" stdset="0">
+      <stringlist>
+       <string>1</string>
+       <string>2</string>
+      </stringlist>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
@@ -57,7 +63,7 @@
        </widget>
       </item>
       <item row="0" column="1" colspan="2">
-       <widget class="qMRMLNodeComboBox" name="SegmentInputNodeComboBox">
+       <widget class="qMRMLNodeComboBox" name="SegmentMasterNodeComboBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -92,7 +98,6 @@
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
-          <string>0</string>
           <string>1</string>
           <string>2</string>
          </stringlist>
@@ -100,15 +105,20 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="SegmentOutputNodeComboBox">
+       <widget class="qMRMLNodeComboBox" name="SegmentMergeNodeComboBox">
         <property name="nodeTypes">
          <stringlist>
           <string>vtkMRMLScalarVolumeNode</string>
          </stringlist>
         </property>
+        <property name="addEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="removeEnabled">
+         <bool>true</bool>
+        </property>
         <property name="workflow" stdset="0">
          <stringlist>
-          <string>0</string>
           <string>1</string>
           <string>2</string>
          </stringlist>
@@ -157,7 +167,6 @@
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
-          <string>0</string>
           <string>1</string>
           <string>2</string>
          </stringlist>
@@ -167,24 +176,58 @@
      </layout>
     </widget>
    </item>
+   <item>
+    <widget class="qMRMLWidget" name="SegmentEditorPlaceHolderWidget">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ctkCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>ctkCollapsibleGroupBox.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
   </customwidget>
   <customwidget>
-   <class>qSlicerWidget</class>
+   <class>qMRMLWidget</class>
    <extends>QWidget</extends>
-   <header>qSlicerWidget.h</header>
+   <header>qMRMLWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ctkCollapsibleGroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>ctkCollapsibleGroupBox.h</header>
+   <class>qSlicerWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -193,7 +236,7 @@
   <connection>
    <sender>Segment</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>SegmentInputNodeComboBox</receiver>
+   <receiver>SegmentMasterNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -209,7 +252,7 @@
   <connection>
    <sender>Segment</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>SegmentOutputNodeComboBox</receiver>
+   <receiver>SegmentMergeNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
