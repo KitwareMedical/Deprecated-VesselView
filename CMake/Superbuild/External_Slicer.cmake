@@ -39,7 +39,7 @@ set(${proj}_DEPENDENCIES "")
 # Include dependent projects if any
 check_external_project_dependency(${proj})
 
-set(${proj}_INTERNAL_DEPENDENCIES_LIST "${APPLICATION_NAME}")
+set(${proj}_INTERNAL_DEPENDENCIES_LIST "${APPLICATION_NAME}&&TubeTK")
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -59,8 +59,24 @@ if(NOT DEFINED ${proj}_DIR)
   endif()
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
 
-  # Retrieve modules
+  # Retrieve Prometheus modules
   get_property(${APPLICATION_NAME}_MODULES GLOBAL PROPERTY ${APPLICATION_NAME}_MODULES)
+
+  # Set slicer build directory
+  set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
+
+  # Add TubeTK Modules
+  # For now, TubeTK modules are added by hand.
+  if (NOT DEFINED TubeTK_SOURCE_DIR)
+    set (TubeTK_SOURCE_DIR "${${proj}_DIR}/TubeTK")
+  endif ()
+  list(APPEND ${APPLICATION_NAME}_MODULES
+    ${TubeTK_SOURCE_DIR}/Applications
+    ${TubeTK_SOURCE_DIR}/SlicerModules
+    )
+
+  # Order the list of modules to build properly
+  set(${APPLICATION_NAME}_MODULES_LIST)
   foreach(module ${${APPLICATION_NAME}_MODULES})
     if(${APPLICATION_NAME}_MODULES_LIST)
       set(${APPLICATION_NAME}_MODULES_LIST "${${APPLICATION_NAME}_MODULES_LIST}^^${module}")
@@ -73,13 +89,12 @@ if(NOT DEFINED ${proj}_DIR)
   #string(REPLACE ";" "\\^\\^" ${APPLICATION_NAME}_MODULES_LIST ${${APPLICATION_NAME}_MODULES})
   #string(REPLACE ";" "^^" ${proj}_INTERNAL_DEPENDENCIES_LIST ${${proj}_INTERNAL_DEPENDENCIES})
 
-  set(Slicer_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
   ExternalProject_Add(${proj}
-    SOURCE_DIR ${Slicer_SOURCE_DIR}
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
     GIT_REPOSITORY "git://github.com/Slicer/Slicer.git"
-    GIT_TAG "76081669b002a02a6e2fa24795b0f9dbfe9f4faf"
+    GIT_TAG "b002bc2989c1a262804394a740273aedda57b8c2"
     ${${APPLICATION_NAME}_external_update}
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
@@ -101,12 +116,12 @@ if(NOT DEFINED ${proj}_DIR)
       -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
       -DSlicer_REQUIRED_QT_VERSION:STRING=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
       -DSlicer_ADDITIONAL_DEPENDENCIES:STRING=${${proj}_INTERNAL_DEPENDENCIES_LIST}
-      -DSlicer_ADDITIONAL_EXTERNAL_PROJECT_DIR:STRING=${${APPLICATION_NAME}_CMAKE_BINARY_DIR}/Superbuild
+      -DSlicer_ADDITIONAL_EXTERNAL_PROJECT_DIR:PATH=${${APPLICATION_NAME}_SUPERBUILD_DIR}
       -D${APPLICATION_NAME}_SOURCE_DIR:PATH=${${APPLICATION_NAME}_SOURCE_DIR} # needed by External_${APPLICATION_NAME}.cmake
       -DSlicer_MAIN_PROJECT:STRING=${APPLICATION_NAME}App
       -D${APPLICATION_NAME}App_APPLICATION_NAME:STRING=${APPLICATION_NAME}
       -DSlicer_APPLICATIONS_DIR:PATH=${${APPLICATION_NAME}_SOURCE_DIR}/Applications
-      -DSlicer_BUILD_DICOM_SUPPORT:BOOL=OFF
+      -DSlicer_BUILD_DICOM_SUPPORT:BOOL=ON
       -DSlicer_BUILD_DIFFUSION_SUPPORT:BOOL=OFF
       -DSlicer_BUILD_EXTENSIONMANAGER_SUPPORT:BOOL=OFF
       -DSlicer_USE_QtTesting:BOOL=OFF
@@ -121,9 +136,10 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_USE_OpenIGTLink:BOOL=OFF
       -DSlicer_BUILD_OpenIGTLinkIF:BOOL=OFF
       -DSlicer_BUILD_BRAINSTOOLS:BOOL=OFF
-      -DSlicer_BUILD_Extensions:BOOL=OFF
+      -DSlicer_BUILD_EXTENSIONS:BOOL=OFF
       -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${${APPLICATION_NAME}_MODULES_LIST}
       -DSlicer_DIR:PATH=${${proj}_DIR}
+      -DSlicer_PLATFORM_CHECK:BOOL=OFF
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )
