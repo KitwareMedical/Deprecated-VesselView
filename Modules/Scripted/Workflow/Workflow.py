@@ -112,6 +112,14 @@ class WorkflowWidget:
     self.layout.addWidget(self.reloadButton)
     self.reloadButton.connect('clicked()', self.reloadModule)
 
+    # Misc
+
+    # Link slices together
+    sliceCompositeNodes = slicer.mrmlScene.GetNodesByClass("vtkMRMLSliceCompositeNode")
+    for i in range(0, sliceCompositeNodes.GetNumberOfItems()):
+      sliceCompositeNode = sliceCompositeNodes.GetItemAsObject(i)
+      sliceCompositeNode.SetLinkedControl(True)
+
     # Starting and showing the module in layout
     self.workflow.start()
 
