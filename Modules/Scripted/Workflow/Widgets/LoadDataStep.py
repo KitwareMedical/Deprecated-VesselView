@@ -34,10 +34,12 @@ class LoadDataStep( WorkflowStep ) :
     loadIcon = self.style().standardIcon(qt.QStyle.SP_DialogOpenButton)
     # Volume 1
     self.get('Volume1NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.validate)
+    self.get('Volume1NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.onVolumeChanged)
     self.get('Volume1NodeToolButton').icon = loadIcon
     self.get('Volume1NodeToolButton').connect('clicked()', self.loadVolume1Node)
     # Volume 2
     self.get('Volume2NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.validate)
+    self.get('Volume2NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.onVolumeChanged)
     self.get('Volume2NodeToolButton').icon = loadIcon
     self.get('Volume2NodeToolButton').connect('clicked()', self.loadVolume2Node)
     # Go to Volumes
@@ -48,17 +50,15 @@ class LoadDataStep( WorkflowStep ) :
                     self.get('Volume2NodeComboBox').currentNode() != None)
     self.validateStep(validVolumes, desiredBranchId)
 
+  def onVolumeChanged( self ):
+    self.updateViews(self.get('Volume1NodeComboBox').currentNode(),
+                     self.get('Volume2NodeComboBox').currentNode())
+
   def loadVolume1Node(self):
     self.loadFile('First Volume', 'VolumeFile', self.get('Volume1NodeComboBox'))
 
-    self.updateViews(self.get('Volume1NodeComboBox').currentNode(),
-                     self.get('Volume2NodeComboBox').currentNode())
-
   def loadVolume2Node(self):
     self.loadFile('Second Volume', 'VolumeFile', self.get('Volume2NodeComboBox'))
-
-    self.updateViews(self.get('Volume1NodeComboBox').currentNode(),
-                     self.get('Volume2NodeComboBox').currentNode())
 
   def goToVolumesModule(self):
     self.openModule('Volumes')
