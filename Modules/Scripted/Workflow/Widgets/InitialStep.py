@@ -26,8 +26,8 @@ class InitialStep( WorkflowStep ) :
     super(InitialStep, self).__init__()
 
     self.initialize( 'Initial' )
-    self.setName( 'Initializaton' )
-    self.setDescription('Choose what type of analisys will be performed')
+    self.setName( 'Tasks types' )
+    self.setDescription('Choose what tasks will be performed')
 
     self.Presets = {}
 

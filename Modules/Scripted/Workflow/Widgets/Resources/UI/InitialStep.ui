@@ -35,7 +35,7 @@
       <enum>Qt::LeftToRight</enum>
      </property>
      <property name="title">
-      <string>A) Choose the analysis type</string>
+      <string>A) Choose the task presets</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
