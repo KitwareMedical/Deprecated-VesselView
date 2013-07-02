@@ -80,7 +80,7 @@ class ResampleStep( WorkflowStep ) :
 
   def createResampledOutput( self ):
     self.createOutputIfNeeded( self.get('ResampleInputNodeComboBox').currentNode(),
-                              'Iso',
+                              'iso',
                               self.get('ResampleOutputNodeComboBox') )
 
   def resampleImageWorkflowParameters( self ):
