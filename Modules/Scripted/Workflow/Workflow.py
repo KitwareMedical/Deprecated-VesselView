@@ -98,6 +98,20 @@ class WorkflowWidget:
     self.CLIProgressBar.setProgressVisibility(self.CLIProgressBar.HiddenWhenIdle)
     self.layout.addWidget(self.CLIProgressBar)
 
+    # Link slices together
+    sliceCompositeNodes = slicer.mrmlScene.GetNodesByClass("vtkMRMLSliceCompositeNode")
+    sliceCompositeNodes.SetReferenceCount(sliceCompositeNodes.GetReferenceCount()-1)
+    for i in range(0, sliceCompositeNodes.GetNumberOfItems()):
+      sliceCompositeNode = sliceCompositeNodes.GetItemAsObject(i)
+      sliceCompositeNode.SetLinkedControl(True)
+
+    # Views settings
+    self.viewsSettings = self.loadUi('ViewsSettingsPanel.ui')
+    opacitySlider = self.findWidget(self.viewsSettings, 'OpacityRatioDoubleSlider')
+    opacitySlider.connect('valueChanged(double)', self.setOpacityRatio)
+    self.layout.addWidget(self.viewsSettings)
+    self.setOpacityRatio(opacitySlider.value)
+
     # Advanced settings
     self.advancedSettings = self.loadUi('AdvancedSettingsPanel.ui')
     levelComboBox = self.findWidget(self.advancedSettings, 'WorkflowLevelComboBox')
@@ -111,14 +125,6 @@ class WorkflowWidget:
     self.reloadButton.name = "%s Reload" % self.moduleName
     self.layout.addWidget(self.reloadButton)
     self.reloadButton.connect('clicked()', self.reloadModule)
-
-    # Misc
-
-    # Link slices together
-    sliceCompositeNodes = slicer.mrmlScene.GetNodesByClass("vtkMRMLSliceCompositeNode")
-    for i in range(0, sliceCompositeNodes.GetNumberOfItems()):
-      sliceCompositeNode = sliceCompositeNodes.GetItemAsObject(i)
-      sliceCompositeNode.SetLinkedControl(True)
 
     # Starting and showing the module in layout
     self.workflow.start()
@@ -203,6 +209,14 @@ class WorkflowWidget:
     self.level = level
     for step in self.steps:
       step.setWorkflowLevel(level)
+
+  def setOpacityRatio(self, ratio):
+    # 0 == all background <-> 1 == all foreground
+    sliceCompositeNodes = slicer.mrmlScene.GetNodesByClass("vtkMRMLSliceCompositeNode")
+    sliceCompositeNodes.SetReferenceCount(sliceCompositeNodes.GetReferenceCount()-1)
+    for i in range(0, sliceCompositeNodes.GetNumberOfItems()):
+      sliceCompositeNode = sliceCompositeNodes.GetItemAsObject(i)
+      sliceCompositeNode.SetForegroundOpacity(ratio)
 
   def getProgressBar( self ):
     return self.CLIProgressBar

@@ -46,6 +46,7 @@ set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/UI/ResampleStep.ui
   Widgets/Resources/UI/SegmentationStep.ui
   Widgets/Resources/UI/VesselExtractionStep.ui
+  Widgets/Resources/UI/ViewsSettingsPanel.ui
   )
 
 #-----------------------------------------------------------------------------
