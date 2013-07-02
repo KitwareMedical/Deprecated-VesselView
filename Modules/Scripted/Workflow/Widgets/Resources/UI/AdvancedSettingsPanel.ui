@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>315</width>
-    <height>34</height>
+    <width>374</width>
+    <height>27</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,10 +21,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
+    <number>9</number>
+   </property>
+   <property name="topMargin">
     <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>9</number>
    </property>
    <property name="bottomMargin">
     <number>0</number>
