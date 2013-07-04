@@ -20,6 +20,8 @@ import os
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
 import Editor
+import EditorLib
+from EditorLib import EditUtil
 
 class SegmentationStep( WorkflowStep ) :
 
@@ -32,9 +34,9 @@ class SegmentationStep( WorkflowStep ) :
     self.setName( 'Segment Liver' )
     self.setDescription('Segment the liver from the image')
 
-    self.segmentedOutputCreated = False
     self.MergeVolume = None
     self.MergeVolumeValid = False
+    self.EditUtil = EditUtil.EditUtil()
 
   def setupUi( self ):
     self.loadUi('SegmentationStep.ui')
@@ -79,6 +81,10 @@ class SegmentationStep( WorkflowStep ) :
     self.get('SegmentMasterNodeComboBox').setCurrentNode(
       self.step('ResampleStep').getResampledVolume1())
 
+    # Add observer on the PDF segmenter CLI
+    pdfSegmenterCLINode = self.getCLINode(slicer.modules.segmentconnectedcomponentsusingparzenpdfs, 'PDFSegmenterEditorEffect')
+    self.observeCLINode(pdfSegmenterCLINode, self.onPDFSegmenterCLIModified)
+
   def saveSegmentedImage( self ):
     self.saveFile('Segmented Image', 'VolumeFile', '.mha', self.get('SegmentMergeNodeComboBox'))
 
@@ -104,6 +110,7 @@ class SegmentationStep( WorkflowStep ) :
     # Look for the node with potentialy the correct name in the scene.
     mergeVolumeName = '%s-label' % masterVolume.GetName()
     nodes = scene.GetNodesByClass('vtkMRMLScalarVolumeNode')
+    nodes.SetReferenceCount(nodes.GetReferenceCount() - 1)
     for i in range(0, nodes.GetNumberOfItems()):
       volumeNode = nodes.GetItemAsObject(i)
 
@@ -141,3 +148,18 @@ class SegmentationStep( WorkflowStep ) :
     if self.MergeVolumeValid:
       self.removeObservers(self.onMergeVolumeModified)
     self.validate()
+
+  def onPDFSegmenterCLIModified( self, cliNode, event ):
+    if cliNode.GetStatusString() == 'Completed':
+      # Change the background label to 0
+      objectColors = cliNode.GetParameterAsString('objectId')
+      backgroundColor = eval(objectColors)[1] # object colors is 'foreground, background'
+
+      # Set the parameter node necesseray for the change label logic
+      parameterNode = self.EditUtil.getParameterNode()
+      parameterNode.SetParameter("ChangeLabelEffect,inputColor", str(backgroundColor))
+      parameterNode.SetParameter("ChangeLabelEffect,outputColor", '0')
+
+      # Apply change label
+      changeLabelLogic = EditorLib.ChangeLabelEffectLogic(self.EditUtil.getSliceLogic())
+      changeLabelLogic.changeLabel()

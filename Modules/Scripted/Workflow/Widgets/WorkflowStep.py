@@ -79,15 +79,15 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
         return o
     return None
 
-  def getCLINode(self, cliModule):
-    """ Return the cli node to use for a given CLI module. Create the node in
-    scene if needed. Return None in the case of scripted module.
-    """
-    cliNode = slicer.mrmlScene.GetFirstNodeByName(cliModule.title)
+  def getCLINode(self, module, nodeName = None):
+    if not nodeName:
+      nodeName = module.title
+
+    cliNode = slicer.mrmlScene.GetFirstNodeByName(nodeName)
     # Also check path to make sure the CLI isn't a scripted module
-    if (cliNode == None) and ('qt-scripted-modules' not in cliModule.path):
-      cliNode = slicer.cli.createNode(cliModule)
-      cliNode.SetName(cliModule.title)
+    if (cliNode == None) and ('qt-scripted-modules' not in module.path):
+      cliNode = slicer.cli.createNode(module)
+      cliNode.SetName(nodeName)
     return cliNode
 
   def loadLabelmapFile(self, title, fileType, nodeComboBox):
