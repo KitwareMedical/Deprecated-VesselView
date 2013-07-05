@@ -48,6 +48,8 @@ class LoadDataStep( WorkflowStep ) :
   def validate( self, desiredBranchId = None ):
     validVolumes = (self.get('Volume1NodeComboBox').currentNode() != None and
                     self.get('Volume2NodeComboBox').currentNode() != None)
+    self.Workflow.setDisplaySettingsEnabled(validVolumes)
+
     self.validateStep(validVolumes, desiredBranchId)
 
   def onVolumeChanged( self ):
@@ -66,3 +68,8 @@ class LoadDataStep( WorkflowStep ) :
   def updateConfiguration( self, config ):
     self.get('Volume1Label').setText(config['Volume1Name'])
     self.get('Volume2Label').setText(config['Volume2Name'])
+
+  def onEntry(self, comingFrom, transitionType):
+    super(LoadDataStep, self).onEntry(comingFrom, transitionType)
+
+    self.Workflow.setDisplaySettingsVisible(True)

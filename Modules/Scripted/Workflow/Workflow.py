@@ -63,6 +63,7 @@ class WorkflowWidget:
 
     workflowWidget.setWorkflow( self.workflow )
     self.workflowWidget = workflowWidget
+    self.Settings = None
 
     workflowWidget.buttonBoxWidget().hideInvalidButtons = True
     workflowWidget.buttonBoxWidget().hideGoToButtons = True
@@ -107,6 +108,10 @@ class WorkflowWidget:
     opacitySlider = self.findWidget(self.Settings, 'OpacityRatioDoubleSlider')
     opacitySlider.connect('valueChanged(double)', self.setOpacityRatio)
     self.setOpacityRatio(opacitySlider.value)
+
+    # Hide and disable until step 1 is validated
+    self.setDisplaySettingsVisible(False)
+    self.setDisplaySettingsEnabled(False)
 
     # Advanced settings
     levelComboBox = self.findWidget(self.Settings, 'WorkflowLevelComboBox')
@@ -261,3 +266,16 @@ class WorkflowWidget:
 
     for step in self.steps:
       step.updateConfiguration(config)
+
+  def setDisplaySettingsVisible( self, visible ):
+    if not self.Settings:
+      return
+    displayGroupbox = self.findWidget(self.Settings, 'DisplaySettingsCollapsibleGroupBox')
+    displayGroupbox.setVisible(visible)
+
+  def setDisplaySettingsEnabled( self, enabled ):
+    if not self.Settings:
+      return
+
+    opacitySlider = self.findWidget(self.Settings, 'OpacityRatioDoubleSlider')
+    opacitySlider.setEnabled(enabled)
