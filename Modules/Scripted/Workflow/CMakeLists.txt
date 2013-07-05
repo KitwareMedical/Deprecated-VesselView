@@ -40,7 +40,6 @@ set(MODULE_PYTHON_SCRIPTS
   )
 
 set(MODULE_PYTHON_RESOURCES
-  Widgets/Resources/UI/AdvancedSettingsPanel.ui
   Widgets/Resources/UI/InitialStep.ui
   Widgets/Resources/UI/LoadDataStep.ui
   Widgets/Resources/UI/RegisterStep.ui
@@ -48,7 +47,7 @@ set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/UI/ResampleWidget.ui
   Widgets/Resources/UI/SegmentationStep.ui
   Widgets/Resources/UI/VesselExtractionStep.ui
-  Widgets/Resources/UI/ViewsSettingsPanel.ui
+  Widgets/Resources/UI/WorkflowSettingsPanel.ui
   )
 
 #-----------------------------------------------------------------------------

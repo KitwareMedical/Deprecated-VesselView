@@ -93,12 +93,6 @@ class WorkflowWidget:
 
     self.layout.addWidget(workflowWidget)
 
-    # Add CLI progress bar
-    self.CLIProgressBar = slicer.qSlicerCLIProgressBar()
-    self.CLIProgressBar.setStatusVisibility(self.CLIProgressBar.VisibleAfterCompletion)
-    self.CLIProgressBar.setProgressVisibility(self.CLIProgressBar.HiddenWhenIdle)
-    self.layout.addWidget(self.CLIProgressBar)
-
     # Link slices together
     sliceCompositeNodes = slicer.mrmlScene.GetNodesByClass("vtkMRMLSliceCompositeNode")
     sliceCompositeNodes.SetReferenceCount(sliceCompositeNodes.GetReferenceCount()-1)
@@ -106,26 +100,31 @@ class WorkflowWidget:
       sliceCompositeNode = sliceCompositeNodes.GetItemAsObject(i)
       sliceCompositeNode.SetLinkedControl(True)
 
-    # Views settings
-    self.viewsSettings = self.loadUi('ViewsSettingsPanel.ui')
-    opacitySlider = self.findWidget(self.viewsSettings, 'OpacityRatioDoubleSlider')
+    # Settings
+    self.Settings = self.loadUi('WorkflowSettingsPanel.ui')
+
+    # Display settings
+    opacitySlider = self.findWidget(self.Settings, 'OpacityRatioDoubleSlider')
     opacitySlider.connect('valueChanged(double)', self.setOpacityRatio)
-    self.layout.addWidget(self.viewsSettings)
     self.setOpacityRatio(opacitySlider.value)
 
     # Advanced settings
-    self.advancedSettings = self.loadUi('AdvancedSettingsPanel.ui')
-    levelComboBox = self.findWidget(self.advancedSettings, 'WorkflowLevelComboBox')
+    levelComboBox = self.findWidget(self.Settings, 'WorkflowLevelComboBox')
     levelComboBox.connect('currentIndexChanged(int)', self.setWorkflowLevel)
-    self.layout.addWidget(self.advancedSettings)
     self.setWorkflowLevel(levelComboBox.currentIndex)
 
-    # Reload
-    self.reloadButton = qt.QPushButton("Reload")
-    self.reloadButton.toolTip = "Reload this module."
-    self.reloadButton.name = "%s Reload" % self.moduleName
-    self.layout.addWidget(self.reloadButton)
+    self.reloadButton = self.findWidget(self.Settings, 'ReloadPushButton')
     self.reloadButton.connect('clicked()', self.reloadModule)
+
+    # Add CLI progress bar
+    self.CLIProgressBar = slicer.qSlicerCLIProgressBar()
+    self.CLIProgressBar.setStatusVisibility(self.CLIProgressBar.VisibleAfterCompletion)
+    self.CLIProgressBar.setProgressVisibility(self.CLIProgressBar.HiddenWhenIdle)
+    self.Settings.layout().insertWidget(1, self.CLIProgressBar) # insert after spacer
+
+    # Insert settings before workflow's buttons
+    collapsibleGroupBox = self.findWidget(self.workflowWidget.workflowGroupBox(), 'CollapsibleButton')
+    collapsibleGroupBox.layout().addWidget(self.Settings)
 
     # Init naming and jsons.
     self.step('Initial').onPresetSelected()
