@@ -76,7 +76,7 @@ class ResampleStep( WorkflowStep ) :
     self.ResampleVolume2.initialize()
     self.ResampleVolume2.setSpacing( self.ResampleVolume1.getOutputNode().GetSpacing() )
     self.ResampleVolume2.setMakeIsotropic( False )
-    self.ResampleVolume2.collapse( False, False )
+    self.ResampleVolume2.collapse( False )
 
   def getResampledVolume1( self ):
     return self.ResampleVolume1.getOutputNode()
