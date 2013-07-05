@@ -77,7 +77,7 @@ class SegmentationStep( WorkflowStep ) :
 
     # Set master volume OnEntry() so the pop up windows doesnt bother the user too much
     self.get('SegmentMasterNodeComboBox').setCurrentNode(
-      self.step('ResampleStep').get('ResampleHiddenOutputNodeComboBox').currentNode())
+      self.step('ResampleStep').getResampledVolume1())
 
   def saveSegmentedImage( self ):
     self.saveFile('Segmented Image', 'VolumeFile', '.mha', self.get('SegmentMergeNodeComboBox'))

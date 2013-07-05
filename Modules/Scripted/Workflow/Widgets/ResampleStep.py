@@ -19,6 +19,7 @@
 import os
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
+import ResampleWidget
 
 class ResampleStep( WorkflowStep ) :
 
@@ -36,111 +37,46 @@ class ResampleStep( WorkflowStep ) :
   def setupUi( self ):
     self.loadUi('ResampleStep.ui')
 
-    saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('ResampleOutputSaveToolButton').icon = saveIcon
-    self.get('ResampleSaveToolButton').icon = saveIcon
-    self.get('ResampleSaveToolButton').connect('clicked()', self.saveResampledImage)
+    self.ResampleVolume1 = ResampleWidget.ResampleWidget(self)
+    self.ResampleVolume1.setMRMLScene(slicer.mrmlScene)
+    self.get('ResampleWidgetsLayout').addWidget(self.ResampleVolume1)
+    self.ResampleVolume1.setResamplingValidCallBack(self.onResampleVolume1Valid)
+    self.ResampleVolume1.setTitle('A) Resample volume 1')
 
-    self.get('ResampleApplyPushButton').connect('clicked(bool)', self.runResampling)
-    self.get('ResampleGoToModulePushButton').connect('clicked()', self.openResampleImageModule)
-
-    self.get('ResampleHiddenOutputNodeComboBox').setVisible(False)
+    self.ResampleVolume2 = ResampleWidget.ResampleWidget(self)
+    self.ResampleVolume2.setMRMLScene(slicer.mrmlScene)
+    self.ResampleVolume2.setTitle('B) Resample volume 2')
+    self.ResampleVolume2.collapse(True)
+    self.ResampleVolume2.setResamplingValidCallBack(self.validate)
+    self.get('ResampleWidgetsLayout').addWidget(self.ResampleVolume2)
 
   def validate( self, desiredBranchId = None ):
-    validResampling = self.isVolumeIsotropic(self.get('ResampleHiddenOutputNodeComboBox').currentNode())
-
-    self.get('ResampleOutputSaveToolButton').enabled = validResampling
-    self.get('ResampleSaveToolButton').enabled = validResampling
+    validResampling = (self.ResampleVolume1.isResamplingValid()
+                       and self.ResampleVolume2.isResamplingValid())
 
     self.validateStep(validResampling, desiredBranchId)
 
   def onEntry(self, comingFrom, transitionType):
 
-    # Create output if necessary
-    if not self.createResamplingOutputConnected:
-      self.get('ResampleInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createResampledOutput)
-      self.createResamplingOutputConnected = True
-
-    # Set volume OnEntry so we can actually check if it's isotropic or not.
-    # Otherwise, the volume is set when the empty volume is created
-    # and since it's still empty, it's not isotropic.
-    node = self.step('RegisterStep').get('RegisterOutputNodeComboBox').currentNode()
-    self.get('ResampleInputNodeComboBox').setCurrentNode(node)
-    if self.isVolumeIsotropic(node):
-      self.get('ResampleHiddenOutputNodeComboBox').setCurrentNode(node)
-
-    # No need to call createResampledOutput by hand here.
-    # It was called when setting the node of the ResampleInputNodeComboBox
+    self.ResampleVolume1.setInputNode(
+      self.step('RegisterStep').get('RegisterFixedNodeComboBox').currentNode())
+    self.ResampleVolume1.initialize()
 
     # Superclass call done last because it calls validate()
     super(ResampleStep, self).onEntry(comingFrom, transitionType)
 
-  def saveResampledImage( self ):
-    self.saveFile('Resampled Image', 'VolumeFile', '.mha', self.get('ResampleOutputNodeComboBox'))
-
-  def createResampledOutput( self ):
-    self.createOutputIfNeeded( self.get('ResampleInputNodeComboBox').currentNode(),
-                              'iso',
-                              self.get('ResampleOutputNodeComboBox') )
-
-  def resampleImageWorkflowParameters( self ):
-    parameters = {}
-    parameters['inputVolume'] = self.get('ResampleInputNodeComboBox').currentNode()
-    parameters['outputVolume'] = self.get('ResampleOutputNodeComboBox').currentNode()
-    parameters['interpolator'] = self.get('ResampleInterpolationTypeComboBox').currentText
-    parameters['makeIsotropic'] = True
-    return parameters
-
   def updateFromCLIParameters( self ):
-    cliNode = self.getCLINode(slicer.modules.resampleimage)
-    self.get('ResampleInputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('inputVolume'))
-    self.get('ResampleOutputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('outputVolume'))
+    self.ResampleVolume1.updateFromCLIParameters()
+    self.ResampleVolume2.updateFromCLIParameters()
 
-    index = self.get('ResampleInterpolationTypeComboBox').findText(cliNode.GetParameterAsString('interpolator'))
-    if index != -1:
-      self.get('ResampleInterpolationTypeComboBox').setCurrentIndex(index)
+  def onResampleVolume1Valid( self ):
+    self.ResampleVolume1.collapse( True )
+    self.ResampleVolume2.setInputNode(
+      self.step('RegisterStep').get('RegisterOutputNodeComboBox').currentNode())
+    self.ResampleVolume2.initialize()
+    self.ResampleVolume2.setSpacing( self.ResampleVolume1.getOutputNode().GetSpacing() )
+    self.ResampleVolume2.setMakeIsotropic( False )
+    self.ResampleVolume2.collapse( False, False )
 
-  def runResampling( self, run ):
-    if run:
-      cliNode = self.getCLINode(slicer.modules.resampleimage)
-      parameters = self.resampleImageWorkflowParameters()
-      self.get('ResampleApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.onResampleCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.resampleimage, cliNode, parameters, wait_for_completion = False)
-    else:
-      cliNode = self.observer(
-        slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-        self.onResampleCLIModified)
-      self.get('ResampleApplyPushButton').enabled = False
-      cliNode.Cancel()
-
-  def onResampleCLIModified( self, cliNode, event ):
-    if cliNode.GetStatusString() == 'Completed':
-      outputNode = self.get('ResampleOutputNodeComboBox').currentNode()
-      self.get('ResampleHiddenOutputNodeComboBox').setCurrentNode(outputNode)
-      self.updateViews(self.get('ResampleInputNodeComboBox').currentNode(),
-                       outputNode)
-      self.validate()
-
-    if not cliNode.IsBusy():
-      self.get('ResampleApplyPushButton').setChecked(False)
-      self.get('ResampleApplyPushButton').enabled = True
-      print 'Resampling %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onResampleCLIModified)
-
-  def openResampleImageModule( self ):
-    self.openModule('ResampleImage')
-
-    cliNode = self.getCLINode(slicer.modules.resampleimage)
-    parameters = self.resampleImageWorkflowParameters()
-    slicer.cli.setNodeParameters(cliNode, parameters)
-
-  def isVolumeIsotropic( self, volume ):
-    if volume == None:
-      return False
-
-    if volume.GetImageData() == None:
-      return False
-
-    spacing = volume.GetSpacing()
-    return ((spacing[0] == spacing[1]) and (spacing[0] == spacing[2]))
+  def getResampledVolume1( self ):
+	return self.ResampleVolume1.getOutputNode()
