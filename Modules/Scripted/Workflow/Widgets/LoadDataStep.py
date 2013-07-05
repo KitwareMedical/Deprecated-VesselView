@@ -62,3 +62,7 @@ class LoadDataStep( WorkflowStep ) :
 
   def goToVolumesModule(self):
     self.openModule('Volumes')
+
+  def updateConfiguration( self, config ):
+    self.get('Volume1Label').setText(config['Volume1Name'])
+    self.get('Volume2Label').setText(config['Volume2Name'])

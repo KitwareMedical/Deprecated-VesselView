@@ -79,4 +79,12 @@ class ResampleStep( WorkflowStep ) :
     self.ResampleVolume2.collapse( False, False )
 
   def getResampledVolume1( self ):
-	return self.ResampleVolume1.getOutputNode()
+    return self.ResampleVolume1.getOutputNode()
+
+  def updateConfiguration( self, config ):
+    self.ResampleVolume1.updateNames(
+      config['Volume1Name'],
+      'A) Resample %s' % config['Volume1Name'].lower())
+    self.ResampleVolume2.updateNames(
+      config['Volume2Name'],
+      'B) Resample %s' % config['Volume2Name'].lower())

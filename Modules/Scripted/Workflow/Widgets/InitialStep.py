@@ -30,6 +30,7 @@ class InitialStep( WorkflowStep ) :
     self.setDescription('Choose what tasks will be performed')
 
     self.Presets = {}
+    self.WorkflowConfigData = None
 
   def setupUi( self ):
     self.loadUi('InitialStep.ui')
@@ -40,21 +41,39 @@ class InitialStep( WorkflowStep ) :
       self.get('InitialAnalysisTypeComboBox').addItem(dir.replace('_', ' '), resourceDir.absolutePath() + '/' + dir)
 
     self.get('InitialAnalysisTypeComboBox').connect('currentIndexChanged(int)', self.onPresetSelected)
-    self.onPresetSelected(self.get('InitialAnalysisTypeComboBox').currentIndex)
+    # No init, it is done by the workflow once everything is set up
 
   def validate( self, desiredBranchId = None ):
     validInitializaton = True
     self.validateStep(validInitializaton, desiredBranchId)
 
-  def onPresetSelected( self, index ):
+  def onPresetSelected( self, index = None ):
+    if not index:
+      index = self.get('InitialAnalysisTypeComboBox').currentIndex
+
     path = self.get('InitialAnalysisTypeComboBox').itemData(index)
     presetFiles = qt.QDir(path)
 
     self.Presets = {}
     nameFilters = ['*.json']
     for file in presetFiles.entryList(nameFilters, presetFiles.Files):
-      moduleName = file.strip('.json')
-      self.Presets[moduleName] = '%s/%s' % (presetFiles.absolutePath(), file)
+      filename = file.strip('.json')
+      absolutePath = '%s/%s' % (presetFiles.absolutePath(), file)
+
+      if filename != self.Workflow.moduleName:
+        self.Presets[filename] = absolutePath
+      else:
+        jsonData = open(absolutePath)
+        try :
+          self.WorkflowConfigData = json.load(jsonData)
+        except ValueError:
+          print 'Could not read json file %s. No config loaded' % absolutePath
+          self.WorkflowConfigData = None
+
+    self.Workflow.updateConfiguration()
 
   def getPresets( self ):
     return self.Presets
+
+  def getConfigurationData( self ):
+    return self.WorkflowConfigData

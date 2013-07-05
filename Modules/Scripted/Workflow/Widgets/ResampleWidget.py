@@ -200,3 +200,8 @@ class ResampleWidget( slicer.qMRMLWidget ) :
   def setMakeIsotropic( self, iso ):
     ''' Assumes input is a tuple'''
     self.get('ResampleMakeIsotropicCheckBox').setChecked(iso)
+
+  def updateNames( self, volumeName, title ):
+    self.get('ResampleInputNodeLabel').setText(volumeName)
+    self.get('ResampleCollapsibleGroupBox').setTitle(title)
+    self.get('ResampleOutputNodeLabel').setText('Resampled %s' %volumeName.lower())

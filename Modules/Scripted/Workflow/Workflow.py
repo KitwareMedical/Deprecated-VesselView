@@ -127,6 +127,9 @@ class WorkflowWidget:
     self.layout.addWidget(self.reloadButton)
     self.reloadButton.connect('clicked()', self.reloadModule)
 
+    # Init naming and jsons.
+    self.step('Initial').onPresetSelected()
+
     # Starting and showing the module in layout
     self.workflow.start()
 
@@ -244,7 +247,6 @@ class WorkflowWidget:
     # For all the parameters not already there, add the json parameters
     # Try to be as robust as possible
     jsonParametersList = data['ParameterGroups'][1]['Parameters']
-    print jsonParametersList
     for p in jsonParametersList:
       try:
         parameters[p['Name']] = p['Value']
@@ -252,3 +254,11 @@ class WorkflowWidget:
         print 'Could not find value for %s. Passing.' % p['Name']
         continue
     return parameters
+
+  def updateConfiguration(self):
+    config = self.step('Initial').getConfigurationData()
+    if not config:
+      return
+
+    for step in self.steps:
+      step.updateConfiguration(config)

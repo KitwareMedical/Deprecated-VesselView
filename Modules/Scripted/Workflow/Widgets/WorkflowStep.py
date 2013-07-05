@@ -234,3 +234,7 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
 
   def getJsonParameters( self, module ):
     return self.Workflow.getJsonParameters(module)
+
+  def updateConfiguration( self, config ):
+    '''Overload this function to udpate step's form the config dictionnary.'''
+    pass

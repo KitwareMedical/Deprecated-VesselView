@@ -163,3 +163,12 @@ class SegmentationStep( WorkflowStep ) :
       # Apply change label
       changeLabelLogic = EditorLib.ChangeLabelEffectLogic(self.EditUtil.getSliceLogic())
       changeLabelLogic.changeLabel()
+
+  def updateConfiguration( self, config ):
+    organ = config['Organ'].lower()
+    self.get('SegmentCollapsibleGroupBox').setTitle('Segment %s' % organ)
+    self.get('SegmentMasterNodeLabel').setText('Input %s' % config['Volume1Name'].lower())
+    self.get('SegmentMergeVolumeLabel').setText('Segmented %s image' % organ)
+
+    self.setName( 'Segment %s' % organ )
+    self.setDescription('Segment the %s from the image' % organ)
