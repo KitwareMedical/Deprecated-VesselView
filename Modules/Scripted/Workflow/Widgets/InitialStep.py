@@ -53,7 +53,8 @@ class InitialStep( WorkflowStep ) :
     self.Presets = {}
     nameFilters = ['*.json']
     for file in presetFiles.entryList(nameFilters, presetFiles.Files):
-      self.Presets[file] = '%s/%s' % (presetFiles.absolutePath(), file)
+      moduleName = file.strip('.json')
+      self.Presets[moduleName] = '%s/%s' % (presetFiles.absolutePath(), file)
 
   def getPresets( self ):
     return self.Presets

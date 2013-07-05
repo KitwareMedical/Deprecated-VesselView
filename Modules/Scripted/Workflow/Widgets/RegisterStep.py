@@ -74,7 +74,7 @@ class RegisterStep( WorkflowStep ) :
                                self.get('RegisterOutputNodeComboBox') )
 
   def registerImageWorkflowParameters( self ):
-    parameters = {}
+    parameters = self.getJsonParameters(slicer.modules.resampleimage)
     parameters['fixedImage'] = self.get('RegisterFixedNodeComboBox').currentNode()
     parameters['movingImage'] = self.get('RegisterMovingNodeComboBox').currentNode()
     parameters['resampledImage'] = self.get('RegisterOutputNodeComboBox').currentNode()

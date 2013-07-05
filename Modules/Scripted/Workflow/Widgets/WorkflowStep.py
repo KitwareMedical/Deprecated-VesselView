@@ -1,5 +1,6 @@
 import imp, sys, os
 from __main__ import qt, ctk, vtk, slicer
+from Workflow import *
 
 class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
 
@@ -230,3 +231,6 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
        This is called by the workflow on enter.
     '''
     pass
+
+  def getJsonParameters( self, module ):
+    return self.Workflow.getJsonParameters(module)

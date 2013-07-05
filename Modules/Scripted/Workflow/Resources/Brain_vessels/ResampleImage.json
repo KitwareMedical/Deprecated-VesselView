@@ -1,0 +1,219 @@
+
+{
+	"Category" : "TubeTK",
+	"Contributor" : "Stephen R. Aylward (Kitware)",
+	"Description" : "Resamples an image to match another image (origin, orientation, and spacing), to be isotropic, or to have a specific spacing.",
+	"DocumentationURL" : "http://public.kitware.com/Wiki/TubeTK",
+	"License" : "Apache 2.0",
+	"ParameterGroups" :
+	[
+
+		{
+			"Description" : "Input/output parameters.",
+			"Label" : "IO",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "input",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Input volume.",
+					"Flag" : "",
+					"Index" : "0",
+					"Label" : "Input Volume",
+					"LongFlag" : "",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "inputVolume",
+					"Step" : "",
+					"Tag" : "image",
+					"Value" : ""
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "output",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Resampling results.",
+					"Flag" : "",
+					"Index" : "1",
+					"Label" : "Output Volume",
+					"LongFlag" : "",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "outputVolume",
+					"Step" : "",
+					"Tag" : "image",
+					"Value" : ""
+				}
+			]
+		},
+
+		{
+			"Description" : "Parameters that determine how the resmpling is performed.",
+			"Label" : "Resampling Options",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "input",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "The image from which origin, orientation, and spacing should be taken.",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Match to Image",
+					"LongFlag" : "matchImage",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "matchImage",
+					"Step" : "",
+					"Tag" : "image",
+					"Value" : ""
+				},
+
+				{
+					"CPPType" : "std::vector<float>",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Spacing to be used. Should be an N-vector. Overrides matchImage.",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Use Spacing",
+					"LongFlag" : "spacing",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "spacing",
+					"Step" : "",
+					"Tag" : "float-vector",
+					"Value" : []
+				},
+
+				{
+					"CPPType" : "std::vector<float>",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Origin to be used. Should be an N-vector. Overrides matchImage.",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Use Origin",
+					"LongFlag" : "origin",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "origin",
+					"Step" : "",
+					"Tag" : "float-vector",
+					"Value" : []
+				},
+
+				{
+					"CPPType" : "std::vector<int>",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Index to be used. Should be an N-vector. Overrides matchImage.",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Use Index",
+					"LongFlag" : "index",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "index",
+					"Step" : "",
+					"Tag" : "integer-vector",
+					"Value" : []
+				},
+
+				{
+					"CPPType" : "std::vector<float>",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Factor to increase size. 2,2,2 doubles size in each dimension. Should be an N-vector. Overrides matchImage and setSpacing.",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Resample Factor",
+					"LongFlag" : "resampleFactor",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "resampleFactor",
+					"Step" : "",
+					"Tag" : "float-vector",
+					"Value" : []
+				},
+
+				{
+					"CPPType" : "bool",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "false",
+					"Description" : "Make spacing isotropic. Overrides other matchImage and setSpacing.",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Make Isotropic",
+					"LongFlag" : "makeIsotropic",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "makeIsotropic",
+					"Step" : "",
+					"Tag" : "boolean",
+					"Value" : true
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "Linear",
+					"Description" : "Type of interpolation to perform.",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Interpolation Method",
+					"LongFlag" : "interpolator",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "interpolator",
+					"Step" : "",
+					"Tag" : "string-enumeration",
+					"Value" : "Linear"
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "input",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Load the transform to be applied.",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Load Transform",
+					"LongFlag" : "loadTransform",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "loadTransform",
+					"Step" : "",
+					"Tag" : "transform",
+					"Value" : ""
+				}
+			]
+		}
+	],
+	"Title" : "Resample Image (TubeTK)",
+	"Version" : "0.1.0.$Revision: 2104 $(alpha)"
+}

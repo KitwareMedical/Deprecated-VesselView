@@ -21,6 +21,7 @@ import imp, sys, os, unittest
 from __main__ import vtk, qt, ctk, slicer
 
 import Widgets
+import json
 
 class Workflow:
   def __init__(self, parent):
@@ -224,3 +225,30 @@ class WorkflowWidget:
   def enter(self):
     for s in self.steps:
       s.updateFromCLIParameters()
+
+  def getJsonParameters( self, module ):
+    presets = self.step('Initial').getPresets()
+    parameters = {}
+    try:
+      jsonFilePath = presets[module.name]
+    except KeyError:
+      return parameters
+
+    jsonData = open(jsonFilePath)
+    try:
+      data = json.load(jsonData)
+    except ValueError:
+      print 'Could not read JSON file %s. Make sure the file is valid' % jsonFilePath
+      return parameters
+
+    # For all the parameters not already there, add the json parameters
+    # Try to be as robust as possible
+    jsonParametersList = data['ParameterGroups'][1]['Parameters']
+    print jsonParametersList
+    for p in jsonParametersList:
+      try:
+        parameters[p['Name']] = p['Value']
+      except KeyError:
+        print 'Could not find value for %s. Passing.' % p['Name']
+        continue
+    return parameters

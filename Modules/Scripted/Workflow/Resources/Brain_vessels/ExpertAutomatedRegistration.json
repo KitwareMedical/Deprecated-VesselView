@@ -1,0 +1,605 @@
+
+{
+	"Category" : "Legacy.Registration",
+	"Contributor" : "Stephen R Aylward (Kitware), Casey B Goodlett (Kitware)",
+	"Description" : "Provides rigid, affine, and BSpline registration methods via a simple GUI",
+	"DocumentationURL" : "http://www.slicer.org/slicerWiki/index.php/Documentation/4.2/Modules/ExpertAutomatedRegistration",
+	"License" : "",
+	"ParameterGroups" :
+	[
+
+		{
+			"Description" : "Input and output parameters",
+			"Label" : "IO",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "input",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Image which defines the space into which the moving image is registered",
+					"Flag" : "",
+					"Index" : "0",
+					"Label" : "Fixed Image",
+					"LongFlag" : "",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "fixedImage",
+					"Step" : "",
+					"Tag" : "image"
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "input",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "The transform goes from the fixed image's space into the moving image's space",
+					"Flag" : "",
+					"Index" : "1",
+					"Label" : "Moving Image",
+					"LongFlag" : "",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "movingImage",
+					"Step" : "",
+					"Tag" : "image"
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "output",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Registration results",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Resample image",
+					"LongFlag" : "resampledImage",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "resampledImage",
+					"Step" : "",
+					"Tag" : "image"
+					"Value" : ""
+				},
+
+			]
+		},
+
+		{
+			"Description" : "Common parameters",
+			"Label" : "Registration Parameters",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "input",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Load a transform that is immediately applied to the moving image",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Load transform",
+					"LongFlag" : "loadTransform",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "loadTransform",
+					"Step" : "",
+					"Tag" : "transform"
+          "Value" : ""
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "output",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Save the transform that results from registration",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Save transform",
+					"LongFlag" : "saveTransform",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "saveTransform",
+					"Step" : "",
+					"Tag" : "transform"
+          "Value" : ""
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "CentersOfMass",
+					"Description" : "Method to prime the registration process",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Initialization",
+					"LongFlag" : "initialization",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "initialization",
+					"Step" : "",
+					"Tag" : "string-enumeration"
+          "Value" : "CentersOfMass"
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "PipelineAffine",
+					"Description" : "Method for the registration process",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Registration",
+					"LongFlag" : "registration",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "registration",
+					"Step" : "",
+					"Tag" : "string-enumeration"
+          "Value" : "PipelineAffine"
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "MattesMI",
+					"Description" : "Method to quantify image match",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Metric",
+					"LongFlag" : "metric",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "metric",
+					"Step" : "",
+					"Tag" : "string-enumeration"
+          "Value" : "MattesMI"
+				},
+
+				{
+					"CPPType" : "float",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "10",
+					"Description" : "Expected misalignment after initialization",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Expected offset magnitude",
+					"LongFlag" : "expectedOffset",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "expectedOffset",
+					"Step" : "",
+					"Tag" : "float"
+          "Value" : 10.0
+				},
+
+				{
+					"CPPType" : "float",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "0.1",
+					"Description" : "Expected misalignment after initialization",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Expected rotation magnitude",
+					"LongFlag" : "expectedRotation",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "expectedRotation",
+					"Step" : "",
+					"Tag" : "float"
+          "Value" : 0.1
+				},
+
+				{
+					"CPPType" : "float",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "0.05",
+					"Description" : "Expected misalignment after initialization",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Expected scale magnitude",
+					"LongFlag" : "expectedScale",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "expectedScale",
+					"Step" : "",
+					"Tag" : "float"
+          "Value" : 0.05
+				},
+
+				{
+					"CPPType" : "float",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "0.01",
+					"Description" : "Expected misalignment after initialization",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Expected skew magnitude",
+					"LongFlag" : "expectedSkew",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "expectedSkew",
+					"Step" : "",
+					"Tag" : "float"
+          "Value" : 0.01
+				},
+
+			]
+		},
+
+		{
+			"Description" : "Parameters that determine how registration is performed",
+			"Label" : "Advanced Registration Parameters",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "Standard",
+					"Description" : "Level of detail of reporting progress",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Verbosity level",
+					"LongFlag" : "verbosityLevel",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "verbosityLevel",
+					"Step" : "",
+					"Tag" : "string-enumeration"
+          "Value" : "Standard"
+				},
+
+				{
+					"CPPType" : "bool",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "false",
+					"Description" : "Limit metric evaluation to the fixed image region overlapped by the moving image",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Sample from fixed/moving overlap",
+					"LongFlag" : "sampleFromOverlap",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "sampleFromOverlap",
+					"Step" : "",
+					"Tag" : "boolean"
+          "Value" : False
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "input",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Image which defines a mask for the fixed image",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Fixed Image Mask",
+					"LongFlag" : "fixedImageMask",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "fixedImageMask",
+					"Step" : "",
+					"Tag" : "image"
+          "Value" : ""
+				},
+
+				{
+					"CPPType" : "int",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "0",
+					"Description" : "Seed to generate a consistent random number sequence",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Random number seed (0=none)",
+					"LongFlag" : "randomNumberSeed",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "randomNumberSeed",
+					"Step" : "",
+					"Tag" : "integer"
+          "Value" : 0
+				},
+
+				{
+					"CPPType" : "int",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "0",
+					"Description" : "Number of CPU threads to use",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Number of threads (0=max)",
+					"LongFlag" : "numberOfThreads",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "numberOfThreads",
+					"Step" : "",
+					"Tag" : "integer"
+          "Value" : 0
+				},
+
+				{
+					"CPPType" : "bool",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "false",
+					"Description" : "Reduce the amount of memory required at the cost of increased computation time",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Minimize memory",
+					"LongFlag" : "minimizeMemory",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "minimizeMemory",
+					"Step" : "",
+					"Tag" : "boolean"
+          "Value" : False
+				},
+
+				{
+					"CPPType" : "std::string",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "Linear",
+					"Description" : "Method for interpolation within the optimization process",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Interpolation",
+					"LongFlag" : "interpolation",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "interpolation",
+					"Step" : "",
+					"Tag" : "string-enumeration"
+          "Value" : "Linear"
+				},
+
+			]
+		},
+
+		{
+			"Description" : "Parameters that determine how initial registration is performed",
+			"Label" : "Advanced Initial Registration Parameters",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "std::vector<std::vector<float> >",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Ordered list of landmarks in the fixed image",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Fixed landmarks",
+					"LongFlag" : "fixedLandmarks",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "true",
+					"Name" : "fixedLandmarks",
+					"Step" : "",
+					"Tag" : "point"
+          "Value" : []
+				},
+
+				{
+					"CPPType" : "std::vector<std::vector<float> >",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "",
+					"Description" : "Ordered list of landmarks in the moving image",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Moving landmarks",
+					"LongFlag" : "movingLandmarks",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "true",
+					"Name" : "movingLandmarks",
+					"Step" : "",
+					"Tag" : "point"
+          "Value" : []
+				},
+
+			]
+		},
+
+		{
+			"Description" : "Parameters that determine how registration is performed",
+			"Label" : "Advanced Rigid Registration Parameters",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "int",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "100",
+					"Description" : "Maximum number of rigid optimization iterations",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Rigid Max Iterations",
+					"LongFlag" : "rigidMaxIterations",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "rigidMaxIterations",
+					"Step" : "",
+					"Tag" : "integer"
+          "Value" : 100
+				},
+
+				{
+					"CPPType" : "float",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "0.01",
+					"Description" : "Portion of the image to use in computing the metric during rigid registration",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Rigid sampling ratio",
+					"LongFlag" : "rigidSamplingRatio",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "rigidSamplingRatio",
+					"Step" : "",
+					"Tag" : "float"
+          "Value" : 0.01
+				},
+
+			]
+		},
+
+		{
+			"Description" : "Parameters that determine how registration is performed",
+			"Label" : "Advanced Affine Registration Parameters",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "int",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "50",
+					"Description" : "Maximum number of affine optimization iterations",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Affine Max Iterations",
+					"LongFlag" : "affineMaxIterations",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "affineMaxIterations",
+					"Step" : "",
+					"Tag" : "integer"
+          "Value" : 100
+				},
+
+				{
+					"CPPType" : "float",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "0.02",
+					"Description" : "Portion of the image to use in computing the metric during affine registration",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Affine sampling ratio",
+					"LongFlag" : "affineSamplingRatio",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "affineSamplingRatio",
+					"Step" : "",
+					"Tag" : "float"
+          "Value" : 0.02
+				},
+			]
+		},
+
+		{
+			"Description" : "Parameters that determine how registration is performed",
+			"Label" : "Advanced BSpline Registration Parameters",
+			"Parameters" :
+			[
+
+				{
+					"CPPType" : "int",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "20",
+					"Description" : "Maximum number of bspline optimization iterations",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "BSpline Max Iterations",
+					"LongFlag" : "bsplineMaxIterations",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "bsplineMaxIterations",
+					"Step" : "",
+					"Tag" : "integer"
+          "Value" : 20
+				},
+
+				{
+					"CPPType" : "float",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "0.10",
+					"Description" : "Portion of the image to use in computing the metric during BSpline registration",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "BSpline sampling ratio",
+					"LongFlag" : "bsplineSamplingRatio",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "bsplineSamplingRatio",
+					"Step" : "",
+					"Tag" : "float"
+          "Value" : 0.1
+				},
+
+				{
+					"CPPType" : "int",
+					"Channel" : "",
+					"CoordinateSystem" : "",
+					"Default" : "40",
+					"Description" : "Number of pixels between control points",
+					"Flag" : "",
+					"Index" : "",
+					"Label" : "Control point spacing (pixels)",
+					"LongFlag" : "controlPointSpacing",
+					"Maximum" : "",
+					"Minimum" : "",
+					"Multiple" : "false",
+					"Name" : "controlPointSpacing",
+					"Step" : "",
+					"Tag" : "integer"
+          "Value" : 40
+				},
+
+			]
+		}
+	],
+	"Title" : "Expert Automated Registration",
+	"Version" : "0.1.0.$Revision: 2104 $(alpha)"
+}

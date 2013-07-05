@@ -113,12 +113,13 @@ class ResampleWidget( slicer.qMRMLWidget ) :
                                             self.get('ResampleOutputNodeComboBox') )
 
   def resampleImageWorkflowParameters( self ):
-    parameters = {}
+    parameters = self.WorkflowStep.getJsonParameters(slicer.modules.resampleimage)
     parameters['inputVolume'] = self.get('ResampleInputNodeComboBox').currentNode()
     parameters['outputVolume'] = self.get('ResampleOutputNodeComboBox').currentNode()
     parameters['interpolator'] = self.get('ResampleInterpolationTypeComboBox').currentText
     parameters['makeIsotropic'] = self.get('ResampleMakeIsotropicCheckBox').isChecked()
     parameters['spacing'] = self.get('ResampleManualSpacingCoordinatesWidget').coordinates
+
     return parameters
 
   def updateFromCLIParameters( self ):
