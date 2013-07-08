@@ -81,6 +81,9 @@ class ResampleStep( WorkflowStep ) :
   def getResampledVolume1( self ):
     return self.ResampleVolume1.getOutputNode()
 
+  def getResampledVolume2( self ):
+    return self.ResampleVolume2.getOutputNode()
+
   def updateConfiguration( self, config ):
     self.ResampleVolume1.updateNames(
       config['Volume1Name'],

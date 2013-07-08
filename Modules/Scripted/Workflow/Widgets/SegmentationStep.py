@@ -85,6 +85,13 @@ class SegmentationStep( WorkflowStep ) :
     pdfSegmenterCLINode = self.getCLINode(slicer.modules.segmentconnectedcomponentsusingparzenpdfs, 'PDFSegmenterEditorEffect')
     self.observeCLINode(pdfSegmenterCLINode, self.onPDFSegmenterCLIModified)
 
+    # Get the previous step's node
+    previousStepNode = self.step('ResampleStep').getResampledVolume2()
+    # Set it to the parameter node
+    parameterNode = self.EditUtil.getParameterNode()
+    parameterName = "InteractiveConnectedComponentsUsingParzenPDFsOptions,additionalInputVolumeID0"
+    parameterNode.SetParameter(parameterName, previousStepNode.GetID())
+
   def saveSegmentedImage( self ):
     self.saveFile('Segmented Image', 'VolumeFile', '.mha', self.get('SegmentMergeNodeComboBox'))
 
