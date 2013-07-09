@@ -83,7 +83,7 @@ class ResampleWidget( slicer.qMRMLWidget ) :
     node = self.getInputNode()
     self.get('ResampleInputNodeComboBox').setCurrentNode(node)
     if self.isVolumeIsotropic(node):
-      self.get('ResampleHiddenOutputNodeComboBox').setCurrentNode(node)
+      self.setOutputNode(node)
 
   def setInputNode( self, node ):
     self.get('ResampleInputNodeComboBox').setCurrentNode(node)
@@ -151,12 +151,9 @@ class ResampleWidget( slicer.qMRMLWidget ) :
   def onResampleCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
       outputNode = self.get('ResampleOutputNodeComboBox').currentNode()
-      self.get('ResampleHiddenOutputNodeComboBox').setCurrentNode(outputNode)
       self.WorkflowStep.updateViews(self.get('ResampleInputNodeComboBox').currentNode(),
                                     outputNode)
-      validResampling = self.isResamplingValid()
-      if validResampling and self.ResamplingValidCallBack:
-        self.ResamplingValidCallBack()
+      self.setOutputNode(outputNode)
 
     if not cliNode.IsBusy():
       self.get('ResampleApplyPushButton').setChecked(False)
@@ -205,3 +202,13 @@ class ResampleWidget( slicer.qMRMLWidget ) :
     self.get('ResampleInputNodeLabel').setText(volumeName)
     self.get('ResampleCollapsibleGroupBox').setTitle(title)
     self.get('ResampleOutputNodeLabel').setText('Resampled %s' %volumeName.lower())
+
+  def setOutputNode( self, node ):
+    if not node:
+      return
+
+    self.get('ResampleHiddenOutputNodeComboBox').setCurrentNode(node)
+
+    validResampling = self.isResamplingValid()
+    if validResampling and self.ResamplingValidCallBack:
+      self.ResamplingValidCallBack()
