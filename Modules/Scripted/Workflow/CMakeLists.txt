@@ -37,9 +37,11 @@ set(MODULE_PYTHON_SCRIPTS
   Widgets/ResampleWidget.py
   Widgets/SegmentationStep.py
   Widgets/VesselEnhancementStep.py
+  Widgets/ExtractSkeletonStep.py
   )
 
 set(MODULE_PYTHON_RESOURCES
+  Widgets/Resources/UI/ExtractSkeletonStep.ui
   Widgets/Resources/UI/InitialStep.ui
   Widgets/Resources/UI/LoadDataStep.ui
   Widgets/Resources/UI/RegisterStep.ui
