@@ -37,6 +37,7 @@ class SegmentationStep( WorkflowStep ) :
     self.MergeVolume = None
     self.MergeVolumeValid = False
     self.EditUtil = EditUtil.EditUtil()
+    self.AdditionalVolume = None
 
   def setupUi( self ):
     self.loadUi('SegmentationStep.ui')
@@ -86,11 +87,9 @@ class SegmentationStep( WorkflowStep ) :
     self.observeCLINode(pdfSegmenterCLINode, self.onPDFSegmenterCLIModified)
 
     # Get the previous step's node
-    previousStepNode = self.step('ResampleStep').getResampledVolume2()
+    self.AdditionalVolume = self.step('ResampleStep').getResampledVolume2()
     # Set it to the parameter node
-    parameterNode = self.EditUtil.getParameterNode()
-    parameterName = "InteractiveConnectedComponentsUsingParzenPDFsOptions,additionalInputVolumeID0"
-    parameterNode.SetParameter(parameterName, previousStepNode.GetID())
+    self.setParameterToPDFSegmenter('additionalInputVolumeID0', self.AdditionalVolume.GetID() if self.AdditionalVolume != None else '0')
 
   def saveSegmentedImage( self ):
     self.saveFile('Segmented Image', 'VolumeFile', '.mha', self.get('SegmentMergeNodeComboBox'))
@@ -179,3 +178,24 @@ class SegmentationStep( WorkflowStep ) :
 
     self.setName( 'Segment %s' % organ )
     self.setDescription('Segment the %s from the image' % organ)
+
+  def getPDFSegmenterParameterName( self, parameterName ):
+    return 'InteractiveConnectedComponentsUsingParzenPDFsOptions,' + parameterName
+
+  def getParameterFromPDFSegmenter( self, parameterName ):
+    parameterNode = self.EditUtil.getParameterNode()
+    return parameterNode.GetParameter(self.getPDFSegmenterParameterName(parameterName))
+
+  def setParameterToPDFSegmenter( self, parameterName, value ):
+    parameterNode = self.EditUtil.getParameterNode()
+    parameterNode.SetParameter(self.getPDFSegmenterParameterName(parameterName), value)
+
+  def getMaskImageObjectId( self ):
+    objectIds = self.getParameterFromPDFSegmenter('objectId')
+    if objectIds:
+      return eval(objectIds)[0]
+    else:
+      return 0
+
+  def getVolume2( self ):
+    return self.AdditionalVolume
