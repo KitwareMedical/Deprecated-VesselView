@@ -42,6 +42,7 @@ class Workflow:
 class WorkflowWidget:
   def __init__(self, parent = None):
     self.moduleName = 'Workflow'
+    self._ViewNodeIDs = { 'Active' : None, 'Secondary' : None, 'Label' : None}
     if not parent:
       self.parent = slicer.qMRMLWidget()
       self.parent.setLayout(qt.QVBoxLayout())
@@ -232,6 +233,7 @@ class WorkflowWidget:
     return self.CLIProgressBar
 
   def enter(self):
+    self.updateViews()
     for s in self.steps:
       s.updateFromCLIParameters()
 
@@ -281,3 +283,51 @@ class WorkflowWidget:
 
     opacitySlider = self.findWidget(self.Settings, 'OpacityRatioDoubleSlider')
     opacitySlider.setEnabled(enabled)
+
+  def setViews( self, activeNode, secondaryNode = None, labelNode = None ):
+    '''Set the node used to update the slice views with the given volume nodes'''
+    updateNodes = self._setViewNodeID('Active', activeNode)
+    updateNodes = self._setViewNodeID('Secondary', secondaryNode) or updateNodes
+    updateNodes = self._setViewNodeID('Label', labelNode) or updateNodes
+
+    if updateNodes:
+      self.updateViews()
+
+  def _setViewNodeID( self, type, node ):
+    oldID = self._ViewNodeIDs[type]
+    if node and self._ViewNodeIDs[type] != node.GetID():
+      self._ViewNodeIDs[type] = node.GetID()
+    elif not node:
+      self._ViewNodeIDs[type] = None
+
+    return oldID != self._ViewNodeIDs[type]
+
+  def _getViewNode( self, type ):
+    id = self._ViewNodeIDs[type]
+    if id:
+      return slicer.mrmlScene.GetNodeByID(id)
+    return None
+
+  def updateViews( self ):
+    '''Update the slice views with the cached volume nodes'''
+    backgroundLabel = self.findWidget(self.Settings, 'BackgroundLabel')
+    foregroundLabel = self.findWidget(self.Settings, 'ForegroundLabel')
+    backgroundText = 'Background volume'
+    forergoundText = 'Foreground volume'
+
+    appLogic = slicer.app.applicationLogic()
+    selectionNode = appLogic.GetSelectionNode()
+    selectionNode.SetActiveVolumeID(self._ViewNodeIDs['Active'])
+    selectionNode.SetSecondaryVolumeID(self._ViewNodeIDs['Secondary'])
+    selectionNode.SetActiveLabelVolumeID(self._ViewNodeIDs['Label'])
+    appLogic.PropagateVolumeSelection(1)
+
+    backgroundNode = self._getViewNode('Active')
+    foregroundNode = self._getViewNode('Secondary')
+    if backgroundNode:
+      backgroundText = backgroundNode.GetName()
+    if foregroundNode:
+      forergoundText = foregroundNode.GetName()
+
+    backgroundLabel.setText(backgroundText)
+    foregroundLabel.setText(forergoundText)

@@ -42,7 +42,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Display Settings</string>
+      <string>Display settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
@@ -96,7 +96,7 @@
       <enum>Qt::LeftToRight</enum>
      </property>
      <property name="title">
-      <string>Advanced Settings</string>
+      <string>Advanced settings</string>
      </property>
      <property name="collapsed">
       <bool>true</bool>
@@ -144,6 +144,11 @@
         </property>
         <property name="text">
          <string>Reload</string>
+        </property>
+        <property name="workflow" stdset="0">
+         <stringlist>
+          <string>2</string>
+         </stringlist>
         </property>
        </widget>
       </item>

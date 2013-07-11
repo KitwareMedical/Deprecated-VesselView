@@ -53,7 +53,7 @@ class LoadDataStep( WorkflowStep ) :
     self.validateStep(validVolumes, desiredBranchId)
 
   def onVolumeChanged( self ):
-    self.updateViews(self.get('Volume1NodeComboBox').currentNode(),
+    self.setViews(self.get('Volume1NodeComboBox').currentNode(),
                      self.get('Volume2NodeComboBox').currentNode())
 
   def loadVolume1Node(self):

@@ -60,7 +60,7 @@ class SegmentationStep( WorkflowStep ) :
     createAndSelectCollapsibeButton.setVisible(False)
 
     self.get('SegmentMasterNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                 self.EditorWidget.setMasterNode)
+                                                 self.setMasterNode)
 
     # Overload the setMRMLScene to catch the merge volume
     self.addObserver(slicer.mrmlScene, slicer.mrmlScene.NodeAddedEvent, self.onNodeAddedEvent)
@@ -199,3 +199,7 @@ class SegmentationStep( WorkflowStep ) :
 
   def getVolume2( self ):
     return self.AdditionalVolume
+
+  def setMasterNode( self, node ):
+    self.EditorWidget.setMasterNode(node)
+    self.setViews(node, None, self.get('SegmentMergeNodeComboBox').currentNode())

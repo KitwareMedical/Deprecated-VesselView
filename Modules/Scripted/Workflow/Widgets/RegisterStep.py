@@ -123,7 +123,7 @@ class RegisterStep( WorkflowStep ) :
 
   def onRegistrationCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
-      self.updateViews(self.get('RegisterFixedNodeComboBox').currentNode(),
+      self.setViews(self.get('RegisterFixedNodeComboBox').currentNode(),
                        self.get('RegisterOutputNodeComboBox').currentNode())
       self.validate()
 

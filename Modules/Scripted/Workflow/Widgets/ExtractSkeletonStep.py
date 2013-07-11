@@ -100,7 +100,7 @@ class ExtractSkeletonStep( WorkflowStep ) :
   def onExtractSkeletonCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
       self.validate()
-      self.updateViews(self.get('ExtractSkeletonOutputNodeComboBox').currentNode())
+      self.setViews(self.get('ExtractSkeletonOutputNodeComboBox').currentNode())
 
     if not cliNode.IsBusy():
       self.get('ExtractSkeletonApplyPushButton').setChecked(False)

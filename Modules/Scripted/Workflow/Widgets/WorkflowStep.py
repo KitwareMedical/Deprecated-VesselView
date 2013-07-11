@@ -186,6 +186,9 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
     if cliNode != None and not cliNode.IsBusy():
       self.Workflow.getProgressBar().setCommandLineModuleNode(0)
 
+    # Update views
+    self.Workflow.updateViews()
+
   def onExit(self, goingTo, transitionType):
     '''Can be reimplemented by the step'''
     goingToId = "None"
@@ -214,17 +217,8 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
     else:
       combobox.setCurrentNode(oldNode)
 
-  def updateViews( self, activeNode, secondaryNode = None, labelNode = None ):
-    '''Update the slice view with the given volume nodes'''
-    if activeNode == None:
-      return
-
-    appLogic = slicer.app.applicationLogic()
-    selectionNode = appLogic.GetSelectionNode()
-    selectionNode.SetActiveVolumeID(activeNode.GetID())
-    selectionNode.SetSecondaryVolumeID(secondaryNode.GetID() if secondaryNode != None else None)
-    selectionNode.SetActiveLabelVolumeID(labelNode.GetID() if labelNode != None else None)
-    appLogic.PropagateVolumeSelection(1)
+  def setViews( self, activeNode, secondaryNode = None, labelNode = None ):
+    self.Workflow.setViews(activeNode, secondaryNode, labelNode)
 
   def updateFromCLIParameters( self ):
     '''Overload this function to udpate the necessary steps from the CLIs.
