@@ -38,6 +38,7 @@ set(MODULE_PYTHON_SCRIPTS
   Widgets/SegmentationStep.py
   Widgets/VesselEnhancementStep.py
   Widgets/ExtractSkeletonStep.py
+  Widgets/VesselExtractionStep.py
   )
 
 set(MODULE_PYTHON_RESOURCES
@@ -49,6 +50,7 @@ set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/UI/ResampleWidget.ui
   Widgets/Resources/UI/SegmentationStep.ui
   Widgets/Resources/UI/VesselEnhancementStep.ui
+  Widgets/Resources/UI/VesselExtractionStep.ui
   Widgets/Resources/UI/WorkflowSettingsPanel.ui
   )
 
