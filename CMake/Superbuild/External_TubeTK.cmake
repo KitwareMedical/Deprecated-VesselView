@@ -52,7 +52,7 @@ if(NOT DEFINED ${proj}_DIR)
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}-prefix
-    GIT_REPOSITORY "http://tubetk.org/TubeTK.git"
+    GIT_REPOSITORY "https://github.com/TubeTK/TubeTK.git"
     GIT_TAG "1c0002f8532fa3232426a827ecced2207f93612b"
     INSTALL_COMMAND ""
     CMAKE_ARGS
