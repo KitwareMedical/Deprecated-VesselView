@@ -135,7 +135,7 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_BUILD_SlicerWebGLExport:BOOL=OFF
       -DSlicer_USE_OpenIGTLink:BOOL=OFF
       -DSlicer_BUILD_OpenIGTLinkIF:BOOL=OFF
-      -DSlicer_BUILD_BRAINSTOOLS:BOOL=OFF
+      -DSlicer_BUILD_BRAINSTOOLS:BOOL=ON # For registrations
       -DSlicer_BUILD_EXTENSIONS:BOOL=OFF
       -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${${APPLICATION_NAME}_MODULES_LIST}
       -DSlicer_DIR:PATH=${${proj}_DIR}

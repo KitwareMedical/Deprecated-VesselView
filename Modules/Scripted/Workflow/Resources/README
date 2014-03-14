@@ -1,0 +1,11 @@
+Add Json configuration files in the folders here.
+
+Creating a new folder will create a new kind of task.
+The task name is based on the folder's name.
+
+Each task can customize the properties of the CLIs used int the workflow that
+are not exposed to the user. This is done by adding json configuration files
+with the names of the corresponding CLIs in the task's folder.
+
+The Workflow.json is used to customize the workflow naming. It is intended
+to help the developer create hinteful names in relation with each task.
