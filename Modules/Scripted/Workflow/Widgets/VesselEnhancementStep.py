@@ -53,7 +53,7 @@ class VesselEnhancementStep( WorkflowStep ) :
 
   def validate( self, desiredBranchId = None ):
     validEnhancement = True
-    #cliNode = self.getCLINode(slicer.modules.enhanceusingnjectdiscriminantanalysis)
+    #cliNode = self.getCLINode(slicer.modules.enhanceusingnjetdiscriminantanalysis)
     #validEnhancement = (cliNode.GetStatusString() == 'Completed')
     #self.get('VesselEnhancementOutputSaveToolButton').enabled = validEnhancement
     #self.get('VesselEnhancementSaveToolButton').enabled = validEnhancement
@@ -73,7 +73,7 @@ class VesselEnhancementStep( WorkflowStep ) :
     self.get('VesselEnhancementInputNode2ComboBox').setCurrentNode(
       self.step('SegmentationStep').getVolume2())
 
-    self.get('VeselEnhancementObjectIDLabelComboBox').setCurrentColor(
+    self.get('VesselEnhancementObjectIDLabelComboBox').setCurrentColor(
       self.step('SegmentationStep').getMaskImageObjectId())
 
   def saveVesselEnhancementImage( self ):
@@ -85,26 +85,26 @@ class VesselEnhancementStep( WorkflowStep ) :
                                self.get('VesselEnhancementOutputNodeComboBox') )
 
   def vesselEnhancementParameters( self ):
-    parameters = self.getJsonParameters(slicer.modules.enhanceusingnjectdiscriminantanalysis)
+    parameters = self.getJsonParameters(slicer.modules.enhanceusingnjetdiscriminantanalysis)
     parameters['inputVolumesString'] = self.getInputFilenames()
     parameters['labelmap'] = self.get('VesselEnhancementMaskNodeComboBox').currentNode()
     parameters['outputBase'] = self.get('VesselEnhancementOutputNodeComboBox').currentNode()
-    parameters['objectIdList'] = str(self.get('VeselEnhancementObjectIDLabelComboBox').currentColor())
+    parameters['objectIdList'] = str(self.get('VesselEnhancementObjectIDLabelComboBox').currentColor)
 
     return parameters
 
   def updateFromCLIParameters( self ):
     pass
-    #cliNode = self.WorkflowStep.getCLINode(slicer.modules.enhanceusingnjectdiscriminantanalysis)
+    #cliNode = self.WorkflowStep.getCLINode(slicer.modules.enhanceusingnjetdiscriminantanalysis)
     # TO DO When CLI is here
 
   def runVesselEnhancement( self, run ):
     if run:
-      cliNode = self.getCLINode(slicer.modules.enhanceusingnjectdiscriminantanalysis)
+      cliNode = self.getCLINode(slicer.modules.enhanceusingnjetdiscriminantanalysis)
       parameters = self.vesselEnhancementParameters()
       self.get('VesselEnhancementApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.enhanceusingnjectdiscriminantanalysis)
-      cliNode = slicer.cli.run(slicer.modules.enhanceusingnjectdiscriminantanalysis, cliNode, parameters, wait_for_completion = False)
+      self.observeCLINode(cliNode, self.enhanceusingnjetdiscriminantanalysis)
+      cliNode = slicer.cli.run(slicer.modules.enhanceusingnjetdiscriminantanalysis, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(
         slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
@@ -120,13 +120,13 @@ class VesselEnhancementStep( WorkflowStep ) :
     if not cliNode.IsBusy():
       self.get('VesselEnhancementApplyPushButton').setChecked(False)
       self.get('VesselEnhancementApplyPushButton').enabled = True
-      print 'Enhance Using NJect Discriminant Analysis %s' % cliNode.GetStatusString()
+      print 'Enhance Using NJet Discriminant Analysis %s' % cliNode.GetStatusString()
       self.removeObservers(self.onVesselEnhancementCLIModified)
 
   def openVesselEnhancementModule( self ):
-    self.openModule('EnhanceUsingNJectDiscriminantAnalysis')
+    self.openModule('EnhanceUsingNJetDiscriminantAnalysis')
 
-    cliNode = self.getCLINode(slicer.modules.enhanceusingnjectdiscriminantanalysis)
+    cliNode = self.getCLINode(slicer.modules.enhanceusingnjetdiscriminantanalysis)
     parameters = self.vesselEnhancementParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
@@ -161,4 +161,4 @@ class VesselEnhancementStep( WorkflowStep ) :
 
     displayNode = node.GetDisplayNode()
     if displayNode:
-      self.get('VeselEnhancementObjectIDLabelComboBox').setMRMLColorNode(displayNode.GetColorNode())
+      self.get('VesselEnhancementObjectIDLabelComboBox').setMRMLColorNode(displayNode.GetColorNode())

@@ -324,7 +324,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="5" column="1" colspan="2">
-       <widget class="qMRMLLabelComboBox" name="VeselEnhancementObjectIDLabelComboBox">
+       <widget class="qMRMLLabelComboBox" name="VesselEnhancementObjectIDLabelComboBox">
         <property name="workflow" stdset="0">
          <stringlist>
           <string>2</string>
