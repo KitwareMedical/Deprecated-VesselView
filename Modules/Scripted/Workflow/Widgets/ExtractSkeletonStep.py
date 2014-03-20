@@ -51,7 +51,7 @@ class ExtractSkeletonStep( WorkflowStep ) :
 
   def validate( self, desiredBranchId = None ):
     validExtraction = True
-    #cliNode = self.getCLINode(slicer.modules.enhanceusingnjectdiscriminantanalysis)
+    #cliNode = self.getCLINode(slicer.modules.enhanceusingnjetdiscriminantanalysis)
     #validExtraction = (cliNode.GetStatusString() == 'Completed')
     #self.get('ExtractSkeletonOutputSaveToolButton').enabled = validExtraction
     #self.get('ExtractSkeletonSaveToolButton').enabled = validExtraction
