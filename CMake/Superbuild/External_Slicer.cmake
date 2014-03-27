@@ -136,7 +136,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       # Required by External_<APPLICATION_NAME>.cmake
       -DSlicer_DIR:PATH=${${proj}_DIR}
       # Required by TubeTK modules
-      -DTubeTK_SLICER_SOURCE_DIR:PATH=${Slicer_SOURCE_DIR}
+      -DSlicer_SOURCE_DIR:PATH=${Slicer_SOURCE_DIR}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )
