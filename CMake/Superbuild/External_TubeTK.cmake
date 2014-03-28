@@ -44,10 +44,8 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     ${${proj}_EP_ARGS}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-#    GIT_REPOSITORY "https://github.com/TubeTK/TubeTK.git"
-#    GIT_TAG "df9b59e7abbe6549a4961607137c3cd6c57f8af3"
-    GIT_REPOSITORY "https://github.com/chrismullins/TubeTK-1.git"
-    GIT_TAG "06b86096d1cda9ae4edf6d6e05e591022f0c7ee8"
+    GIT_REPOSITORY "https://github.com/TubeTK/TubeTK.git"
+    GIT_TAG "e8c6fea59c794a7f8d16bd072182dd7e920dbed4"
     CMAKE_CACHE_ARGS
       -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
       -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
@@ -55,8 +53,8 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DBUILD_TESTING:BOOL=${BUILD_TESTING}
       # Need to build JsonCpp
       -DTubeTK_USE_SUPERBUILD:BOOL=ON
-      # TubeTK_Slicer_SOURCE_DIR is used when generating UseTubeTK.cmake
-      -DTubeTK_Slicer_SOURCE_DIR:PATH=${Slicer_SOURCE_DIR}
+      # Slicer_SOURCE_DIR is used when generating UseTubeTK.cmake
+      -DSlicer_SOURCE_DIR:PATH=${Slicer_SOURCE_DIR}
       # Slicer is not available yet (no SlicerConfig.cmake generated)
       -DTubeTK_USE_Slicer:BOOL=OFF
       -DUSE_SYSTEM_SlicerExecutionModel:BOOL=ON
