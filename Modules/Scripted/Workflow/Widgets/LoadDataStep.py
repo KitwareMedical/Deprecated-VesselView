@@ -28,33 +28,41 @@ class LoadDataStep( WorkflowStep ) :
     self.initialize( 'LoadData' )
     self.setName( 'Load input scans' )
     self.setDescription('Load CT or MR images')
+    self._numberOfInputs = 3
 
   def setupUi( self ):
     self.loadUi('LoadDataStep.ui')
     loadIcon = self.style().standardIcon(qt.QStyle.SP_DialogOpenButton)
-    # Volume 1
-    self.get('Volume1NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.validate)
-    self.get('Volume1NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.onVolumeChanged)
-    self.get('Volume1NodeToolButton').icon = loadIcon
-    self.get('Volume1NodeToolButton').connect('clicked()', self.loadVolume1Node)
-    # Volume 2
-    self.get('Volume2NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.validate)
-    self.get('Volume2NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.onVolumeChanged)
-    self.get('Volume2NodeToolButton').icon = loadIcon
-    self.get('Volume2NodeToolButton').connect('clicked()', self.loadVolume2Node)
+    # Volumes
+    for i in range(1, 4):
+      self.get('Volume%iNodeComboBox' %i).connect('currentNodeChanged(vtkMRMLNode*)', self.validate)
+      self.get('Volume%iNodeComboBox' %i).connect('currentNodeChanged(vtkMRMLNode*)', self.onVolumeChanged)
+      self.get('Volume%iNodeToolButton' %i).icon = loadIcon
+      slot = getattr(self, 'loadVolume%iNode' %i)
+      self.get('Volume%iNodeToolButton' %i).connect('clicked()', slot)
+
+    # + and -
+    self.get('RemoveVolumeToolButton').connect('clicked()', self.removeOneInput)
+    self.get('AddVolumeToolButton').connect('clicked()', self.addOneInput)
+
     # Go to Volumes
     self.get('GoToVolumesModulePushButton').connect('clicked()', self.goToVolumesModule)
 
-  def validate( self, desiredBranchId = None ):
-    validVolumes = (self.get('Volume1NodeComboBox').currentNode() != None and
-                    self.get('Volume2NodeComboBox').currentNode() != None)
-    self.Workflow.setDisplaySettingsEnabled(validVolumes)
+    # Initialize only one input
+    self.setNumberOfInputs(1)
 
-    self.validateStep(validVolumes, desiredBranchId)
+  def validate( self, desiredBranchId = None ):
+    isValid = True
+    for i in range(1, self._numberOfInputs + 1):
+      isValid = isValid and self.get('Volume%iNodeComboBox' %i).currentNode() != None
+
+    self.Workflow.setDisplaySettingsEnabled(isValid)
+
+    self.validateStep(isValid, desiredBranchId)
 
   def onVolumeChanged( self ):
     self.setViews(self.get('Volume1NodeComboBox').currentNode(),
-                     self.get('Volume2NodeComboBox').currentNode())
+                  self.get('Volume2NodeComboBox').currentNode())
 
   def loadVolume1Node(self):
     self.loadFile('First Volume', 'VolumeFile', self.get('Volume1NodeComboBox'))
@@ -62,12 +70,44 @@ class LoadDataStep( WorkflowStep ) :
   def loadVolume2Node(self):
     self.loadFile('Second Volume', 'VolumeFile', self.get('Volume2NodeComboBox'))
 
+  def loadVolume3Node(self):
+    self.loadFile('Third Volume', 'VolumeFile', self.get('Volume3NodeComboBox'))
+
   def goToVolumesModule(self):
     self.openModule('Volumes')
 
+  def removeOneInput(self):
+    self.setNumberOfInputs(self.getNumberOfInputs() - 1)
+    self.validate()
+
+  def addOneInput(self):
+    self.setNumberOfInputs(self.getNumberOfInputs() + 1)
+    self.validate()
+
+  def setNumberOfInputs(self, newNumberOfInputs):
+    if newNumberOfInputs < 1 or newNumberOfInputs > 3:
+      return
+    if self._numberOfInputs == newNumberOfInputs:
+      return
+
+    self._numberOfInputs = newNumberOfInputs
+
+    for i in range(2, 4):
+      combobox = self.get('Volume%iNodeComboBox' %i)
+      shouldActivate = (i <= self._numberOfInputs)
+      if not shouldActivate:
+        combobox.setCurrentNodeID('')
+
+      combobox.visible = shouldActivate
+      self.get('Volume%iLabel' %i).visible = shouldActivate
+      self.get('Volume%iNodeToolButton' %i).visible = shouldActivate
+
+  def getNumberOfInputs(self):
+    return self._numberOfInputs
+
   def updateConfiguration( self, config ):
-    self.get('Volume1Label').setText(config['Volume1Name'])
-    self.get('Volume2Label').setText(config['Volume2Name'])
+    for i in range(1, 4):
+      self.get('Volume%iLabel' %i).setText(config['Volume%iName' %i])
 
   def onEntry(self, comingFrom, transitionType):
     super(LoadDataStep, self).onEntry(comingFrom, transitionType)
