@@ -25,7 +25,7 @@ import json
 
 class Workflow:
   def __init__(self, parent):
-    parent.title = "Prometheus"
+    parent.title = "Workflow"
     parent.categories = ["", "TubeTK"]
     parent.dependencies = []
     parent.contributors = ["Julien Finet (Kitware), Johan Andruejol (Kitware)"]
@@ -36,6 +36,8 @@ class Workflow:
     This work is supported by the National Institute of Health
     """
     self.parent = parent
+
+    parent.icon = qt.QIcon("%s/DesktopIcon.png" % Widgets.ICON_DIR)
 
 #
 # Workflow widget

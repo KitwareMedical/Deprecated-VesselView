@@ -42,6 +42,7 @@ set(MODULE_PYTHON_SCRIPTS
   )
 
 set(MODULE_PYTHON_RESOURCES
+  Widgets/Resources/Icons/DesktopIcon.png
   Widgets/Resources/UI/ExtractSkeletonStep.ui
   Widgets/Resources/UI/InitialStep.ui
   Widgets/Resources/UI/LoadDataStep.ui

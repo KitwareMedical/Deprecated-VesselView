@@ -418,6 +418,9 @@ void qSlicerAppMainWindowPrivate::readSettings()
   settings.endGroup();
   this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
 
+  // Add here the custom modules that need to be seen in the favorite modules
+  this->FavoriteModules << "Workflow";
+
   foreach(const qSlicerIO::IOProperties& fileProperty, Self::readRecentlyLoadedFiles())
     {
     this->RecentlyLoadedFileProperties.enqueue(fileProperty);
@@ -1118,9 +1121,10 @@ void qSlicerAppMainWindow::dropEvent(QDropEvent *event)
 void qSlicerAppMainWindow::setHomeModuleCurrent()
 {
   Q_D(qSlicerAppMainWindow);
-  QSettings settings;
-  QString homeModule = settings.value("Modules/HomeModule").toString();
-  d->ModuleSelectorToolBar->selectModule(homeModule);
+  //QSettings settings;
+  //QString homeModule = settings.value("Modules/HomeModule").toString();
+  //d->ModuleSelectorToolBar->selectModule(homeModule);
+  d->ModuleSelectorToolBar->selectModule("Workflow");
 }
 
 
