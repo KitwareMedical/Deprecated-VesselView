@@ -91,6 +91,11 @@ class LoadDataStep( WorkflowStep ) :
       return
 
     self._numberOfInputs = newNumberOfInputs
+    self.Workflow.onNumberOfInputsChanged(self._numberOfInputs)
+
+  def onNumberOfInputsChanged( self, numberOfInputs ):
+    if numberOfInputs not in range(1,4):
+      return
 
     for i in range(2, 4):
       combobox = self.get('Volume%iNodeComboBox' %i)

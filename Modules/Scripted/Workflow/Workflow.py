@@ -44,7 +44,9 @@ class Workflow:
 class WorkflowWidget:
   def __init__(self, parent = None):
     self.moduleName = 'Workflow'
-    self._ViewNodeIDs = { 'Active' : None, 'Secondary' : None, 'Label' : None}
+    self._SelectionNode = None
+    self._SelectionNodeObserverTag = None
+
     if not parent:
       self.parent = slicer.qMRMLWidget()
       self.parent.setLayout(qt.QVBoxLayout())
@@ -288,44 +290,45 @@ class WorkflowWidget:
 
   def setViews( self, activeNode, secondaryNode = None, labelNode = None ):
     '''Set the node used to update the slice views with the given volume nodes'''
-    updateNodes = self._setViewNodeID('Active', activeNode)
-    updateNodes = self._setViewNodeID('Secondary', secondaryNode) or updateNodes
-    updateNodes = self._setViewNodeID('Label', labelNode) or updateNodes
+    selectionNode = self._getSelectionNode()
+    if not selectionNode:
+      return
 
-    if updateNodes:
-      self.updateViews()
+    selectionNode.SetActiveVolumeID(activeNode.GetID() if activeNode else None)
+    selectionNode.SetSecondaryVolumeID(secondaryNode.GetID() if secondaryNode else None)
+    selectionNode.SetActiveLabelVolumeID(labelNode.GetID() if labelNode else None)
+    slicer.app.applicationLogic().PropagateVolumeSelection(1)
 
-  def _setViewNodeID( self, type, node ):
-    oldID = self._ViewNodeIDs[type]
-    if node and self._ViewNodeIDs[type] != node.GetID():
-      self._ViewNodeIDs[type] = node.GetID()
-    elif not node:
-      self._ViewNodeIDs[type] = None
+  def _getSelectionNode( self ):
+    newSelectionNode = slicer.app.applicationLogic().GetSelectionNode()
+    if self._SelectionNode is not None:
+      self._SelectionNode.RemoveObserver(self._SelectionNodeObserverTag)
 
-    return oldID != self._ViewNodeIDs[type]
+    self._SelectionNode = newSelectionNode
 
-  def _getViewNode( self, type ):
-    id = self._ViewNodeIDs[type]
-    if id:
-      return slicer.mrmlScene.GetNodeByID(id)
-    return None
+    if self._SelectionNode is not None:
+      self._SelectionNodeObserverTag = self._SelectionNode.AddObserver(
+        vtk.vtkCommand.ModifiedEvent, self.updateViews)
 
-  def updateViews( self ):
+    return self._SelectionNode
+
+  def updateViews( self, *unused):
     '''Update the slice views with the cached volume nodes'''
+    selectionNode = self._getSelectionNode()
+
     backgroundLabel = self.findWidget(self.Settings, 'BackgroundLabel')
     foregroundLabel = self.findWidget(self.Settings, 'ForegroundLabel')
     backgroundText = 'Background volume'
     forergoundText = 'Foreground volume'
 
-    appLogic = slicer.app.applicationLogic()
-    selectionNode = appLogic.GetSelectionNode()
-    selectionNode.SetActiveVolumeID(self._ViewNodeIDs['Active'])
-    selectionNode.SetSecondaryVolumeID(self._ViewNodeIDs['Secondary'])
-    selectionNode.SetActiveLabelVolumeID(self._ViewNodeIDs['Label'])
-    appLogic.PropagateVolumeSelection(1)
+    backgroundNode = None
+    foregroundNode = None
+    if selectionNode:
+      id = selectionNode.GetActiveVolumeID()
+      backgroundNode = slicer.mrmlScene.GetNodeByID(id) if id else None
+      id = selectionNode.GetSecondaryVolumeID()
+      foregroundNode = slicer.mrmlScene.GetNodeByID(id) if id else None
 
-    backgroundNode = self._getViewNode('Active')
-    foregroundNode = self._getViewNode('Secondary')
     if backgroundNode:
       backgroundText = backgroundNode.GetName()
     if foregroundNode:
@@ -333,3 +336,11 @@ class WorkflowWidget:
 
     backgroundLabel.setText(backgroundText)
     foregroundLabel.setText(forergoundText)
+
+  def onNumberOfInputsChanged( self, numberOfInputs ):
+    '''This function calls the 'onNumberOfInputsChanged' on all the steps. This
+       should only be called on the workflow by the LoadData module.'''
+    for step in self.steps:
+      # Make sure that the steps have widgets already
+      if hasattr(step, 'widget'):
+        step.onNumberOfInputsChanged(numberOfInputs)

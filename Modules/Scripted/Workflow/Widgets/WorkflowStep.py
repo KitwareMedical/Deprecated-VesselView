@@ -232,3 +232,8 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
   def updateConfiguration( self, config ):
     '''Overload this function to udpate step's form the config dictionnary.'''
     pass
+
+  def onNumberOfInputsChanged( self, numberOfInputs ):
+    '''Overload this function to udpate the step depending on the number of
+       inputs. This does nothing by default.'''
+    pass
