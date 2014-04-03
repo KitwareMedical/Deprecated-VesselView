@@ -237,6 +237,11 @@ class WorkflowWidget:
     return self.CLIProgressBar
 
   def enter(self):
+    # Collapse DataProbe as it takes screen real estate
+    dataProbeCollapsibleWidget = self.findWidget(
+      slicer.util.mainWindow(), 'DataProbeCollapsibleWidget')
+    dataProbeCollapsibleWidget.checked = False
+
     self.updateViews()
     for s in self.steps:
       s.updateFromCLIParameters()
