@@ -16,7 +16,7 @@
 #
 #============================================================================
 
-import os
+import os, string
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
 import ResampleWidget
@@ -32,62 +32,75 @@ class ResampleStep( WorkflowStep ) :
     self.setName( 'Resample image' )
     self.setDescription('Resample the image')
 
+    self.ResampleVolumes = []
     self.createResamplingOutputConnected = False
 
   def setupUi( self ):
     self.loadUi('ResampleStep.ui')
 
-    self.ResampleVolume1 = ResampleWidget.ResampleWidget(self)
-    self.ResampleVolume1.setMRMLScene(slicer.mrmlScene)
-    self.get('ResampleWidgetsLayout').addWidget(self.ResampleVolume1)
-    self.ResampleVolume1.setResamplingValidCallBack(self.onResampleVolume1Valid)
-    self.ResampleVolume1.setTitle('A) Resample volume 1')
+    for i in range(3):
+      self.ResampleVolumes.append(ResampleWidget.ResampleWidget(self))
+      self.ResampleVolumes[i].setMRMLScene(slicer.mrmlScene)
+      self.get('ResampleWidgetsLayout').addWidget(self.ResampleVolumes[i])
+      title = '%s) Resample volume 1' %string.ascii_uppercase[i]
+      self.ResampleVolumes[i].setTitle(title)
+      self.ResampleVolumes[i].setProperty('VolumeNumber', i)
+      self.ResampleVolumes[i].setResamplingValidCallBack(self.onResampleVolumeValid)
 
-    self.ResampleVolume2 = ResampleWidget.ResampleWidget(self)
-    self.ResampleVolume2.setMRMLScene(slicer.mrmlScene)
-    self.ResampleVolume2.setTitle('B) Resample volume 2')
-    self.ResampleVolume2.collapse(True)
-    self.ResampleVolume2.setResamplingValidCallBack(self.validate)
-    self.get('ResampleWidgetsLayout').addWidget(self.ResampleVolume2)
+    self.ResampleVolumes[1].collapse(True)
+    self.ResampleVolumes[2].collapse(True)
+    self.onNumberOfInputsChanged(self.step('LoadData').getNumberOfInputs())
 
   def validate( self, desiredBranchId = None ):
-    validResampling = (self.ResampleVolume1.isResamplingValid()
-                       and self.ResampleVolume2.isResamplingValid())
+    validResampling = True
+    for widget in self.ResampleVolumes:
+      if widget.visible:
+        validResampling = widget.isResamplingValid() and validResampling
 
     self.validateStep(validResampling, desiredBranchId)
 
   def onEntry(self, comingFrom, transitionType):
-
-    self.ResampleVolume1.setInputNode(
-      self.step('RegisterStep').get('RegisterFixedNodeComboBox').currentNode())
-    self.ResampleVolume1.initialize()
+    for i in range(len(self.ResampleVolumes)):
+      self.ResampleVolumes[i].setInputNode(
+        self.step('RegisterStep').getRegisteredNode(i))
+      self.ResampleVolumes[i].initialize()
 
     # Superclass call done last because it calls validate()
     super(ResampleStep, self).onEntry(comingFrom, transitionType)
 
   def updateFromCLIParameters( self ):
-    self.ResampleVolume1.updateFromCLIParameters()
-    self.ResampleVolume2.updateFromCLIParameters()
+    for i in range(len(self.ResampleVolumes)):
+      self.ResampleVolumes[i].updateFromCLIParameters()
 
-  def onResampleVolume1Valid( self ):
-    self.ResampleVolume1.collapse( True )
-    self.ResampleVolume2.setInputNode(
-      self.step('RegisterStep').get('RegisterOutputNodeComboBox').currentNode())
-    self.ResampleVolume2.initialize()
-    self.ResampleVolume2.setSpacing( self.ResampleVolume1.getOutputNode().GetSpacing() )
-    self.ResampleVolume2.setMakeIsotropic( False )
-    self.ResampleVolume2.collapse( False )
+  def onResampleVolumeValid( self, index ):
+    if index not in range(len(self.ResampleVolumes)):
+      return
 
-  def getResampledVolume1( self ):
-    return self.ResampleVolume1.getOutputNode()
+    self.ResampleVolumes[index].collapse(True)
+    if index < len(self.ResampleVolumes) - 1:
+      #Enable next
+      nextWidget = self.ResampleVolumes[index + 1]
+      nextWidget.setSpacing( self.ResampleVolumes[index].getOutputNode().GetSpacing() )
+      nextWidget.setMakeIsotropic( False )
+      nextWidget.collapse( False )
+    self.validate()
 
-  def getResampledVolume2( self ):
-    return self.ResampleVolume2.getOutputNode()
+  def getResampledNode( self, index ):
+    '''Return the volume obtained at the end of the registration step.
+       Index should be in [0, 2].'''
+    if index not in range(2):
+      return
+    return self.ResampleVolumes[index].getOutputNode()
 
   def updateConfiguration( self, config ):
-    self.ResampleVolume1.updateNames(
-      config['Volume1Name'],
-      'A) Resample %s' % config['Volume1Name'].lower())
-    self.ResampleVolume2.updateNames(
-      config['Volume2Name'],
-      'B) Resample %s' % config['Volume2Name'].lower())
+    for i in range(len(self.ResampleVolumes)):
+      self.ResampleVolumes[i].updateNames(
+        config['Volume%iName' %(i+1)],
+        '%s) Resample %s' % (string.ascii_uppercase[i], config['Volume%iName' %(i+1)].lower()))
+
+  def onNumberOfInputsChanged( self, numberOfInputs ):
+    if numberOfInputs not in range(1,4):
+      return
+
+    for i in range(len(self.ResampleVolumes)):
+      self.ResampleVolumes[i].visible = (i+1 <= numberOfInputs)

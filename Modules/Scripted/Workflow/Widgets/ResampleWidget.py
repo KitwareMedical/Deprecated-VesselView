@@ -127,9 +127,10 @@ class ResampleWidget( slicer.qMRMLWidget ) :
     self.get('ResampleInputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('inputVolume'))
     self.get('ResampleOutputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('outputVolume'))
 
-    index = self.get('ResampleInterpolationTypeComboBox').findText(cliNode.GetParameterAsString('interpolator'))
-    if index != -1:
-      self.get('ResampleInterpolationTypeComboBox').setCurrentIndex(index)
+    # Do not update resampling type from modules. It should be NearestNeighBor by default
+    #index = self.get('ResampleInterpolationTypeComboBox').findText(cliNode.GetParameterAsString('interpolator'))
+    #if index != -1:
+    #  self.get('ResampleInterpolationTypeComboBox').setCurrentIndex(index)
 
     self.get('ResampleMakeIsotropicCheckBox').setChecked(cliNode.GetParameterAsString('makeIsotropic') != '')
     self.get('ResampleManualSpacingCoordinatesWidget').coordinates = cliNode.GetParameterAsString('spacing')
@@ -211,4 +212,4 @@ class ResampleWidget( slicer.qMRMLWidget ) :
 
     validResampling = self.isResamplingValid()
     if validResampling and self.ResamplingValidCallBack:
-      self.ResamplingValidCallBack()
+      self.ResamplingValidCallBack(self.property('VolumeNumber'))

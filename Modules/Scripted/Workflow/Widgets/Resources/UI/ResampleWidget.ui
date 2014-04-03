@@ -241,7 +241,7 @@ p, li { white-space: pre-wrap; }
          <bool>true</bool>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
