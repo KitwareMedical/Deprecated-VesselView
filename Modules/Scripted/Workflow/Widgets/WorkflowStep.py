@@ -210,12 +210,12 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
         return
 
     nodeName = '%s-%s' % (node.GetName(), suffix)
-    oldNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
-    if oldNode == None:
+    node = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
+    if node == None:
       newNode = combobox.addNode()
       newNode.SetName(nodeName)
-    else:
-      combobox.setCurrentNode(oldNode)
+      node = newNode
+    combobox.setCurrentNode(node)
 
   def setViews( self, activeNode, secondaryNode = None, labelNode = None ):
     self.Workflow.setViews(activeNode, secondaryNode, labelNode)

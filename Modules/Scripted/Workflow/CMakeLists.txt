@@ -33,6 +33,7 @@ set(MODULE_PYTHON_SCRIPTS
   Widgets/InitialStep.py
   Widgets/LoadDataStep.py
   Widgets/RegisterStep.py
+  Widgets/RegisterWidget.py
   Widgets/ResampleStep.py
   Widgets/ResampleWidget.py
   Widgets/SegmentationStep.py
@@ -47,6 +48,7 @@ set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/UI/InitialStep.ui
   Widgets/Resources/UI/LoadDataStep.ui
   Widgets/Resources/UI/RegisterStep.ui
+  Widgets/Resources/UI/RegisterWidget.ui
   Widgets/Resources/UI/ResampleStep.ui
   Widgets/Resources/UI/ResampleWidget.ui
   Widgets/Resources/UI/SegmentationStep.ui
