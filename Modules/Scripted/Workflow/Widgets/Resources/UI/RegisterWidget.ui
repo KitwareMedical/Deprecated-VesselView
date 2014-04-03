@@ -274,6 +274,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
+          <string>1</string>
           <string>2</string>
          </stringlist>
         </property>
@@ -289,6 +290,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
+          <string>1</string>
           <string>2</string>
          </stringlist>
         </property>
