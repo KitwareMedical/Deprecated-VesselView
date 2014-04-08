@@ -80,8 +80,8 @@ class WorkflowWidget:
     #Creating each step of the workflow
     self.steps = [Widgets.InitialStep(),
                   Widgets.LoadDataStep(),
-                  Widgets.RegisterStep(),
                   Widgets.ResampleStep(),
+                  Widgets.RegisterStep(),
                   Widgets.SegmentationStep(),
                   Widgets.VesselEnhancementStep(),
                   Widgets.ExtractSkeletonStep(),

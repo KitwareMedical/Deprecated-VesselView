@@ -74,9 +74,9 @@ class RegisterStep( WorkflowStep ) :
   def onEntry(self, comingFrom, transitionType):
     for i in range(len(self.RegisterWidgets)):
       self.RegisterWidgets[i].setFixedNode(
-        self.step('LoadData').get('Volume1NodeComboBox').currentNode())
+        self.step('ResampleStep').getResampledNode(0))
       self.RegisterWidgets[i].setMovingNode(
-        self.step('LoadData').get('Volume%iNodeComboBox' %(i+2)).currentNode())
+        self.step('ResampleStep').getResampledNode(i+1))
       self.RegisterWidgets[i].initialize()
 
     # Superclass call done last because it calls validate()
@@ -100,9 +100,6 @@ class RegisterStep( WorkflowStep ) :
     self.setViews(
       self.RegisterWidgets[1].getFixedNode(), self.RegisterWidgets[1].getOutputNode())
 
-  def getRegisteredVolume( self, index ):
-    return self.RegisterWidgets[index].getOutputNode()
-
   def updateConfiguration( self, config ):
     for i in range(len(self.RegisterWidgets)):
       self.RegisterWidgets[i].updateNames(
@@ -112,7 +109,7 @@ class RegisterStep( WorkflowStep ) :
   def getRegisteredNode( self, index):
     '''Return the volume obtained at the end of the registration step.
        Index should be in [0, 2].'''
-    if index not in range(3):
+    if index not in range(0, 3):
       return
 
     if index == 0:

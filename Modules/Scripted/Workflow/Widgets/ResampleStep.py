@@ -32,13 +32,14 @@ class ResampleStep( WorkflowStep ) :
     self.setName( 'Resample image' )
     self.setDescription('Resample the image')
 
+    self.NumberOfResampleVolumes = 1
     self.ResampleVolumes = []
     self.createResamplingOutputConnected = False
 
   def setupUi( self ):
     self.loadUi('ResampleStep.ui')
 
-    for i in range(3):
+    for i in range(self.NumberOfResampleVolumes):
       self.ResampleVolumes.append(ResampleWidget.ResampleWidget(self))
       self.ResampleVolumes[i].setMRMLScene(slicer.mrmlScene)
       self.get('ResampleWidgetsLayout').addWidget(self.ResampleVolumes[i])
@@ -47,9 +48,7 @@ class ResampleStep( WorkflowStep ) :
       self.ResampleVolumes[i].setProperty('VolumeNumber', i)
       self.ResampleVolumes[i].setResamplingValidCallBack(self.onResampleVolumeValid)
 
-    self.ResampleVolumes[1].collapse(True)
-    self.ResampleVolumes[2].collapse(True)
-    self.onNumberOfInputsChanged(self.step('LoadData').getNumberOfInputs())
+    self.setNumberOfInputs(1)
 
   def validate( self, desiredBranchId = None ):
     validResampling = True
@@ -61,8 +60,7 @@ class ResampleStep( WorkflowStep ) :
 
   def onEntry(self, comingFrom, transitionType):
     for i in range(len(self.ResampleVolumes)):
-      self.ResampleVolumes[i].setInputNode(
-        self.step('RegisterStep').getRegisteredNode(i))
+      self.ResampleVolumes[i].setInputNode(self.step('LoadData').getInputNode(i))
       self.ResampleVolumes[i].initialize()
 
     # Superclass call done last because it calls validate()
@@ -76,7 +74,7 @@ class ResampleStep( WorkflowStep ) :
     if index not in range(len(self.ResampleVolumes)):
       return
 
-    self.ResampleVolumes[index].collapse(True)
+    #self.ResampleVolumes[index].collapse(True)
     if index < len(self.ResampleVolumes) - 1:
       #Enable next
       nextWidget = self.ResampleVolumes[index + 1]
@@ -86,11 +84,17 @@ class ResampleStep( WorkflowStep ) :
     self.validate()
 
   def getResampledNode( self, index ):
-    '''Return the volume obtained at the end of the registration step.
+    '''Return the volume obtained at the end of the resample step.
+       If the step does not have a resampled node for the index, it defaults
+       to LoadDataStep getInputNode.
        Index should be in [0, 2].'''
-    if index not in range(2):
+    if index not in range(3):
       return
-    return self.ResampleVolumes[index].getOutputNode()
+
+    try:
+      return self.ResampleVolumes[index].getOutputNode()
+    except IndexError:
+      return self.step('LoadData').getInputNode(index)
 
   def updateConfiguration( self, config ):
     for i in range(len(self.ResampleVolumes)):
@@ -98,7 +102,7 @@ class ResampleStep( WorkflowStep ) :
         config['Volume%iName' %(i+1)],
         '%s) Resample %s' % (string.ascii_uppercase[i], config['Volume%iName' %(i+1)].lower()))
 
-  def onNumberOfInputsChanged( self, numberOfInputs ):
+  def setNumberOfInputs( self, numberOfInputs ):
     if numberOfInputs not in range(1,4):
       return
 

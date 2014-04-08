@@ -118,3 +118,9 @@ class LoadDataStep( WorkflowStep ) :
     super(LoadDataStep, self).onEntry(comingFrom, transitionType)
 
     self.Workflow.setDisplaySettingsVisible(True)
+
+  def getInputNode( self, index):
+    '''Return the volume chosen by the user. Index should be in [0, 2].'''
+    if index not in range(3):
+      return
+    return self.get('Volume%iNodeComboBox' %(index+1)).currentNode()
