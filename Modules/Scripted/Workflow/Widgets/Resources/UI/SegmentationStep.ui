@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>379</width>
-    <height>161</height>
+    <width>457</width>
+    <height>208</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,77 +24,39 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="ctkCollapsibleGroupBox" name="SegmentCollapsibleGroupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QWidget" name="SegmentPlaceHolderWidget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="margin">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleGroupBox" name="MergeAllCollapsibleGroupBox">
      <property name="title">
-      <string>A) Segment liver</string>
-     </property>
-     <property name="collapsedHeight">
-      <number>5</number>
-     </property>
-     <property name="workflow" stdset="0">
-      <stringlist>
-       <string>1</string>
-       <string>2</string>
-      </stringlist>
+      <string>Merge Volumes</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="1">
+       <widget class="qMRMLNodeComboBox" name="MergeAllOutputNodeComboBox">
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLScalarVolumeNode</string>
+         </stringlist>
+        </property>
+        <property name="workflow" stdset="0">
+         <stringlist>
+          <string>1</string>
+          <string>2</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="SegmentMasterNodeLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>Input image volume</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="qMRMLNodeComboBox" name="SegmentMasterNodeComboBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Select the fixed image</string>
-        </property>
-        <property name="nodeTypes">
-         <stringlist>
-          <string>vtkMRMLScalarVolumeNode</string>
-         </stringlist>
-        </property>
-        <property name="baseName">
-         <string>Fixed</string>
-        </property>
-        <property name="addEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="SegmentMergeVolumeLabel">
-        <property name="text">
-         <string>Segmented liver volume</string>
+         <string>Output merge</string>
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
@@ -104,61 +66,8 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="SegmentMergeNodeComboBox">
-        <property name="nodeTypes">
-         <stringlist>
-          <string>vtkMRMLScalarVolumeNode</string>
-         </stringlist>
-        </property>
-        <property name="addEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="removeEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>1</string>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="3">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="SegmentGoToModulePushButton">
-          <property name="toolTip">
-           <string>Open the &quot;BrainsFit&quot; module</string>
-          </property>
-          <property name="text">
-           <string>Go to Editor module</string>
-          </property>
-          <property name="workflow" stdset="0">
-           <stringlist>
-            <string>2</string>
-           </stringlist>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="2">
-       <widget class="QToolButton" name="SegmentSaveToolButton">
+      <item row="0" column="2">
+       <widget class="QToolButton" name="MergeAllOutputSaveToolButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -173,12 +82,109 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0" colspan="3">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="MergeAllGoToButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Go to Image label combine module</string>
+          </property>
+          <property name="workflow" stdset="0">
+           <stringlist>
+            <string>2</string>
+           </stringlist>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="MergeAllApplyButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Merge</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="MergeAllSaveToolButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="workflow" stdset="0">
+           <stringlist>
+            <string>0</string>
+           </stringlist>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="SegmentRemoveSegmentWidgetToolButton">
+       <property name="text">
+        <string>-</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="SegmentAddSegmentWidgetToolButton">
+       <property name="text">
+        <string>+</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="qMRMLWidget" name="SegmentEditorPlaceHolderWidget">
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -208,12 +214,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ctkCollapsibleGroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>ctkCollapsibleGroupBox.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
@@ -230,38 +230,44 @@
    <header>qSlicerWidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>ctkCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>ctkCollapsibleGroupBox.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
   <connection>
    <sender>Segment</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>SegmentMasterNodeComboBox</receiver>
+   <receiver>MergeAllOutputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>222</x>
-     <y>280</y>
+     <x>228</x>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>195</x>
-     <y>59</y>
+     <x>249</x>
+     <y>47</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>Segment</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>SegmentMergeNodeComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <sender>MergeAllOutputSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MergeAllSaveToolButton</receiver>
+   <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>189</x>
-     <y>72</y>
+     <x>434</x>
+     <y>47</y>
     </hint>
     <hint type="destinationlabel">
-     <x>233</x>
-     <y>67</y>
+     <x>433</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>

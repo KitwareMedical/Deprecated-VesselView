@@ -20,8 +20,7 @@ import os
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
 import Editor
-import EditorLib
-from EditorLib import EditUtil
+import SegmentationWidget
 
 class SegmentationStep( WorkflowStep ) :
 
@@ -34,44 +33,74 @@ class SegmentationStep( WorkflowStep ) :
     self.setName( 'Segment Liver' )
     self.setDescription('Segment the liver from the image')
 
-    self.MergeVolume = None
-    self.MergeVolumeValid = False
-    self.EditUtil = EditUtil.EditUtil()
-    self.AdditionalVolume = None
+    self.SegmentWidgets = []
+    self.createMergeAllOutputConnected = False
 
   def setupUi( self ):
     self.loadUi('SegmentationStep.ui')
-    self.get('SegmentMergeNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
 
-    saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('SegmentSaveToolButton').icon = saveIcon
-    self.get('SegmentSaveToolButton').connect('clicked()', self.saveSegmentedImage)
-
-    self.get('SegmentGoToModulePushButton').connect('clicked()', self.openSegmentModule)
-
-    # Set up editor GUI
     placeHolderWidget = self.get('SegmentEditorPlaceHolderWidget')
     self.EditorWidget = Editor.EditorWidget(parent=placeHolderWidget)
     self.EditorWidget.setup()
-    placeHolderWidget.show()
+    placeHolderWidget.hide()
 
-    # Hide the editor inputs
-    createAndSelectCollapsibeButton = placeHolderWidget.findChild('ctkCollapsibleButton')
-    createAndSelectCollapsibeButton.setVisible(False)
+    for i in range(2):
+      newSegmentWidget = SegmentationWidget.SegmentationWidget(self, self.EditorWidget)
+      self.get('SegmentPlaceHolderWidget').layout().addWidget(newSegmentWidget)
+      newSegmentWidget.setMRMLScene(slicer.mrmlScene)
+      newSegmentWidget.setSegmentValidCallBack(getattr(self, 'onSegment%iValid' %(i+1)))
+      self.SegmentWidgets.append(newSegmentWidget)
 
-    self.get('SegmentMasterNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                 self.setMasterNode)
+      if i > 0:
+        self.SegmentWidgets[i].collapse(True)
+        self.SegmentWidgets[i].visible = False
+        self.SegmentWidgets[i].MergeNodeSuffix = 'tumor'
 
-    # Overload the setMRMLScene to catch the merge volume
-    self.addObserver(slicer.mrmlScene, slicer.mrmlScene.NodeAddedEvent, self.onNodeAddedEvent)
-    self.get('SegmentMergeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                  self.onMergeVolumeSelected)
+    self.get('SegmentRemoveSegmentWidgetToolButton').connect('clicked()', self.removeSegmentWidget)
+    self.get('SegmentAddSegmentWidgetToolButton').connect('clicked()', self.addSegmentWidget)  
+
+    saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
+    self.get('MergeAllOutputSaveToolButton').icon = saveIcon
+    self.get('MergeAllSaveToolButton').icon = saveIcon
+    self.get('MergeAllSaveToolButton').connect('clicked()', self.saveMergedImage)
+
+    self.get('MergeAllGoToButton').connect('clicked()', self.openImageLabelCombineModule)
+    self.get('MergeAllApplyButton').connect('clicked(bool)', self.runMergeAll)
+    self.get('MergeAllOutputNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
+    
+    self.get('MergeAllCollapsibleGroupBox').visible = False
+    self.get('MergeAllCollapsibleGroupBox').setChecked(False)
+
+  def onSegment1Valid( self ):
+    if not self.SegmentWidgets[1].visible:
+      self.validate()
+    else:
+      self.SegmentWidgets[0].collapse(True)
+      self.SegmentWidgets[1].collapse(False)
+      self.setViews(
+        self.SegmentWidgets[1].getMasterNode(),
+        None,
+        self.SegmentWidgets[1].getMergeNode())
+
+  def onSegment2Valid( self ):
+    self.SegmentWidgets[1].collapse(True)
+    self.get('MergeAllCollapsibleGroupBox').setChecked(True)
+    self.createMergeAllOutput(self.SegmentWidgets[1].getMergeNode())
+    self.setViews(
+      self.SegmentWidgets[0].getMergeNode(), self.SegmentWidgets[1].getMergeNode())
 
   def validate( self, desiredBranchId = None ):
-    validSegmentation = (self.get('SegmentMasterNodeComboBox').currentNode() != None
-                         and self.MergeVolumeValid)
+    validSegmentation = True
+    for widget in self.SegmentWidgets:
+      if widget.visible:
+        validSegmentation = validSegmentation and widget.IsSegmentationValid()
 
-    self.get('SegmentSaveToolButton').enabled = validSegmentation
+    if self.get('MergeAllCollapsibleGroupBox').visible:
+      cliNode = self.getCLINode(slicer.modules.imagelabelcombine)
+      validSegmentation = validSegmentation and (cliNode.GetStatusString() == 'Completed')
+
+      self.get('MergeAllOutputSaveToolButton').enabled = validSegmentation
+      self.get('MergeAllSaveToolButton').enabled = validSegmentation
 
     self.validateStep(validSegmentation, desiredBranchId)
 
@@ -79,127 +108,101 @@ class SegmentationStep( WorkflowStep ) :
     super(SegmentationStep, self).onEntry(comingFrom, transitionType)
 
     # Set master volume OnEntry() so the pop up windows doesnt bother the user too much
-    self.get('SegmentMasterNodeComboBox').setCurrentNode(
-      self.step('ResampleStep').getResampledVolume1())
+    self.SegmentWidgets[0].setMasterNode(self.step('ResampleStep').getResampledNode(0))
+    self.setViews(
+      self.SegmentWidgets[0].getMasterNode(),
+      None,
+      self.SegmentWidgets[0].getMergeNode())
 
-    # Add observer on the PDF segmenter CLI
-    pdfSegmenterCLINode = self.getCLINode(slicer.modules.segmentconnectedcomponentsusingparzenpdfs, 'PDFSegmenterEditorEffect')
-    self.observeCLINode(pdfSegmenterCLINode, self.onPDFSegmenterCLIModified)
+    for widget in self.SegmentWidgets:
+      widget.updateUndoRedoEnabled()
+      widget.updateParameterNodeFromGUI()
 
-    # Get the previous step's node
-    self.AdditionalVolume = self.step('ResampleStep').getResampledVolume2()
-    # Set it to the parameter node
-    self.setParameterToPDFSegmenter('additionalInputVolumeID0', self.AdditionalVolume.GetID() if self.AdditionalVolume != None else '0')
+  def saveMergedImage( self ):
+    self.saveFile('Merged Image', 'VolumeFile', '.mha', self.get('MergeAllOutputNodeComboBox'))
 
-  def saveSegmentedImage( self ):
-    self.saveFile('Segmented Image', 'VolumeFile', '.mha', self.get('SegmentMergeNodeComboBox'))
+  def createMergeAllOutput( self, node ):
+    self.createOutputIfNeeded(node, 'merged', self.get('MergeAllOutputNodeComboBox'))
 
-  def openSegmentModule( self ):
-    self.openModule('Editor')
+  def openImageLabelCombineModule( self ):
+    self.openModule('ImageLabelCombine')
 
-    editorWidget = slicer.modules.editor.widgetRepresentation()
-    masterVolumeNodeComboBox = editorWidget.findChild('qMRMLNodeComboBox')
-    masterVolumeNodeComboBox.setCurrentNode(self.get('SegmentMasterNodeComboBox').currentNode())
-    #setButton = editorWidget.findChild('QPushButton')
-    #setButton.click()
+    cliNode = self.getCLINode(slicer.modules.imagelabelcombine)
+    parameters = self.imageLabelCombineParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
 
-    # \todo Set up editor mode too ?
+  def imageLabelCombineParameters( self ):
+    parameters = self.getJsonParameters(slicer.modules.imagelabelcombine)
+    parameters['InputLabelMap_A'] = self.SegmentWidgets[0].getMergeNode()
+    parameters['InputLabelMap_B'] = self.SegmentWidgets[1].getMergeNode()
+    parameters['OutputLabelMap'] = self.get('MergeAllOutputNodeComboBox').currentNode()
+    parameters['FirstOverwrites'] = False
+    return parameters
 
-  def onNodeAddedEvent( self, scene, event ):
-    if not scene:
-      return
-
-    masterVolume = self.get('SegmentMasterNodeComboBox').currentNode()
-    if not masterVolume:
-      return
-
-    # Look for the node with potentialy the correct name in the scene.
-    mergeVolumeName = '%s-label' % masterVolume.GetName()
-    nodes = scene.GetNodesByClass('vtkMRMLScalarVolumeNode')
-    nodes.SetReferenceCount(nodes.GetReferenceCount() - 1)
-    for i in range(0, nodes.GetNumberOfItems()):
-      volumeNode = nodes.GetItemAsObject(i)
-
-      if volumeNode and self.startsWith(volumeNode.GetName(), mergeVolumeName):
-        self.get('SegmentMergeNodeComboBox').setCurrentNode(volumeNode)
-        break
-
-  def startsWith( self, string, stringStart ):
-    return string.find(stringStart) == 0
-
-  def isMergeVolumeValid( self, volumeNode ):
-    if not volumeNode or not volumeNode.GetImageData():
-      return False
-
-    # Segmentation is valid if it has at least 2 labels
-    range = volumeNode.GetImageData().GetScalarRange()
-    return range[0] != range[1]
-
-  def onMergeVolumeSelected( self, mergeVolume ):
-    if self.MergeVolume:
-      self.removeObservers(self.onMergeVolumeModified)
-
-    self.MergeVolume = mergeVolume
-    if self.MergeVolume:
-      self.EditorWidget.setMergeNode(self.MergeVolume)
-      self.addObserver(self.MergeVolume, 'ModifiedEvent', self.onMergeVolumeModified)
-
-    self.onMergeVolumeModified(self.MergeVolume)
-
-  def onMergeVolumeModified( self, mergeVolume, event = 'ModifiedEvent' ):
-    if not mergeVolume:
-      return
-
-    self.MergeVolumeValid = self.isMergeVolumeValid(mergeVolume)
-    if self.MergeVolumeValid:
-      self.removeObservers(self.onMergeVolumeModified)
-    self.validate()
-
-  def onPDFSegmenterCLIModified( self, cliNode, event ):
+  def onImageLabelCombineModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
-      # Change the background label to 0
-      objectColors = cliNode.GetParameterAsString('objectId')
-      backgroundColor = eval(objectColors)[1] # object colors is 'foreground, background'
+      self.setViews(
+        self.SegmentWidgets[0].getMasterNode(), self.getMergeNode())
+      self.validate()
 
-      # Set the parameter node necesseray for the change label logic
-      parameterNode = self.EditUtil.getParameterNode()
-      parameterNode.SetParameter("ChangeLabelEffect,inputColor", str(backgroundColor))
-      parameterNode.SetParameter("ChangeLabelEffect,outputColor", '0')
-
-      # Apply change label
-      changeLabelLogic = EditorLib.ChangeLabelEffectLogic(self.EditUtil.getSliceLogic())
-      changeLabelLogic.changeLabel()
+    if not cliNode.IsBusy():
+      self.get('MergeAllApplyButton').setChecked(False)
+      self.get('MergeAllApplyButton').enabled = True
+      print 'Merge all %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onImageLabelCombineModified)
 
   def updateConfiguration( self, config ):
-    organ = config['Organ'].lower()
-    self.get('SegmentCollapsibleGroupBox').setTitle('Segment %s' % organ)
-    self.get('SegmentMasterNodeLabel').setText('Input %s' % config['Volume1Name'].lower())
-    self.get('SegmentMergeVolumeLabel').setText('Segmented %s image' % organ)
+    for widget in self.SegmentWidgets:
+      widget.updateConfiguration(config)
 
-    self.setName( 'Segment %s' % organ )
-    self.setDescription('Segment the %s from the image' % organ)
+    organLower = config['Organ'].lower()
+    self.setName( 'Segment %s' % organLower )
+    self.setDescription('Segment the %s from the image' % organLower)
 
-  def getPDFSegmenterParameterName( self, parameterName ):
-    return 'InteractiveConnectedComponentsUsingParzenPDFsOptions,' + parameterName
+  def addSegmentWidget( self ):
+    self.SegmentWidgets[1].visible = True
+    self.SegmentWidgets[1].setMasterNode(self.step('ResampleStep').getResampledNode(0))
+    shouldCollapseFirstWidget = self.SegmentWidgets[0].IsSegmentationValid()
+    self.SegmentWidgets[0].collapse(shouldCollapseFirstWidget)
+    self.SegmentWidgets[1].collapse(not shouldCollapseFirstWidget)
+    self.get('MergeAllCollapsibleGroupBox').visible = True
 
-  def getParameterFromPDFSegmenter( self, parameterName ):
-    parameterNode = self.EditUtil.getParameterNode()
-    return parameterNode.GetParameter(self.getPDFSegmenterParameterName(parameterName))
+    visibleWidget = self.SegmentWidgets[0]
+    if shouldCollapseFirstWidget:
+      visibleWidget = self.SegmentWidgets[1]
 
-  def setParameterToPDFSegmenter( self, parameterName, value ):
-    parameterNode = self.EditUtil.getParameterNode()
-    parameterNode.SetParameter(self.getPDFSegmenterParameterName(parameterName), value)
+    self.setViews(
+      visibleWidget.getMasterNode(),
+      None,
+      visibleWidget.getMergeNode())
 
-  def getMaskImageObjectId( self ):
-    objectIds = self.getParameterFromPDFSegmenter('objectId')
-    if objectIds:
-      return eval(objectIds)[0]
+    for widget in self.SegmentWidgets:
+      widget.updateParameterNodeFromGUI()
+    self.validate()
+
+  def removeSegmentWidget( self ):
+    self.SegmentWidgets[1].visible = False
+    self.get('MergeAllCollapsibleGroupBox').visible = False
+    self.validate()
+
+  def runMergeAll( self, run, currentMerge = 0 ):
+    if run:
+      # Add observer on the PDF segmenter CLI
+      cliNode = self.getCLINode(slicer.modules.imagelabelcombine)
+      parameters = self.imageLabelCombineParameters()
+      self.observeCLINode(cliNode, self.onImageLabelCombineModified)
+
+      self.get('MergeAllApplyButton').setChecked(True)
+      cliNode = slicer.cli.run(slicer.modules.imagelabelcombine, cliNode, parameters, wait_for_completion = False)
     else:
-      return 0
+      cliNode = self.observer(
+        slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
+        self.onImageLabelCombineModified)
+      self.get('SegmentApplyPDFPushButton').enabled = False
+      cliNode.Cancel()
 
-  def getVolume2( self ):
-    return self.AdditionalVolume
-
-  def setMasterNode( self, node ):
-    self.EditorWidget.setMasterNode(node)
-    self.setViews(node, None, self.get('SegmentMergeNodeComboBox').currentNode())
+  def getMergeNode( self ):
+    if self.get('MergeAllCollapsibleGroupBox').visible:
+      return self.get('MergeAllOutputNodeComboBox').currentNode()
+    else:
+      return self.SegmentWidgets[0].getMergeNode()
