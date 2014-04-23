@@ -205,6 +205,12 @@ class SegmentationStep( WorkflowStep ) :
     else:
       return self.SegmentWidgets[0].getMergeNode()
 
+  def getOrganColor( self ):
+    if self.get('MergeAllCollapsibleGroupBox').visible:
+      return  self.SegmentWidgets[1].getOrganColor()
+    else:
+      return self.SegmentWidgets[0].getOrganColor()
+
   def updateSegmentWidgetViews( self, widget ):
     viewDictionnary = {}
     subDictionnary = {}
