@@ -123,11 +123,6 @@ class RegisterWidget( slicer.qMRMLWidget ) :
     else:
       parameters['registration'] = 'Pipeline' + registrationType
 
-    parameters['expectedOffset'] = self.get('RegisterExpectedOffsetSpinBox').value
-    parameters['expectedRotation'] = self.get('RegisterExpectedRotationSpinBox').value
-    parameters['expectedScale'] = self.get('RegisterExpectedScaleSpinBox').value
-    parameters['expectedSkew'] = self.get('RegisterExpectedSkewSpinBox').value
-
     return parameters
 
   def updateFromCLIParameters( self ):
@@ -139,11 +134,6 @@ class RegisterWidget( slicer.qMRMLWidget ) :
     index = self.get('RegisterTypeComboBox').findText(cliNode.GetParameterAsString('registration'))
     if index != -1:
       self.get('RegisterTypeComboBox').setCurrentIndex(index)
-
-    self.get('RegisterExpectedOffsetSpinBox').setValue(float(cliNode.GetParameterAsString('expectedOffset')))
-    self.get('RegisterExpectedRotationSpinBox').setValue(float(cliNode.GetParameterAsString('expectedRotation')))
-    self.get('RegisterExpectedScaleSpinBox').setValue(float(cliNode.GetParameterAsString('expectedScale')))
-    self.get('RegisterExpectedSkewSpinBox').setValue(float(cliNode.GetParameterAsString('expectedSkew')))
 
   def runRegistration( self, run ):
     if run:

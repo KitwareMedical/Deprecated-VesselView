@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>323</width>
-    <height>284</height>
+    <height>180</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
       <number>5</number>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="8" column="0" colspan="3">
+      <item row="4" column="0" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <spacer name="horizontalSpacer_2">
@@ -316,102 +316,6 @@ p, li { white-space: pre-wrap; }
         </item>
        </widget>
       </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="qMRMLSpinBox" name="RegisterExpectedOffsetSpinBox">
-        <property name="quantity">
-         <string>length</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1" colspan="2">
-       <widget class="qMRMLSpinBox" name="RegisterExpectedScaleSpinBox">
-        <property name="quantity">
-         <string>length</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1" colspan="2">
-       <widget class="qMRMLSpinBox" name="RegisterExpectedSkewSpinBox">
-        <property name="quantity">
-         <string>length</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1" colspan="2">
-       <widget class="qMRMLSpinBox" name="RegisterExpectedRotationSpinBox">
-        <property name="quantity">
-         <string>angle</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="RegisterExpectedOffsetLabel">
-        <property name="text">
-         <string>Expected offset misalignement</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="RegisterExpectedRotationLabel">
-        <property name="text">
-         <string>Expected rotation misalignement</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="RegisterExpectedScaleLabel">
-        <property name="text">
-         <string>Expected scale misalignement</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="RegisterExpectedSkewLabel">
-        <property name="text">
-         <string>Expected skew misalignement</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -424,11 +328,6 @@ p, li { white-space: pre-wrap; }
    <header>qMRMLNodeComboBox.h</header>
   </customwidget>
   <customwidget>
-   <class>qMRMLSpinBox</class>
-   <extends>ctkDoubleSpinBox</extends>
-   <header>qMRMLSpinBox.h</header>
-  </customwidget>
-  <customwidget>
    <class>qMRMLWidget</class>
    <extends>QWidget</extends>
    <header>qMRMLWidget.h</header>
@@ -439,11 +338,6 @@ p, li { white-space: pre-wrap; }
    <extends>QGroupBox</extends>
    <header>ctkCollapsibleGroupBox.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ctkDoubleSpinBox</class>
-   <extends>QWidget</extends>
-   <header>ctkDoubleSpinBox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
