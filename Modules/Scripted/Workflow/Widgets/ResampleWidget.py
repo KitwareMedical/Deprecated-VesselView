@@ -152,9 +152,8 @@ class ResampleWidget( slicer.qMRMLWidget ) :
   def onResampleCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
       outputNode = self.get('ResampleOutputNodeComboBox').currentNode()
-      self.WorkflowStep.setViews(self.get('ResampleInputNodeComboBox').currentNode(),
-                                    outputNode)
       self.setOutputNode(outputNode)
+      self.WorkflowStep.updateViews()
 
     if not cliNode.IsBusy():
       self.get('ResampleApplyPushButton').setChecked(False)

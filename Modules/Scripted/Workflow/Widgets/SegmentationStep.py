@@ -77,17 +77,14 @@ class SegmentationStep( WorkflowStep ) :
     else:
       self.SegmentWidgets[0].collapse(True)
       self.SegmentWidgets[1].collapse(False)
-      self.setViews(
-        self.SegmentWidgets[1].getMasterNode(),
-        None,
-        self.SegmentWidgets[1].getMergeNode())
+      self.updateSegmentWidgetViews(self.SegmentWidgets[1])
 
   def onSegment2Valid( self ):
     self.SegmentWidgets[1].collapse(True)
     self.get('MergeAllCollapsibleGroupBox').setChecked(True)
     self.createMergeAllOutput(self.SegmentWidgets[1].getMergeNode())
-    self.setViews(
-      self.SegmentWidgets[0].getMergeNode(), self.SegmentWidgets[1].getMergeNode())
+
+    self.updateMergeAllViews()
 
   def validate( self, desiredBranchId = None ):
     validSegmentation = True
@@ -105,18 +102,18 @@ class SegmentationStep( WorkflowStep ) :
     self.validateStep(validSegmentation, desiredBranchId)
 
   def onEntry(self, comingFrom, transitionType):
-    super(SegmentationStep, self).onEntry(comingFrom, transitionType)
+    self.Workflow.updateLayout(1)
 
     # Set master volume OnEntry() so the pop up windows doesnt bother the user too much
     self.SegmentWidgets[0].setMasterNode(self.step('ResampleStep').getResampledNode(0))
-    self.setViews(
-      self.SegmentWidgets[0].getMasterNode(),
-      None,
-      self.SegmentWidgets[0].getMergeNode())
+    self.updateSegmentWidgetViews(self.SegmentWidgets[0])
 
     for widget in self.SegmentWidgets:
       widget.updateUndoRedoEnabled()
       widget.updateParameterNodeFromGUI()
+
+    # Superclass call done last because it calls validate()
+    super(SegmentationStep, self).onEntry(comingFrom, transitionType)
 
   def saveMergedImage( self ):
     self.saveFile('Merged Image', 'VolumeFile', '.mha', self.get('MergeAllOutputNodeComboBox'))
@@ -141,8 +138,7 @@ class SegmentationStep( WorkflowStep ) :
 
   def onImageLabelCombineModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
-      self.setViews(
-        self.SegmentWidgets[0].getMasterNode(), self.getMergeNode())
+      self.updateMergeAllViews()
       self.validate()
 
     if not cliNode.IsBusy():
@@ -170,11 +166,7 @@ class SegmentationStep( WorkflowStep ) :
     visibleWidget = self.SegmentWidgets[0]
     if shouldCollapseFirstWidget:
       visibleWidget = self.SegmentWidgets[1]
-
-    self.setViews(
-      visibleWidget.getMasterNode(),
-      None,
-      visibleWidget.getMergeNode())
+    self.updateSegmentWidgetViews(visibleWidget)
 
     for widget in self.SegmentWidgets:
       widget.updateParameterNodeFromGUI()
@@ -206,3 +198,26 @@ class SegmentationStep( WorkflowStep ) :
       return self.get('MergeAllOutputNodeComboBox').currentNode()
     else:
       return self.SegmentWidgets[0].getMergeNode()
+
+  def updateSegmentWidgetViews( self, widget ):
+    viewDictionnary = {}
+    subDictionnary = {}
+    id = widget.getMasterNode().GetID() if widget.getMasterNode() is not None else ''
+    subDictionnary['Background'] = id
+    id = widget.getMergeNode().GetID() if widget.getMergeNode() is not None else ''
+    subDictionnary['Label'] = id
+    viewDictionnary['Input1'] = subDictionnary
+    self.setViews(viewDictionnary)
+
+  def updateMergeAllViews( self, widget ):
+    viewDictionnary = {}
+    subDictionnary = {}
+    mergeNode = self.SegmentWidgets[0].SegmentationWidget.SegmentationWidget()
+    id = mergeNode.GetID() if mergeNode is not None else ''
+    subDictionnary['Background'] = id
+    mergeNode = self.SegmentWidgets[1].getMergeNode()
+    id = mergeNode.GetID() if mergeNode is not None else ''
+    subDictionnary['Foreground'] = id
+    subDictionnary['Label'] = self.get('MergeAllOutputNodeComboBox').currentNodeID()
+    viewDictionnary['Input1'] = subDictionnary
+    self.setViews(viewDictionnary)

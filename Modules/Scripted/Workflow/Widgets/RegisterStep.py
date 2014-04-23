@@ -92,13 +92,24 @@ class RegisterStep( WorkflowStep ) :
     else:
       self.RegisterWidgets[0].collapse(True)
       self.RegisterWidgets[1].collapse(False)
-    self.setViews(
-      self.RegisterWidgets[0].getFixedNode(), self.RegisterWidgets[0].getOutputNode())
+    self.updateViews()
 
   def onRegisterVolume3Valid( self ):
     self.validate()
-    self.setViews(
-      self.RegisterWidgets[1].getFixedNode(), self.RegisterWidgets[1].getOutputNode())
+    self.updateViews()
+
+  def updateViews( self ):
+    viewDictionnary = {}
+    for i, widget in enumerate(self.RegisterWidgets, start=1):
+      if widget.visible:
+        subDictionnary = {}
+        id = widget.getFixedNode().GetID() if widget.getFixedNode() is not None else ''
+        subDictionnary['Background'] = id
+        id = widget.getOutputNode().GetID() if widget.getOutputNode() is not None else ''
+        subDictionnary['Foreground'] = id
+
+        viewDictionnary['Input%i' %i] = subDictionnary
+    self.setViews(viewDictionnary)
 
   def updateConfiguration( self, config ):
     for i in range(len(self.RegisterWidgets)):

@@ -34,7 +34,7 @@ class LoadDataStep( WorkflowStep ) :
     self.loadUi('LoadDataStep.ui')
     loadIcon = self.style().standardIcon(qt.QStyle.SP_DialogOpenButton)
     # Volumes
-    for i in range(1, 4):
+    for i in range(1, self.Workflow.maximumNumberOfInput + 1):
       self.get('Volume%iNodeComboBox' %i).connect('currentNodeChanged(vtkMRMLNode*)', self.validate)
       self.get('Volume%iNodeComboBox' %i).connect('currentNodeChanged(vtkMRMLNode*)', self.onVolumeChanged)
       self.get('Volume%iNodeToolButton' %i).icon = loadIcon
@@ -56,13 +56,16 @@ class LoadDataStep( WorkflowStep ) :
     for i in range(1, self._numberOfInputs + 1):
       isValid = isValid and self.get('Volume%iNodeComboBox' %i).currentNode() != None
 
-    self.Workflow.setDisplaySettingsEnabled(isValid)
-
     self.validateStep(isValid, desiredBranchId)
 
   def onVolumeChanged( self ):
-    self.setViews(self.get('Volume1NodeComboBox').currentNode(),
-                  self.get('Volume2NodeComboBox').currentNode())
+    viewDictionnary = {}
+    for i in range(1, self._numberOfInputs + 1):
+      subDictionnary = {
+        'Background' : self.get('Volume%iNodeComboBox' %i).currentNodeID
+        }
+      viewDictionnary['Input%i' %i] = subDictionnary
+    self.Workflow.setViews(viewDictionnary)
 
   def loadVolume1Node(self):
     self.loadFile('First Volume', 'VolumeFile', self.get('Volume1NodeComboBox'))
@@ -85,19 +88,21 @@ class LoadDataStep( WorkflowStep ) :
     self.validate()
 
   def setNumberOfInputs(self, newNumberOfInputs):
-    if newNumberOfInputs < 1 or newNumberOfInputs > 3:
+    if newNumberOfInputs < 1 or newNumberOfInputs > self.Workflow.maximumNumberOfInput:
       return
     if self._numberOfInputs == newNumberOfInputs:
       return
 
     self._numberOfInputs = newNumberOfInputs
+    self.Workflow.updateLayout(self.getNumberOfInputs())
+    self.onVolumeChanged()
     self.Workflow.onNumberOfInputsChanged(self._numberOfInputs)
 
   def onNumberOfInputsChanged( self, numberOfInputs ):
-    if numberOfInputs not in range(1,4):
+    if numberOfInputs not in range(1, self.Workflow.maximumNumberOfInput + 1):
       return
 
-    for i in range(2, 4):
+    for i in range(2, self.Workflow.maximumNumberOfInput + 1):
       combobox = self.get('Volume%iNodeComboBox' %i)
       shouldActivate = (i <= self._numberOfInputs)
       if not shouldActivate:
@@ -111,16 +116,16 @@ class LoadDataStep( WorkflowStep ) :
     return self._numberOfInputs
 
   def updateConfiguration( self, config ):
-    for i in range(1, 4):
+    for i in range(1, self.Workflow.maximumNumberOfInput + 1):
       self.get('Volume%iLabel' %i).setText(config['Volume%iName' %i])
 
   def onEntry(self, comingFrom, transitionType):
     super(LoadDataStep, self).onEntry(comingFrom, transitionType)
-
-    self.Workflow.setDisplaySettingsVisible(True)
+    self.Workflow.updateLayout(self.getNumberOfInputs())
+    self.onVolumeChanged()
 
   def getInputNode( self, index):
     '''Return the volume chosen by the user. Index should be in [0, 2].'''
-    if index not in range(3):
+    if index not in range(self.Workflow.maximumNumberOfInput):
       return
     return self.get('Volume%iNodeComboBox' %(index+1)).currentNode()

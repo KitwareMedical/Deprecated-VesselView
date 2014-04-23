@@ -186,9 +186,6 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
     if cliNode != None and not cliNode.IsBusy():
       self.Workflow.getProgressBar().setCommandLineModuleNode(0)
 
-    # Update views
-    self.Workflow.updateViews()
-
   def onExit(self, goingTo, transitionType):
     '''Can be reimplemented by the step'''
     goingToId = "None"
@@ -217,8 +214,8 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
       node = newNode
     combobox.setCurrentNode(node)
 
-  def setViews( self, activeNode, secondaryNode = None, labelNode = None ):
-    self.Workflow.setViews(activeNode, secondaryNode, labelNode)
+  def setViews( self, nodes ):
+    self.Workflow.setViews(nodes)
 
   def updateFromCLIParameters( self ):
     '''Overload this function to udpate the necessary steps from the CLIs.

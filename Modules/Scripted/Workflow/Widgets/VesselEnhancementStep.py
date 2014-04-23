@@ -115,7 +115,7 @@ class VesselEnhancementStep( WorkflowStep ) :
   def onVesselEnhancementCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
       self.validate()
-      self.setViews(self.get('VesselEnhancementOutputNodeComboBox').currentNode())
+      #self.setViews(self.get('VesselEnhancementOutputNodeComboBox').currentNode())
 
     if not cliNode.IsBusy():
       self.get('VesselEnhancementApplyPushButton').setChecked(False)

@@ -65,6 +65,7 @@ class ResampleStep( WorkflowStep ) :
 
     # Superclass call done last because it calls validate()
     super(ResampleStep, self).onEntry(comingFrom, transitionType)
+    self.updateViews()
 
   def updateFromCLIParameters( self ):
     for i in range(len(self.ResampleVolumes)):
@@ -108,3 +109,14 @@ class ResampleStep( WorkflowStep ) :
 
     for i in range(len(self.ResampleVolumes)):
       self.ResampleVolumes[i].visible = (i+1 <= numberOfInputs)
+
+  def updateViews( self ):
+    viewDictionnary = {}
+    for i, widget in enumerate(self.ResampleVolumes, start=1):
+      subDictionnary = {}
+      id = widget.getInputNode().GetID() if widget.getInputNode() is not None else ''
+      subDictionnary['Background'] = id
+      id = widget.getOutputNode().GetID() if widget.getOutputNode() is not None else ''
+      subDictionnary['Foreground'] = id
+      viewDictionnary['Input%i' %i] = subDictionnary
+    self.setViews(viewDictionnary)

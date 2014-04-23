@@ -202,7 +202,7 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
 
     self.EditorWidget.setMergeNode(self.MergeNode)
     self.updateLabelSelectors()
-    self.WorkflowStep.setViews(self.getMasterNode(), None, self.getMergeNode())
+    self.WorkflowStep.updateSegmentWidgetViews(self)
     self.onMergeNodeModified(self.MergeNode)
 
   def onMergeNodeModified( self, MergeNode, event = 'ModifiedEvent' ):
@@ -270,7 +270,7 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
     if self.Helper.colorSelect:
       self.Helper.colorSelect.hide()
     self.setMergeNode(self.createMergeNodeIfNeeded(node))
-    self.WorkflowStep.setViews(self.getMasterNode(), None, self.getMergeNode())
+    self.WorkflowStep.updateSegmentWidgetViews(self)
 
   def getMasterNode( self ):
     return self.get('SegmentMasterNodeComboBox').currentNode()

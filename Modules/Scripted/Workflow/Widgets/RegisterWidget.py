@@ -161,8 +161,7 @@ class RegisterWidget( slicer.qMRMLWidget ) :
 
   def onRegistrationCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
-      self.WorkflowStep.setViews(
-        self.get('RegisterFixedNodeComboBox').currentNode(), self.getOutputNode())
+      self.WorkflowStep.updateViews()
 
       if self.isRegistrationValid() and self.RegisterValidCallBack:
         self.RegisterValidCallBack()

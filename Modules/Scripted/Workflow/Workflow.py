@@ -44,8 +44,18 @@ class Workflow:
 class WorkflowWidget:
   def __init__(self, parent = None):
     self.moduleName = 'Workflow'
-    self._SelectionNode = None
-    self._SelectionNodeObserverTag = None
+    self._layouts = []
+    self.maximumNumberOfInput = 3
+    self._CurrentViewID = 1
+
+    self._CurrentViewNodes = {}
+    for i in range(1, self.maximumNumberOfInput + 1):
+      subDictionnary = {
+        'Background' : '',
+        'Foreground' : '',
+        'Label' : '',
+        }
+      self._CurrentViewNodes['Input%i' %i] = subDictionnary
 
     if not parent:
       self.parent = slicer.qMRMLWidget()
@@ -57,6 +67,8 @@ class WorkflowWidget:
     if not parent:
       self.setup()
       self.parent.show()
+
+    self.setupLayouts()
 
   def setup(self):
 
@@ -83,7 +95,7 @@ class WorkflowWidget:
                   Widgets.ResampleStep(),
                   Widgets.RegisterStep(),
                   Widgets.SegmentationStep(),
-                  #Widgets.VesselEnhancementStep(),
+                  Widgets.VesselEnhancementStep(),
                   #Widgets.ExtractSkeletonStep(),
                   #Widgets.VesselExtractionStep(),
                  ]
@@ -100,13 +112,6 @@ class WorkflowWidget:
       i += 1
 
     self.layout.addWidget(workflowWidget)
-
-    # Link slices together
-    sliceCompositeNodes = slicer.mrmlScene.GetNodesByClass("vtkMRMLSliceCompositeNode")
-    sliceCompositeNodes.SetReferenceCount(sliceCompositeNodes.GetReferenceCount()-1)
-    for i in range(0, sliceCompositeNodes.GetNumberOfItems()):
-      sliceCompositeNode = sliceCompositeNodes.GetItemAsObject(i)
-      sliceCompositeNode.SetLinkedControl(True)
 
     # Settings
     self.Settings = self.loadUi('WorkflowSettingsPanel.ui')
@@ -242,7 +247,8 @@ class WorkflowWidget:
       slicer.util.mainWindow(), 'DataProbeCollapsibleWidget')
     dataProbeCollapsibleWidget.checked = False
 
-    self.updateViews()
+    self.updateLayout(self._CurrentViewID)
+
     for s in self.steps:
       s.updateFromCLIParameters()
 
@@ -293,54 +299,34 @@ class WorkflowWidget:
     opacitySlider = self.findWidget(self.Settings, 'OpacityRatioDoubleSlider')
     opacitySlider.setEnabled(enabled)
 
-  def setViews( self, activeNode, secondaryNode = None, labelNode = None ):
-    '''Set the node used to update the slice views with the given volume nodes'''
-    selectionNode = self._getSelectionNode()
-    if not selectionNode:
+  def setViews( self, nodes ):
+    if not nodes:
       return
 
-    selectionNode.SetActiveVolumeID(activeNode.GetID() if activeNode else None)
-    selectionNode.SetSecondaryVolumeID(secondaryNode.GetID() if secondaryNode else None)
-    selectionNode.SetActiveLabelVolumeID(labelNode.GetID() if labelNode else None)
-    slicer.app.applicationLogic().PropagateVolumeSelection(1)
+    showDisplaySettings = False
+    for i in range(1, self.maximumNumberOfInput + 1):
+      input = 'Input%i' %i
+      id = 'vtkMRMLSliceCompositeNode%s' %input
+      sliceCompositeNode = slicer.mrmlScene.GetNodeByID(id)
+      if not sliceCompositeNode:
+        continue
 
-  def _getSelectionNode( self ):
-    newSelectionNode = slicer.app.applicationLogic().GetSelectionNode()
-    if self._SelectionNode is not None:
-      self._SelectionNode.RemoveObserver(self._SelectionNodeObserverTag)
+      sliceCompositeNode.SetDoPropagateVolumeSelection(True)
+      numberOfVolumeTypeVisible = 0
+      for volumeType in ['Background', 'Foreground', 'Label']:
+        try:
+          self._CurrentViewNodes[input][volumeType] = nodes[input][volumeType]
+        except:
+          pass
 
-    self._SelectionNode = newSelectionNode
+        id = self._CurrentViewNodes[input][volumeType]
+        getattr(sliceCompositeNode, 'Set%sVolumeID' % volumeType)(id)
+        if id:
+          numberOfVolumeTypeVisible = numberOfVolumeTypeVisible + 1
+          showDisplaySettings = showDisplaySettings or numberOfVolumeTypeVisible > 1
 
-    if self._SelectionNode is not None:
-      self._SelectionNodeObserverTag = self._SelectionNode.AddObserver(
-        vtk.vtkCommand.ModifiedEvent, self.updateViews)
-
-    return self._SelectionNode
-
-  def updateViews( self, *unused):
-    '''Update the slice views with the cached volume nodes'''
-    selectionNode = self._getSelectionNode()
-
-    backgroundLabel = self.findWidget(self.Settings, 'BackgroundLabel')
-    foregroundLabel = self.findWidget(self.Settings, 'ForegroundLabel')
-    backgroundText = 'Background volume'
-    forergoundText = 'Foreground volume'
-
-    backgroundNode = None
-    foregroundNode = None
-    if selectionNode:
-      id = selectionNode.GetActiveVolumeID()
-      backgroundNode = slicer.mrmlScene.GetNodeByID(id) if id else None
-      id = selectionNode.GetSecondaryVolumeID()
-      foregroundNode = slicer.mrmlScene.GetNodeByID(id) if id else None
-
-    if backgroundNode:
-      backgroundText = backgroundNode.GetName()
-    if foregroundNode:
-      forergoundText = foregroundNode.GetName()
-
-    backgroundLabel.setText(backgroundText)
-    foregroundLabel.setText(forergoundText)
+    self.setDisplaySettingsVisible(showDisplaySettings)
+    self.setDisplaySettingsEnabled(showDisplaySettings)
 
   def onNumberOfInputsChanged( self, numberOfInputs ):
     '''This function calls the 'onNumberOfInputsChanged' on all the steps. This
@@ -349,3 +335,55 @@ class WorkflowWidget:
       # Make sure that the steps have widgets already
       if hasattr(step, 'widget'):
         step.onNumberOfInputsChanged(numberOfInputs)
+
+  def updateLayout( self, numberOfViews ):
+    if numberOfViews not in range(1, self.maximumNumberOfInput + 1):
+      print 'This should not happen, the number of inputs should be in [1, %i[' %(self.maximumNumberOfInput + 1)
+      return
+
+    layoutNode = slicer.mrmlScene.GetNthNodeByClass(0, "vtkMRMLLayoutNode")
+    if layoutNode is None:
+      return
+
+    newLayout = slicer.vtkMRMLLayoutNode().SlicerLayoutUserView + numberOfViews
+    self._CurrentViewID = numberOfViews
+    layoutNode.SetViewArrangement(newLayout)
+
+  def setupLayouts( self ):
+    layoutNode = slicer.mrmlScene.GetNthNodeByClass(0, "vtkMRMLLayoutNode")
+    if layoutNode is None:
+      return
+
+    if not self._layouts:
+      for i in range(1, self.maximumNumberOfInput + 1):
+        self._layouts.append(self._inputLayout(i))
+
+      for i, layout in enumerate(self._layouts, start=1):
+        layoutNode.AddLayoutDescription(
+          slicer.vtkMRMLLayoutNode().SlicerLayoutUserView + i, layout)
+
+  def _inputLayout( self, numberOfInputs ):
+    sliceItems = ''
+    for i in range(1, numberOfInputs + 1):
+      sliceItems = sliceItems + self._sliceItemLayout('Input%i' %i, 'Axial', '#a9a9a9')
+
+    return (
+      "<layout type=\"vertical\" split=\"true\" >"
+      "<item>"
+      "<layout type=\"horizontal\">"
+      "%s"
+      "</layout>"
+      " </item>"
+      "</layout>"
+      ) % sliceItems
+
+  def _sliceItemLayout( self, tag, axe, color ):
+    return (
+      "<item>"
+      "<view class=\"vtkMRMLSliceNode\" singletontag=\"%s\">"
+      "<property name=\"orientation\" action=\"default\">%s</property>"
+      "<property name=\"viewlabel\" action=\"default\">%s</property>"
+      "<property name=\"viewcolor\" action=\"default\">%s</property>"
+      "</view>"
+      "</item>"
+      ) % (tag, axe, tag, color)
