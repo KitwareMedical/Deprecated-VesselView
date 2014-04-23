@@ -281,6 +281,18 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
   def getMergeNode( self ):
     return self.get('SegmentMergeNodeComboBox').currentNode()
 
+  def setAdditionalNode( self, index, node ):
+    if index not in range(0, 2):
+      return
+    self.get('SegmentAdditionalVolume%iComboBox' %(index+1)).setCurrentNodeID(node.GetID() if node else None)
+
+  def getAdditionalNode( self, index ):
+    if index not in [1, 2]:
+      print index
+      print (index not in [1,2])
+      return
+    return self.get('SegmentAdditionalVolume%iComboBox' %index).currentNode()
+
   def createMergeNodeIfNeeded( self, masterNode ):
     if not masterNode:
       return None
@@ -325,11 +337,11 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
       + ',' + parameterNode.GetParameter('Barrier')
       )
 
-    # Add resampled volume as additionnal volumes
-    for i in range(1, 3):
-      additionalVolume = self.WorkflowStep.step('RegisterStep').getRegisteredNode(i)
+    # Add resampled volume as Additional volumes
+    for i in range(0, 2):
+      additionalVolume = self.getAdditionalNode(i)
       additionalVolumeID = additionalVolume.GetID() if additionalVolume is not None else ''
-      self.setParameterToPDFSegmenter('additionalInputVolumeID%i' %(i-1), additionalVolumeID)
+      self.setParameterToPDFSegmenter('additionalInputVolumeID%i' %(i), additionalVolumeID)
 
   def undo( self ):
     self.UndoRedo.undo()

@@ -106,6 +106,9 @@ class SegmentationStep( WorkflowStep ) :
 
     # Set master volume OnEntry() so the pop up windows doesnt bother the user too much
     self.SegmentWidgets[0].setMasterNode(self.step('ResampleStep').getResampledNode(0))
+    for i in range(0, 2):
+      self.SegmentWidgets[0].setAdditionalNode(i, self.step('RegisterStep').getRegisteredNode(i + 1))
+
     self.updateSegmentWidgetViews(self.SegmentWidgets[0])
 
     for widget in self.SegmentWidgets:
@@ -158,6 +161,9 @@ class SegmentationStep( WorkflowStep ) :
   def addSegmentWidget( self ):
     self.SegmentWidgets[1].visible = True
     self.SegmentWidgets[1].setMasterNode(self.step('ResampleStep').getResampledNode(0))
+    for i in range(0, 2):
+      self.SegmentWidgets[1].setAdditionalNode(i, self.step('RegisterStep').getRegisteredNode(i+1))
+
     shouldCollapseFirstWidget = self.SegmentWidgets[0].IsSegmentationValid()
     self.SegmentWidgets[0].collapse(shouldCollapseFirstWidget)
     self.SegmentWidgets[1].collapse(not shouldCollapseFirstWidget)
