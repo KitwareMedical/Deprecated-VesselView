@@ -25,7 +25,7 @@ import json
 
 class Workflow:
   def __init__(self, parent):
-    parent.title = "Prometheus"
+    parent.title = "Workflow"
     parent.categories = ["", "TubeTK"]
     parent.dependencies = []
     parent.contributors = ["Julien Finet (Kitware), Johan Andruejol (Kitware)"]
@@ -37,12 +37,26 @@ class Workflow:
     """
     self.parent = parent
 
+    parent.icon = qt.QIcon("%s/DesktopIcon.png" % Widgets.ICON_DIR)
+
 #
 # Workflow widget
 class WorkflowWidget:
   def __init__(self, parent = None):
     self.moduleName = 'Workflow'
-    self._ViewNodeIDs = { 'Active' : None, 'Secondary' : None, 'Label' : None}
+    self._layouts = []
+    self.maximumNumberOfInput = 3
+    self._CurrentViewID = 1
+
+    self._CurrentViewNodes = {}
+    for i in range(1, self.maximumNumberOfInput + 1):
+      subDictionnary = {
+        'Background' : '',
+        'Foreground' : '',
+        'Label' : '',
+        }
+      self._CurrentViewNodes['Input%i' %i] = subDictionnary
+
     if not parent:
       self.parent = slicer.qMRMLWidget()
       self.parent.setLayout(qt.QVBoxLayout())
@@ -53,6 +67,8 @@ class WorkflowWidget:
     if not parent:
       self.setup()
       self.parent.show()
+
+    self.setupLayouts()
 
   def setup(self):
 
@@ -76,12 +92,12 @@ class WorkflowWidget:
     #Creating each step of the workflow
     self.steps = [Widgets.InitialStep(),
                   Widgets.LoadDataStep(),
-                  Widgets.RegisterStep(),
                   Widgets.ResampleStep(),
+                  Widgets.RegisterStep(),
                   Widgets.SegmentationStep(),
                   Widgets.VesselEnhancementStep(),
-                  Widgets.ExtractSkeletonStep(),
-                  Widgets.VesselExtractionStep(),
+                  #Widgets.ExtractSkeletonStep(),
+                  #Widgets.VesselExtractionStep(),
                  ]
     i = 0
     for step in self.steps:
@@ -96,13 +112,6 @@ class WorkflowWidget:
       i += 1
 
     self.layout.addWidget(workflowWidget)
-
-    # Link slices together
-    sliceCompositeNodes = slicer.mrmlScene.GetNodesByClass("vtkMRMLSliceCompositeNode")
-    sliceCompositeNodes.SetReferenceCount(sliceCompositeNodes.GetReferenceCount()-1)
-    for i in range(0, sliceCompositeNodes.GetNumberOfItems()):
-      sliceCompositeNode = sliceCompositeNodes.GetItemAsObject(i)
-      sliceCompositeNode.SetLinkedControl(True)
 
     # Settings
     self.Settings = self.loadUi('WorkflowSettingsPanel.ui')
@@ -233,7 +242,13 @@ class WorkflowWidget:
     return self.CLIProgressBar
 
   def enter(self):
-    self.updateViews()
+    # Collapse DataProbe as it takes screen real estate
+    dataProbeCollapsibleWidget = self.findWidget(
+      slicer.util.mainWindow(), 'DataProbeCollapsibleWidget')
+    dataProbeCollapsibleWidget.checked = False
+
+    self.updateLayout(self._CurrentViewID)
+
     for s in self.steps:
       s.updateFromCLIParameters()
 
@@ -284,50 +299,91 @@ class WorkflowWidget:
     opacitySlider = self.findWidget(self.Settings, 'OpacityRatioDoubleSlider')
     opacitySlider.setEnabled(enabled)
 
-  def setViews( self, activeNode, secondaryNode = None, labelNode = None ):
-    '''Set the node used to update the slice views with the given volume nodes'''
-    updateNodes = self._setViewNodeID('Active', activeNode)
-    updateNodes = self._setViewNodeID('Secondary', secondaryNode) or updateNodes
-    updateNodes = self._setViewNodeID('Label', labelNode) or updateNodes
+  def setViews( self, nodes ):
+    if not nodes:
+      return
 
-    if updateNodes:
-      self.updateViews()
+    showDisplaySettings = False
+    for i in range(1, self.maximumNumberOfInput + 1):
+      input = 'Input%i' %i
+      id = 'vtkMRMLSliceCompositeNode%s' %input
+      sliceCompositeNode = slicer.mrmlScene.GetNodeByID(id)
+      if not sliceCompositeNode:
+        continue
 
-  def _setViewNodeID( self, type, node ):
-    oldID = self._ViewNodeIDs[type]
-    if node and self._ViewNodeIDs[type] != node.GetID():
-      self._ViewNodeIDs[type] = node.GetID()
-    elif not node:
-      self._ViewNodeIDs[type] = None
+      sliceCompositeNode.SetDoPropagateVolumeSelection(True)
+      numberOfVolumeTypeVisible = 0
+      for volumeType in ['Background', 'Foreground', 'Label']:
+        try:
+          self._CurrentViewNodes[input][volumeType] = nodes[input][volumeType]
+        except:
+          pass
 
-    return oldID != self._ViewNodeIDs[type]
+        id = self._CurrentViewNodes[input][volumeType]
+        getattr(sliceCompositeNode, 'Set%sVolumeID' % volumeType)(id)
+        if id:
+          numberOfVolumeTypeVisible = numberOfVolumeTypeVisible + 1
+          showDisplaySettings = showDisplaySettings or numberOfVolumeTypeVisible > 1
 
-  def _getViewNode( self, type ):
-    id = self._ViewNodeIDs[type]
-    if id:
-      return slicer.mrmlScene.GetNodeByID(id)
-    return None
+    self.setDisplaySettingsVisible(showDisplaySettings)
+    self.setDisplaySettingsEnabled(showDisplaySettings)
 
-  def updateViews( self ):
-    '''Update the slice views with the cached volume nodes'''
-    backgroundLabel = self.findWidget(self.Settings, 'BackgroundLabel')
-    foregroundLabel = self.findWidget(self.Settings, 'ForegroundLabel')
-    backgroundText = 'Background volume'
-    forergoundText = 'Foreground volume'
+  def onNumberOfInputsChanged( self, numberOfInputs ):
+    '''This function calls the 'onNumberOfInputsChanged' on all the steps. This
+       should only be called on the workflow by the LoadData module.'''
+    for step in self.steps:
+      # Make sure that the steps have widgets already
+      if hasattr(step, 'widget'):
+        step.onNumberOfInputsChanged(numberOfInputs)
 
-    appLogic = slicer.app.applicationLogic()
-    selectionNode = appLogic.GetSelectionNode()
-    selectionNode.SetActiveVolumeID(self._ViewNodeIDs['Active'])
-    selectionNode.SetSecondaryVolumeID(self._ViewNodeIDs['Secondary'])
-    selectionNode.SetActiveLabelVolumeID(self._ViewNodeIDs['Label'])
-    appLogic.PropagateVolumeSelection(1)
+  def updateLayout( self, numberOfViews ):
+    if numberOfViews not in range(1, self.maximumNumberOfInput + 1):
+      print 'This should not happen, the number of inputs should be in [1, %i[' %(self.maximumNumberOfInput + 1)
+      return
 
-    backgroundNode = self._getViewNode('Active')
-    foregroundNode = self._getViewNode('Secondary')
-    if backgroundNode:
-      backgroundText = backgroundNode.GetName()
-    if foregroundNode:
-      forergoundText = foregroundNode.GetName()
+    layoutNode = slicer.mrmlScene.GetNthNodeByClass(0, "vtkMRMLLayoutNode")
+    if layoutNode is None:
+      return
 
-    backgroundLabel.setText(backgroundText)
-    foregroundLabel.setText(forergoundText)
+    newLayout = slicer.vtkMRMLLayoutNode().SlicerLayoutUserView + numberOfViews
+    self._CurrentViewID = numberOfViews
+    layoutNode.SetViewArrangement(newLayout)
+
+  def setupLayouts( self ):
+    layoutNode = slicer.mrmlScene.GetNthNodeByClass(0, "vtkMRMLLayoutNode")
+    if layoutNode is None:
+      return
+
+    if not self._layouts:
+      for i in range(1, self.maximumNumberOfInput + 1):
+        self._layouts.append(self._inputLayout(i))
+
+      for i, layout in enumerate(self._layouts, start=1):
+        layoutNode.AddLayoutDescription(
+          slicer.vtkMRMLLayoutNode().SlicerLayoutUserView + i, layout)
+
+  def _inputLayout( self, numberOfInputs ):
+    sliceItems = ''
+    for i in range(1, numberOfInputs + 1):
+      sliceItems = sliceItems + self._sliceItemLayout('Input%i' %i, 'Axial', '#a9a9a9')
+
+    return (
+      "<layout type=\"vertical\" split=\"true\" >"
+      "<item>"
+      "<layout type=\"horizontal\">"
+      "%s"
+      "</layout>"
+      " </item>"
+      "</layout>"
+      ) % sliceItems
+
+  def _sliceItemLayout( self, tag, axe, color ):
+    return (
+      "<item>"
+      "<view class=\"vtkMRMLSliceNode\" singletontag=\"%s\">"
+      "<property name=\"orientation\" action=\"default\">%s</property>"
+      "<property name=\"viewlabel\" action=\"default\">%s</property>"
+      "<property name=\"viewcolor\" action=\"default\">%s</property>"
+      "</view>"
+      "</item>"
+      ) % (tag, axe, tag, color)

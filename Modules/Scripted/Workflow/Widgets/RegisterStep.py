@@ -16,9 +16,10 @@
 #
 #============================================================================
 
-import os
+import os, string
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
+import RegisterWidget
 
 class RegisterStep( WorkflowStep ) :
 
@@ -31,111 +32,98 @@ class RegisterStep( WorkflowStep ) :
     self.setName( 'Register images' )
     self.setDescription('Align the scans for a perfect overlay ')
 
+    self.RegisterWidgets = []
     self.createRegisterOutputConnected = False
 
   def setupUi( self ):
     self.loadUi('RegisterStep.ui')
-    self.step('LoadData').get('Volume1NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                             self.get('RegisterFixedNodeComboBox').setCurrentNode)
-    self.step('LoadData').get('Volume2NodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                             self.get('RegisterMovingNodeComboBox').setCurrentNode)
 
-    saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('RegisterOutputSaveToolButton').icon = saveIcon
-    self.get('RegisterSaveToolButton').icon = saveIcon
-    self.get('RegisterSaveToolButton').connect('clicked()', self.saveRegisteredImage)
+    # 2 register steps
+    self.RegisterWidgets.append(RegisterWidget.RegisterWidget(self))
+    self.RegisterWidgets[0].setMRMLScene(slicer.mrmlScene)
+    self.get('RegisterWidgetsLayout').addWidget(self.RegisterWidgets[0])
+    self.RegisterWidgets[0].setRegisterValidCallBack(self.onRegisterVolume2Valid)
+    self.RegisterWidgets[0].setTitle('A) Register volume 2')
 
-    self.get('RegisterApplyPushButton').connect('clicked(bool)', self.runRegistration)
-    self.get('RegisterGoToModulePushButton').connect('clicked()', self.openRegisterImageModule)
+    self.RegisterWidgets.append(RegisterWidget.RegisterWidget(self))
+    self.RegisterWidgets[1].setMRMLScene(slicer.mrmlScene)
+    self.get('RegisterWidgetsLayout').addWidget(self.RegisterWidgets[1])
+    self.RegisterWidgets[1].setRegisterValidCallBack(self.onRegisterVolume3Valid)
+    self.RegisterWidgets[1].setTitle('B) Register volume 3')
+    self.RegisterWidgets[1].collapse(True)
+
+    self.onNumberOfInputsChanged(self.step('LoadData').getNumberOfInputs())
+
+  def onNumberOfInputsChanged( self, numberOfInputs ):
+    if numberOfInputs not in range(1,4):
+      return
+
+    self.get('RegisterOneInputLabel').visible = (numberOfInputs == 1)
+
+    for i in range(len(self.RegisterWidgets)):
+      self.RegisterWidgets[i].visible = (i+2 <= numberOfInputs)
 
   def validate( self, desiredBranchId = None ):
-    cliNode = self.getCLINode(slicer.modules.expertautomatedregistration)
-    validRegistration = (cliNode.GetStatusString() == 'Completed')
-    self.get('RegisterOutputSaveToolButton').enabled = validRegistration
-    self.get('RegisterSaveToolButton').enabled = validRegistration
+    validRegistration = True
+    for i in range(len(self.RegisterWidgets)):
+      if self.RegisterWidgets[i].visible:
+        validRegistration = self.RegisterWidgets[i].isRegistrationValid() and validRegistration
 
     self.validateStep(validRegistration, desiredBranchId)
 
   def onEntry(self, comingFrom, transitionType):
+    for i in range(len(self.RegisterWidgets)):
+      self.RegisterWidgets[i].setFixedNode(
+        self.step('ResampleStep').getResampledNode(0))
+      self.RegisterWidgets[i].setMovingNode(
+        self.step('ResampleStep').getResampledNode(i+1))
+      self.RegisterWidgets[i].initialize()
+
+    # Superclass call done last because it calls validate()
     super(RegisterStep, self).onEntry(comingFrom, transitionType)
 
-    # Create output if necessary
-    if not self.createRegisterOutputConnected:
-      self.get('RegisterMovingNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createRegisterOutput)
-      self.createRegisterOutputConnected = True
-    self.createRegisterOutput()
-
-  def saveRegisteredImage( self ):
-    self.saveFile('Registered Image', 'VolumeFile', '.mha', self.get('RegisterOutputNodeComboBox'))
-
-  def createRegisterOutput( self ):
-    self.createOutputIfNeeded( self.get('RegisterMovingNodeComboBox').currentNode(),
-                               'reg',
-                               self.get('RegisterOutputNodeComboBox') )
-
-  def registerImageWorkflowParameters( self ):
-    parameters = self.getJsonParameters(slicer.modules.resampleimage)
-    parameters['fixedImage'] = self.get('RegisterFixedNodeComboBox').currentNode()
-    parameters['movingImage'] = self.get('RegisterMovingNodeComboBox').currentNode()
-    parameters['resampledImage'] = self.get('RegisterOutputNodeComboBox').currentNode()
-
-    registrationType = self.get('RegisterTypeComboBox').currentText
-    if registrationType == 'Initial':
-      parameters['registration'] = registrationType
-    else:
-      parameters['registration'] = 'Pipeline' + registrationType
-
-    parameters['expectedOffset'] = self.get('RegisterExpectedOffsetSpinBox').value
-    parameters['expectedRotation'] = self.get('RegisterExpectedRotationSpinBox').value
-    parameters['expectedScale'] = self.get('RegisterExpectedScaleSpinBox').value
-    parameters['expectedSkew'] = self.get('RegisterExpectedSkewSpinBox').value
-
-    return parameters
-
   def updateFromCLIParameters( self ):
-    cliNode = self.getCLINode(slicer.modules.expertautomatedregistration)
-    self.get('RegisterFixedNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('fixedImage'))
-    self.get('RegisterMovingNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('movingImage'))
-    self.get('RegisterOutputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('resampledImage'))
+    for widget in self.RegisterWidgets:
+      widget.updateFromCLIParameters()
 
-    index = self.get('RegisterTypeComboBox').findText(cliNode.GetParameterAsString('registration'))
-    if index != -1:
-      self.get('RegisterTypeComboBox').setCurrentIndex(index)
-
-    self.get('RegisterExpectedOffsetSpinBox').setValue(float(cliNode.GetParameterAsString('expectedOffset')))
-    self.get('RegisterExpectedRotationSpinBox').setValue(float(cliNode.GetParameterAsString('expectedRotation')))
-    self.get('RegisterExpectedScaleSpinBox').setValue(float(cliNode.GetParameterAsString('expectedScale')))
-    self.get('RegisterExpectedSkewSpinBox').setValue(float(cliNode.GetParameterAsString('expectedSkew')))
-
-  def runRegistration( self, run ):
-    if run:
-      cliNode = self.getCLINode(slicer.modules.expertautomatedregistration)
-      parameters = self.registerImageWorkflowParameters()
-      self.get('RegisterApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.onRegistrationCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.expertautomatedregistration, cliNode, parameters, wait_for_completion = False)
-    else:
-      cliNode = self.observer(
-        slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-        self.onRegistrationCLIModified)
-      self.get('RegisterApplyPushButton').enabled = False
-      cliNode.Cancel()
-
-  def onRegistrationCLIModified( self, cliNode, event ):
-    if cliNode.GetStatusString() == 'Completed':
-      self.setViews(self.get('RegisterFixedNodeComboBox').currentNode(),
-                       self.get('RegisterOutputNodeComboBox').currentNode())
+  def onRegisterVolume2Valid( self ):
+    if not self.RegisterWidgets[1].visible:
       self.validate()
+    else:
+      self.RegisterWidgets[0].collapse(True)
+      self.RegisterWidgets[1].collapse(False)
+    self.updateViews()
 
-    if not cliNode.IsBusy():
-      self.get('RegisterApplyPushButton').setChecked(False)
-      self.get('RegisterApplyPushButton').enabled = True
-      print 'Expert Automated Registration %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onRegistrationCLIModified)
+  def onRegisterVolume3Valid( self ):
+    self.validate()
+    self.updateViews()
 
-  def openRegisterImageModule( self ):
-    self.openModule('ExpertAutomatedRegistration')
+  def updateViews( self ):
+    viewDictionnary = {}
+    for i, widget in enumerate(self.RegisterWidgets, start=1):
+      if widget.visible:
+        subDictionnary = {}
+        id = widget.getFixedNode().GetID() if widget.getFixedNode() is not None else ''
+        subDictionnary['Background'] = id
+        id = widget.getOutputNode().GetID() if widget.getOutputNode() is not None else ''
+        subDictionnary['Foreground'] = id
 
-    cliNode = self.getCLINode(slicer.modules.expertautomatedregistration)
-    parameters = self.registerImageWorkflowParameters()
-    slicer.cli.setNodeParameters(cliNode, parameters)
+        viewDictionnary['Input%i' %i] = subDictionnary
+    self.setViews(viewDictionnary)
+
+  def updateConfiguration( self, config ):
+    for i in range(len(self.RegisterWidgets)):
+      self.RegisterWidgets[i].updateNames(
+        config['Volume%iName' %(i+2)],
+        '%s) Register %s' % (string.ascii_uppercase[i], config['Volume%iName' %(i+2)].lower()))
+
+  def getRegisteredNode( self, index):
+    '''Return the volume obtained at the end of the registration step.
+       Index should be in [0, 2].'''
+    if index not in range(0, 3):
+      return
+
+    if index == 0:
+      return self.RegisterWidgets[0].getFixedNode()
+    else:
+      return self.RegisterWidgets[index-1].getOutputNode()
