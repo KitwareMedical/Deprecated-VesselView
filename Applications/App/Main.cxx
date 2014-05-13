@@ -99,7 +99,7 @@ int SlicerAppMain(int argc, char* argv[])
   QCoreApplication::setApplicationVersion(qSlicerApp_VERSION_FULL);
   //vtkObject::SetGlobalWarningDisplay(false);
   QApplication::setDesktopSettingsAware(false);
-  QApplication::setStyle("Cleanlooks"); // to be changed
+  QApplication::setStyle("Dark Slicer"); // to be changed
 
   qSlicerApplication app(argc, argv);
   if (app.returnCode() != -1)
