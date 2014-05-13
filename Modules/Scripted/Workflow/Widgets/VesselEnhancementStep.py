@@ -56,7 +56,18 @@ class VesselEnhancementStep( WorkflowStep ) :
     self.get('VesselEnhancementSaveToolButton').enabled = validEnhancement
 
     if validEnhancement:
-      self.updateViews()
+      viewDictionnary = {}
+      for i in range(1, self.step('LoadData').getNumberOfInputs() + 1):
+        subDictionnary = {}
+        vesselyImageNode =  self.get('VesselEnhancementOutputNodeComboBox').currentNode()
+        subDictionnary['Background'] = vesselyImageNode.GetID() if vesselyImageNode is not None else ''
+        subDictionnary['Foreground'] = ''
+        subDictionnary['Label'] = ''
+        viewDictionnary['Input%i' %i] = subDictionnary
+      self.setViews(viewDictionnary)
+
+      # Switch to one layout view to observe the vessely image
+      self.Workflow.updateLayout(1)
 
     self.validateStep(validEnhancement, desiredBranchId)
 
@@ -76,8 +87,6 @@ class VesselEnhancementStep( WorkflowStep ) :
 
     self.get('VesselEnhancementMaskNodeComboBox').setCurrentNode(
       self.step('SegmentationStep').getMergeNode())
-
-    self.updateViews()
 
     super(WorkflowStep, self).onEntry(comingFrom, transitionType)
 
