@@ -233,3 +233,8 @@ class SegmentationStep( WorkflowStep ) :
     subDictionnary['Label'] = self.get('MergeAllOutputNodeComboBox').currentNodeID()
     viewDictionnary['Input1'] = subDictionnary
     self.setViews(viewDictionnary)
+
+  def onExit( self, goingTo, transitionType):
+    super( WorkflowStep, self ).onExit(goingTo, transitionType)
+    if goingTo.id() != 'SegmentationStep':
+      self.SegmentWidgets[0].paint(False)

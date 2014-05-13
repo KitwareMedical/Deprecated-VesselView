@@ -160,6 +160,12 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
 
     return self.ParameterNode
 
+  def paint( self, paint ):
+    if paint:
+      self.EditBox.selectEffect('PaintEffect')
+    else:
+      self.EditBox.selectEffect('DefaultEffect')
+
   def validate( self, desiredBranchId = None ):
     self.IsValid = (self.getMasterNode() and self.MergeVolumeValid)
     self.IsValid = self.IsValid and self.PDFSegmenterSuccess
