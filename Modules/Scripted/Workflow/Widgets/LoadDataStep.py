@@ -95,6 +95,7 @@ class LoadDataStep( WorkflowStep ) :
 
     self._numberOfInputs = newNumberOfInputs
     self.Workflow.updateLayout(self.getNumberOfInputs())
+    self.Workflow.updateConfiguration()
     self.onVolumeChanged()
     self.Workflow.onNumberOfInputsChanged(self._numberOfInputs)
 
@@ -118,6 +119,10 @@ class LoadDataStep( WorkflowStep ) :
   def updateConfiguration( self, config ):
     for i in range(1, self.Workflow.maximumNumberOfInput + 1):
       self.get('Volume%iLabel' %i).setText(config['Volume%iName' %i])
+
+      sliceNode = slicer.mrmlScene.GetNodeByID('vtkMRMLSliceNodeInput%i' %i)
+      if sliceNode:
+        sliceNode.SetLayoutLabel(config['Organ'] + (' volume %i' %i))
 
   def onEntry(self, comingFrom, transitionType):
     super(LoadDataStep, self).onEntry(comingFrom, transitionType)
