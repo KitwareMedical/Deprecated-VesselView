@@ -211,6 +211,7 @@ class WorkflowWidget:
     qfile.open(qt.QFile.ReadOnly)
     widget = loader.load(qfile)
     widget.setAutoFillBackground(False)
+    widget.setPalette(slicer.app.palette())
 
     return widget
 
