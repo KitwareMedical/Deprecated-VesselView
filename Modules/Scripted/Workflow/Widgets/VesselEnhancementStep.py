@@ -98,12 +98,21 @@ class VesselEnhancementStep( WorkflowStep ) :
                                'ves',
                                self.get('VesselEnhancementOutputNodeComboBox') )
 
+  def getTubeColor( self ):
+    return self.get('VesselEnhancementObjectIDLabelComboBox').currentColor
+
+  def getVesselNode( self ):
+    return self.get('VesselEnhancementOutputNodeComboBox').currentNode()
+
+  def getMaskNode( self ):
+    return self.get('VesselEnhancementMaskNodeComboBox').currentNode()
+
   def vesselEnhancementParameters( self ):
     parameters = self.getJsonParameters(slicer.modules.enhancetubesusingdiscriminantanalysis)
     parameters['inputVolumesString'] = self.getInputFilenames()
-    parameters['labelmap'] = self.get('VesselEnhancementMaskNodeComboBox').currentNode()
-    parameters['outputVolume'] = self.get('VesselEnhancementOutputNodeComboBox').currentNode()
-    parameters['tubeId'] = self.get('VesselEnhancementObjectIDLabelComboBox').currentColor
+    parameters['labelmap'] = self.getMaskNode()
+    parameters['outputVolume'] = self.getVesselNode()
+    parameters['tubeId'] = self.getTubeColor()
     parameters['unknownId'] = '-1'
     parameters['backgroundId'] = '0' # This should always be 0 since after the PDF segmenter, the background is switched to 0
 

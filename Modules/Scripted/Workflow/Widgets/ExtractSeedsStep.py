@@ -28,99 +28,127 @@ class ExtractSeedsStep( WorkflowStep ) :
     super(ExtractSeedsStep, self).__init__()
 
     self.initialize( 'ExtractSeedsStep' )
-    self.setName( 'Extract the vessels skeletons' )
-    self.setDescription('Extract the shape of the vessels of the input image')
+    self.setName( 'Extract the vessels seeds' )
+    self.setDescription('Extract seeds points from the vessely input image')
 
-    self.createExtractVesselOutputConnected = False
+    self.createExtractSeedsOutputConnected = False
 
   def setupUi( self ):
     self.loadUi('ExtractSeedsStep.ui')
-    self.step('VesselEnhancementStep').get('VesselEnhancementOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                                                          self.get('ExtractSkeletonInputNodeComboBox').setCurrentNode)
     self.step('VesselEnhancementStep').get('VesselEnhancementMaskNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                                                        self.get('ExtractSkeletonMaskNodeComboBox').setCurrentNode)
-    self.get('ExtractSkeletonMaskNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
+                                                                                        self.setMaskColorNode)
+    self.get('ExtractSeedsMaskNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('ExtractSkeletonOutputSaveToolButton').icon = saveIcon
-    self.get('ExtractSkeletonSaveToolButton').icon = saveIcon
-    self.get('ExtractSkeletonSaveToolButton').connect('clicked()', self.saveExtractSkeletonImage)
+    self.get('ExtractSeedsOutputSaveToolButton').icon = saveIcon
+    self.get('ExtractSeedsSaveToolButton').icon = saveIcon
+    self.get('ExtractSeedsSaveToolButton').connect('clicked()', self.saveExtractSeedsImage)
 
-    self.get('ExtractSkeletonApplyPushButton').connect('clicked(bool)', self.runExtractSkeleton)
-    self.get('ExtractSkeletonGoToModulePushButton').connect('clicked()', self.openExtractSkeletonModule)
+    self.get('ExtractSeedsApplyPushButton').connect('clicked(bool)', self.runExtractSeeds)
+    self.get('ExtractSeedsGoToModulePushButton').connect('clicked()', self.openExtractSeedsModule)
 
   def validate( self, desiredBranchId = None ):
     validExtraction = True
-    #cliNode = self.getCLINode(slicer.modules.enhanceusingnjetdiscriminantanalysis)
-    #validExtraction = (cliNode.GetStatusString() == 'Completed')
-    #self.get('ExtractSkeletonOutputSaveToolButton').enabled = validExtraction
-    #self.get('ExtractSkeletonSaveToolButton').enabled = validExtraction
+    cliNode = self.getCLINode(slicer.modules.segmenttubeseeds)
+    validExtraction = (cliNode.GetStatusString() == 'Completed')
+    self.get('ExtractSeedsOutputSaveToolButton').enabled = validExtraction
+    self.get('ExtractSeedsSaveToolButton').enabled = validExtraction
 
     self.validateStep(validExtraction, desiredBranchId)
 
   def onEntry(self, comingFrom, transitionType):
-    super(WorkflowStep, self).onEntry(comingFrom, transitionType)
+    self.Workflow.updateLayout(1)
+    self.updateViews()
 
     # Create output if necessary
-    if not self.createExtractVesselOutputConnected:
-      self.get('ExtractSkeletonInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractSkeletonOutput)
-      self.createExtractVesselOutputConnected = True
-    self.createExtractSkeletonOutput()
+    if not self.createExtractSeedsOutputConnected:
+      self.get('ExtractSeedsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractSeedsOutput)
+      self.createExtractSeedsOutputConnected = True
+    self.createExtractSeedsOutput()
 
-  def saveExtractSkeletonImage( self ):
-    self.saveFile('Skeleton Image', 'VolumeFile', '.mha', self.get('ExtractSkeletonOutputNodeComboBox'))
+    self.get('ExtractSeedsInputNodeComboBox').setCurrentNode(
+      self.step('VesselEnhancementStep').getVesselNode())
+    self.get('ExtractSeedsMaskNodeComboBox').setCurrentNode(
+      self.step('VesselEnhancementStep').getMaskNode())
 
-  def createExtractSkeletonOutput( self ):
-    self.createOutputIfNeeded( self.get('ExtractSkeletonInputNodeComboBox').currentNode(),
-                               'ske',
-                               self.get('ExtractSkeletonOutputNodeComboBox') )
+    super(WorkflowStep, self).onEntry(comingFrom, transitionType)
 
-  def extractSkeletonParameters( self ):
+  def setMaskColorNode( self, node ):
+    if not node or not node.GetLabelMap():
+      return
+
+    displayNode = node.GetDisplayNode()
+    if displayNode:
+      self.get('ExtractSeedsObjectIDLabelComboBox').setMRMLColorNode(displayNode.GetColorNode())
+
+    self.get('ExtractSeedsObjectIDLabelComboBox').setCurrentColor(
+      self.step('VesselEnhancementStep').getTubeColor())
+
+  def saveExtractSeedsImage( self ):
+    self.saveFile('Seeds Image', 'VolumeFile', '.mha', self.get('ExtractSeedsOutputNodeComboBox'))
+
+  def createExtractSeedsOutput( self ):
+    self.createOutputIfNeeded( self.get('ExtractSeedsInputNodeComboBox').currentNode(),
+                               'seed',
+                               self.get('ExtractSeedsOutputNodeComboBox') )
+
+  def ExtractSeedsParameters( self ):
     parameters = self.getJsonParameters(slicer.modules.segmenttubeseeds)
-    parameters['inputImage'] = self.get('ExtractSkeletonInputNodeComboBox').currentNode()
-    parameters['outputSeedImage'] = self.get('ExtractSkeletonMaskNodeComboBox').currentNode()
-    parameters['labelmap'] = self.get('ExtractSkeletonMaskNodeComboBox').currentNode()
+    parameters['inputImage'] = self.get('ExtractSeedsInputNodeComboBox').currentNode()
+    parameters['labelMap'] = self.get('ExtractSeedsMaskNodeComboBox').currentNode()
+    parameters['tubeId'] = self.get('ExtractSeedsObjectIDLabelComboBox').currentColor
+    parameters['unknownId'] = '-1'
+    parameters['backgroundId'] = '0' # This should always be 0 since after the PDF segmenter, the background is switched to 0
+    parameters['outputSeedImage'] = self.get('ExtractSeedsOutputNodeComboBox').currentNode()
 
     return parameters
 
-  def runExtractSkeleton( self, run ):
+  def runExtractSeeds( self, run ):
     if run:
       cliNode = self.getCLINode(slicer.modules.segmenttubeseeds)
-      parameters = self.extractSkeletonParameters()
-      self.get('ExtractSkeletonApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.segmenttubeseeds)
+      parameters = self.ExtractSeedsParameters()
+      self.get('ExtractSeedsApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onExtractSeedsCLIModified)
       cliNode = slicer.cli.run(slicer.modules.segmenttubeseeds, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(
         slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-        self.onExtractSkeletonCLIModified)
-      self.get('ExtractSkeletonApplyPushButton').enabled = False
+        self.onExtractSeedsCLIModified)
+      self.get('ExtractSeedsApplyPushButton').enabled = False
       cliNode.Cancel()
 
-  def onExtractSkeletonCLIModified( self, cliNode, event ):
+  def onExtractSeedsCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
       self.validate()
-      #self.setViews(self.get('ExtractSkeletonOutputNodeComboBox').currentNode())
+
+      self.updateViews()
 
     if not cliNode.IsBusy():
-      self.get('ExtractSkeletonApplyPushButton').setChecked(False)
-      self.get('ExtractSkeletonApplyPushButton').enabled = True
+      self.get('ExtractSeedsApplyPushButton').setChecked(False)
+      self.get('ExtractSeedsApplyPushButton').enabled = True
       print 'Segment Tube Seeds %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onExtractSkeletonCLIModified)
+      self.removeObservers(self.onExtractSeedsCLIModified)
 
-  def openExtractSkeletonModule( self ):
+  def openExtractSeedsModule( self ):
     self.openModule('SegmentTubeSeeds')
 
     cliNode = self.getCLINode(slicer.modules.segmenttubeseeds)
-    parameters = self.extractSkeletonParameters()
+    parameters = self.ExtractSeedsParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
-  def getInputFilenames( self ):
-    inputVolume1 = self.get('ExtractSkeletonInputNode1ComboBox').currentNode()
-    inputVolume2 = self.get('ExtractSkeletonInputNode2ComboBox').currentNode()
-
-    return self.getFilenameFromVolume(inputVolume1) + ', ' + self.getFilenameFromVolume(inputVolume1)
-
   def updateConfiguration( self, config ):
-    self.get('ExtractSkeletonInputLabel').setText('Enhanced ' + config['Organ'] + ' image')
-    self.get('ExtractSkeletonMaskLabel').setText(config['Organ'] + ' mask')
+    organ = config['Organ']
+    self.get('ExtractSeedsInputLabel').setText('Enhanced ' + organ + ' image')
+    self.get('ExtractSeedsMaskLabel').setText(organ + ' mask')
+    self.get('ExtractSeedsObjectIDLabel').setText(organ + ' label')
+
+  def updateViews( self ):
+    viewDictionnary = {}
+    for i in range(1, self.step('LoadData').getNumberOfInputs() + 1):
+      subDictionnary = {
+        'Background' : self.get('ExtractSeedsInputNodeComboBox').currentNodeID,
+        'Foreground' : self.get('ExtractSeedsOutputNodeComboBox').currentNodeID,
+        'Label' : '',
+        }
+      viewDictionnary['Input%i' %i] = subDictionnary
+    self.setViews(viewDictionnary)
