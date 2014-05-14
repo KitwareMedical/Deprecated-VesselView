@@ -20,21 +20,21 @@ import os
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
 
-class ExtractSkeletonStep( WorkflowStep ) :
+class ExtractSeedsStep( WorkflowStep ) :
 
   # \todo Revise tooltips in GUI
 
   def __init__( self ):
-    super(ExtractSkeletonStep, self).__init__()
+    super(ExtractSeedsStep, self).__init__()
 
-    self.initialize( 'ExtractSkeletonStep' )
+    self.initialize( 'ExtractSeedsStep' )
     self.setName( 'Extract the vessels skeletons' )
     self.setDescription('Extract the shape of the vessels of the input image')
 
     self.createExtractVesselOutputConnected = False
 
   def setupUi( self ):
-    self.loadUi('ExtractSkeletonStep.ui')
+    self.loadUi('ExtractSeedsStep.ui')
     self.step('VesselEnhancementStep').get('VesselEnhancementOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
                                                                                           self.get('ExtractSkeletonInputNodeComboBox').setCurrentNode)
     self.step('VesselEnhancementStep').get('VesselEnhancementMaskNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',

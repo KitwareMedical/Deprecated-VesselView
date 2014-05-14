@@ -39,13 +39,13 @@ set(MODULE_PYTHON_SCRIPTS
   Widgets/SegmentationStep.py
   Widgets/SegmentationWidget.py
   Widgets/VesselEnhancementStep.py
-  Widgets/ExtractSkeletonStep.py
+  Widgets/ExtractSeedsStep.py
   Widgets/VesselExtractionStep.py
   )
 
 set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/Icons/DesktopIcon.png
-  Widgets/Resources/UI/ExtractSkeletonStep.ui
+  Widgets/Resources/UI/ExtractSeedsStep.ui
   Widgets/Resources/UI/InitialStep.ui
   Widgets/Resources/UI/LoadDataStep.ui
   Widgets/Resources/UI/RegisterStep.ui
