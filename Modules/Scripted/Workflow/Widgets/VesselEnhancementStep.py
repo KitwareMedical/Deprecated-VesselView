@@ -206,9 +206,9 @@ class VesselEnhancementStep( WorkflowStep ) :
 
   def updateConfiguration( self, config ):
     for i in range(1, self.Workflow.maximumNumberOfInput + 1):
-      self.get('VesselEnhancementInput%iLabel' %i).setText(config['Volume%iName' %i])
-    self.get('VesselEnhancementInputMaskLabel').setText(config['Organ'] + ' mask')
-    self.get('VesselEnhancementObjectIDLabel').setText(config['Organ'] + ' label')
+      self.get('VesselEnhancementInput%iLabel' %i).setText(config['Workflow']['Volume%iName' %i])
+    self.get('VesselEnhancementInputMaskLabel').setText(config['Workflow']['Organ'] + ' mask')
+    self.get('VesselEnhancementObjectIDLabel').setText(config['Workflow']['Organ'] + ' label')
 
   def setMaskColorNode( self, node ):
     if not node or not node.GetLabelMap():

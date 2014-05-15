@@ -137,7 +137,7 @@ class ExtractSeedsStep( WorkflowStep ) :
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def updateConfiguration( self, config ):
-    organ = config['Organ']
+    organ = config['Workflow']['Organ']
     self.get('ExtractSeedsInputLabel').setText('Enhanced ' + organ + ' image')
     self.get('ExtractSeedsMaskLabel').setText(organ + ' mask')
     self.get('ExtractSeedsObjectIDLabel').setText(organ + ' label')

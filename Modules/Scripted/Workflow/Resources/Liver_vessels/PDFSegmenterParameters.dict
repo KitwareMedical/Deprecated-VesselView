@@ -1,0 +1,17 @@
+{
+	"Average" :
+		{
+		"erodeRadius" : "5",
+		"probSmoothingStdDev" : "3.0",
+		},
+	"Fine" :
+		{
+		"erodeRadius" : "1",
+		"probSmoothingStdDev" : "1.0",
+		},
+	"Rough" :
+		{
+		"erodeRadius" : "10",
+		"probSmoothingStdDev" : "6.0",
+		},
+}

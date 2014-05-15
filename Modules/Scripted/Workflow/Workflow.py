@@ -270,13 +270,22 @@ class WorkflowWidget:
 
     # For all the parameters not already there, add the json parameters
     # Try to be as robust as possible
-    jsonParametersList = data['ParameterGroups'][1]['Parameters']
-    for p in jsonParametersList:
+    i = 1
+    while True:
       try:
-        parameters[p['Name']] = p['Value']
-      except KeyError:
-        print 'Could not find value for %s. Passing.' % p['Name']
-        continue
+        jsonParametersList = data['ParameterGroups'][i]['Parameters']
+      except IndexError:
+        break
+
+      for p in jsonParametersList:
+        try:
+          parameters[p['Name']] = p['Value']
+        except KeyError:
+          print 'Could not find value for %s. Passing.' % p['Name']
+          continue
+
+      i = i + 1
+
     return parameters
 
   def updateConfiguration(self):

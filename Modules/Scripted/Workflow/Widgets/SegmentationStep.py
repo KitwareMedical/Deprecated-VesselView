@@ -154,7 +154,7 @@ class SegmentationStep( WorkflowStep ) :
     for widget in self.SegmentWidgets:
       widget.updateConfiguration(config)
 
-    organLower = config['Organ'].lower()
+    organLower = config['Workflow']['Organ'].lower()
     self.setName( 'Segment %s' % organLower )
     self.setDescription('Segment the %s from the image' % organLower)
 

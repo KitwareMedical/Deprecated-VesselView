@@ -30,7 +30,7 @@ class InitialStep( WorkflowStep ) :
     self.setDescription('Choose what tasks will be performed')
 
     self.Presets = {}
-    self.WorkflowConfigData = None
+    self.WorkflowConfigData = {}
 
   def setupUi( self ):
     self.loadUi('InitialStep.ui')
@@ -55,20 +55,14 @@ class InitialStep( WorkflowStep ) :
     presetFiles = qt.QDir(path)
 
     self.Presets = {}
-    nameFilters = ['*.json']
-    for file in presetFiles.entryList(nameFilters, presetFiles.Files):
-      filename = file.strip('.json')
-      absolutePath = '%s/%s' % (presetFiles.absolutePath(), file)
-
-      if filename != self.Workflow.moduleName:
-        self.Presets[filename] = absolutePath
-      else:
-        jsonData = open(absolutePath)
-        try :
-          self.WorkflowConfigData = json.load(jsonData)
-        except ValueError:
-          print 'Could not read json file %s. No config loaded' % absolutePath
-          self.WorkflowConfigData = None
+    self.WorkflowConfigData = {}
+    for filename in presetFiles.entryList(['*'], presetFiles.Files):
+      absolutePath = '%s/%s' % (presetFiles.absolutePath(), filename)
+      if filename.endswith('.json'):
+        self.Presets[filename[:-len('.json')]] = absolutePath
+      elif filename.endswith('.dict'):
+        file = open(absolutePath)
+        self.WorkflowConfigData[filename[:-len('.dict')]] = eval(file.read())
 
     self.Workflow.updateConfiguration()
 

@@ -118,11 +118,11 @@ class LoadDataStep( WorkflowStep ) :
 
   def updateConfiguration( self, config ):
     for i in range(1, self.Workflow.maximumNumberOfInput + 1):
-      self.get('Volume%iLabel' %i).setText(config['Volume%iName' %i])
+      self.get('Volume%iLabel' %i).setText(config['Workflow']['Volume%iName' %i])
 
       sliceNode = slicer.mrmlScene.GetNodeByID('vtkMRMLSliceNodeInput%i' %i)
       if sliceNode:
-        sliceNode.SetLayoutLabel(config['Organ'] + (' volume %i' %i))
+        sliceNode.SetLayoutLabel(config['Workflow']['Organ'] + (' volume %i' %i))
 
   def onEntry(self, comingFrom, transitionType):
     super(LoadDataStep, self).onEntry(comingFrom, transitionType)

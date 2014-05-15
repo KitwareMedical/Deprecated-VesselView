@@ -114,5 +114,5 @@ class VesselExtractionStep( WorkflowStep ) :
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def updateConfiguration( self, config ):
-    self.get('VesselExtractionInputLabel').setText('Enhanced ' + config['Organ'] + ' image')
-    self.get('VesselExtractiontSkeletonMaskLabel').setText(config['Organ'] + ' vessel skeleton mask')
+    self.get('VesselExtractionInputLabel').setText('Enhanced ' + config['Workflow']['Organ'] + ' image')
+    self.get('VesselExtractiontSkeletonMaskLabel').setText(config['Workflow']['Organ'] + ' vessel skeleton mask')
