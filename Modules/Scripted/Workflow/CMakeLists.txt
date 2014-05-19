@@ -44,7 +44,10 @@ set(MODULE_PYTHON_SCRIPTS
   )
 
 set(MODULE_PYTHON_RESOURCES
+  Widgets/Resources/Icons/Brain_Vessels.png
   Widgets/Resources/Icons/DesktopIcon.png
+  Widgets/Resources/Icons/Heart_Vessels.png
+  Widgets/Resources/Icons/Liver_Vessels.png
   Widgets/Resources/UI/ExtractSeedsStep.ui
   Widgets/Resources/UI/InitialStep.ui
   Widgets/Resources/UI/LoadDataStep.ui
