@@ -52,7 +52,7 @@ setOnlyIfNotDefined(SCRIPT_MODE "Experimental")
 #-----------------------------------------------------------------------------
 # Dashboard properties
 #-----------------------------------------------------------------------------
-set(CTEST_PROJECT_NAME "Prometheus")
+set(CTEST_PROJECT_NAME "VesselView")
 
 # Path where to pull and build the sources.
 # E.g. ${CTEST_SCRIPT_DIRECTORY}, C:/Work/Dashboards

@@ -16,7 +16,7 @@
 #
 #============================================================================
 
-set(CTEST_PROJECT_NAME "Prometheus")
+set(CTEST_PROJECT_NAME "VesselView")
 set(CTEST_NIGHTLY_START_TIME "3:00:00 UTC")
 
 set(CTEST_DROP_METHOD "http")
