@@ -16,10 +16,10 @@
 #
 #============================================================================
 #
-# External project for Prometheus.
+# External project for VesselView.
 #
 
-set(proj Prometheus)
+set(proj VesselView)
 
 # Set dependency list
 set(${proj}_DEPENDENCIES VTK ITKv4)

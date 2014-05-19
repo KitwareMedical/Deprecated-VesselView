@@ -1,4 +1,4 @@
-Prometheus
+VesselView
 ==========
 
 Copyright (c) Kitware Inc.
@@ -9,7 +9,7 @@ See LICENSE.md file for details.
 
 /*=========================================================================
 
-  Program: Prometheus
+  Program: VesselView
 
   Copyright (c) Kitware Inc.
 

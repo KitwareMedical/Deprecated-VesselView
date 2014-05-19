@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 2.8.10)
 
-set(APPLICATION_NAME Prometheus)
+set(APPLICATION_NAME VesselView)
 
 #-----------------------------------------------------------------------------
 set(kit ${APPLICATION_NAME})
