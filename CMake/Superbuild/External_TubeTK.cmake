@@ -74,6 +74,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       # Build only TubeTK lib, not the modules. They will be built by Slicer.
       -DTubeTK_BUILD_MODULES:BOOL=OFF
       -DTubeTK_BUILD_SLICER_EXTENSION:BOOL=OFF
+      -DTubeTK_USE_LIBSVM:BOOL=OFF
     INSTALL_COMMAND ""
     DEPENDS
       ${${proj}_DEPENDENCIES}
