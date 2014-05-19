@@ -56,7 +56,18 @@ class VesselEnhancementStep( WorkflowStep ) :
     self.get('VesselEnhancementSaveToolButton').enabled = validEnhancement
 
     if validEnhancement:
-      self.updateViews()
+      viewDictionnary = {}
+      for i in range(1, self.step('LoadData').getNumberOfInputs() + 1):
+        subDictionnary = {}
+        vesselyImageNode =  self.get('VesselEnhancementOutputNodeComboBox').currentNode()
+        subDictionnary['Background'] = vesselyImageNode.GetID() if vesselyImageNode is not None else ''
+        subDictionnary['Foreground'] = ''
+        subDictionnary['Label'] = ''
+        viewDictionnary['Input%i' %i] = subDictionnary
+      self.setViews(viewDictionnary)
+
+      # Switch to one layout view to observe the vessely image
+      self.Workflow.updateLayout(1)
 
     self.validateStep(validEnhancement, desiredBranchId)
 
@@ -77,8 +88,6 @@ class VesselEnhancementStep( WorkflowStep ) :
     self.get('VesselEnhancementMaskNodeComboBox').setCurrentNode(
       self.step('SegmentationStep').getMergeNode())
 
-    self.updateViews()
-
     super(WorkflowStep, self).onEntry(comingFrom, transitionType)
 
   def saveVesselEnhancementImage( self ):
@@ -89,12 +98,21 @@ class VesselEnhancementStep( WorkflowStep ) :
                                'ves',
                                self.get('VesselEnhancementOutputNodeComboBox') )
 
+  def getTubeColor( self ):
+    return self.get('VesselEnhancementObjectIDLabelComboBox').currentColor
+
+  def getVesselNode( self ):
+    return self.get('VesselEnhancementOutputNodeComboBox').currentNode()
+
+  def getMaskNode( self ):
+    return self.get('VesselEnhancementMaskNodeComboBox').currentNode()
+
   def vesselEnhancementParameters( self ):
     parameters = self.getJsonParameters(slicer.modules.enhancetubesusingdiscriminantanalysis)
     parameters['inputVolumesString'] = self.getInputFilenames()
-    parameters['labelmap'] = self.get('VesselEnhancementMaskNodeComboBox').currentNode()
-    parameters['outputVolume'] = self.get('VesselEnhancementOutputNodeComboBox').currentNode()
-    parameters['tubeId'] = self.get('VesselEnhancementObjectIDLabelComboBox').currentColor
+    parameters['labelmap'] = self.getMaskNode()
+    parameters['outputVolume'] = self.getVesselNode()
+    parameters['tubeId'] = self.getTubeColor()
     parameters['unknownId'] = '-1'
     parameters['backgroundId'] = '0' # This should always be 0 since after the PDF segmenter, the background is switched to 0
 
@@ -188,9 +206,9 @@ class VesselEnhancementStep( WorkflowStep ) :
 
   def updateConfiguration( self, config ):
     for i in range(1, self.Workflow.maximumNumberOfInput + 1):
-      self.get('VesselEnhancementInput%iLabel' %i).setText(config['Volume%iName' %i])
-    self.get('VesselEnhancementInputMaskLabel').setText(config['Organ'] + ' mask')
-    self.get('VesselEnhancementObjectIDLabel').setText(config['Organ'] + ' label')
+      self.get('VesselEnhancementInput%iLabel' %i).setText(config['Workflow']['Volume%iName' %i])
+    self.get('VesselEnhancementInputMaskLabel').setText(config['Workflow']['Organ'] + ' mask')
+    self.get('VesselEnhancementObjectIDLabel').setText(config['Workflow']['Organ'] + ' label')
 
   def setMaskColorNode( self, node ):
     if not node or not node.GetLabelMap():

@@ -154,7 +154,7 @@ class SegmentationStep( WorkflowStep ) :
     for widget in self.SegmentWidgets:
       widget.updateConfiguration(config)
 
-    organLower = config['Organ'].lower()
+    organLower = config['Workflow']['Organ'].lower()
     self.setName( 'Segment %s' % organLower )
     self.setDescription('Segment the %s from the image' % organLower)
 
@@ -233,3 +233,8 @@ class SegmentationStep( WorkflowStep ) :
     subDictionnary['Label'] = self.get('MergeAllOutputNodeComboBox').currentNodeID()
     viewDictionnary['Input1'] = subDictionnary
     self.setViews(viewDictionnary)
+
+  def onExit( self, goingTo, transitionType):
+    super( WorkflowStep, self ).onExit(goingTo, transitionType)
+    if goingTo.id() != 'SegmentationStep':
+      self.SegmentWidgets[0].paint(False)

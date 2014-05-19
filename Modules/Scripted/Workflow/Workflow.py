@@ -96,7 +96,7 @@ class WorkflowWidget:
                   Widgets.RegisterStep(),
                   Widgets.SegmentationStep(),
                   Widgets.VesselEnhancementStep(),
-                  #Widgets.ExtractSkeletonStep(),
+                  Widgets.ExtractSeedsStep(),
                   #Widgets.VesselExtractionStep(),
                  ]
     i = 0
@@ -211,6 +211,7 @@ class WorkflowWidget:
     qfile.open(qt.QFile.ReadOnly)
     widget = loader.load(qfile)
     widget.setAutoFillBackground(False)
+    widget.setPalette(slicer.app.palette())
 
     return widget
 
@@ -269,13 +270,22 @@ class WorkflowWidget:
 
     # For all the parameters not already there, add the json parameters
     # Try to be as robust as possible
-    jsonParametersList = data['ParameterGroups'][1]['Parameters']
-    for p in jsonParametersList:
+    i = 1
+    while True:
       try:
-        parameters[p['Name']] = p['Value']
-      except KeyError:
-        print 'Could not find value for %s. Passing.' % p['Name']
-        continue
+        jsonParametersList = data['ParameterGroups'][i]['Parameters']
+      except IndexError:
+        break
+
+      for p in jsonParametersList:
+        try:
+          parameters[p['Name']] = p['Value']
+        except KeyError:
+          print 'Could not find value for %s. Passing.' % p['Name']
+          continue
+
+      i = i + 1
+
     return parameters
 
   def updateConfiguration(self):
@@ -324,6 +334,8 @@ class WorkflowWidget:
         if id:
           numberOfVolumeTypeVisible = numberOfVolumeTypeVisible + 1
           showDisplaySettings = showDisplaySettings or numberOfVolumeTypeVisible > 1
+      sliceCompositeNode.SetDoPropagateVolumeSelection(False)
+    slicer.app.applicationLogic().FitSliceToAll()
 
     self.setDisplaySettingsVisible(showDisplaySettings)
     self.setDisplaySettingsEnabled(showDisplaySettings)
@@ -348,6 +360,7 @@ class WorkflowWidget:
     newLayout = slicer.vtkMRMLLayoutNode().SlicerLayoutUserView + numberOfViews
     self._CurrentViewID = numberOfViews
     layoutNode.SetViewArrangement(newLayout)
+    slicer.app.applicationLogic().FitSliceToAll()
 
   def setupLayouts( self ):
     layoutNode = slicer.mrmlScene.GetNthNodeByClass(0, "vtkMRMLLayoutNode")
@@ -355,17 +368,30 @@ class WorkflowWidget:
       return
 
     if not self._layouts:
+      tag = 'Input'
       for i in range(1, self.maximumNumberOfInput + 1):
-        self._layouts.append(self._inputLayout(i))
+        self._layouts.append(self._inputLayout(tag, i))
 
+      oldView = layoutNode.GetViewArrangement()
+      # The slice composite node are created when the layout is used.
+      # To be able to manipulate thgem correctly, we'll select the layouts
+      # after their creation
       for i, layout in enumerate(self._layouts, start=1):
-        layoutNode.AddLayoutDescription(
-          slicer.vtkMRMLLayoutNode().SlicerLayoutUserView + i, layout)
+        view = slicer.vtkMRMLLayoutNode().SlicerLayoutUserView + i
+        layoutNode.AddLayoutDescription(view, layout)
+        layoutNode.SetViewArrangement(view)
 
-  def _inputLayout( self, numberOfInputs ):
+        # Prevent the layout slice composite node to update when a node is added
+        sliceCompositeNode = slicer.mrmlScene.GetNodeByID('vtkMRMLSliceCompositeNode' + tag + str(i))
+        if sliceCompositeNode:
+          sliceCompositeNode.SetDoPropagateVolumeSelection(False)
+        else:
+          print('Developer error ! There should be a slice composite node here !')
+
+  def _inputLayout( self, tag, numberOfInputs ):
     sliceItems = ''
     for i in range(1, numberOfInputs + 1):
-      sliceItems = sliceItems + self._sliceItemLayout('Input%i' %i, 'Axial', '#a9a9a9')
+      sliceItems = sliceItems + self._sliceItemLayout(tag + str(i), 'Axial', '#a9a9a9')
 
     return (
       "<layout type=\"vertical\" split=\"true\" >"

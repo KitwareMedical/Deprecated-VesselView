@@ -160,6 +160,12 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
 
     return self.ParameterNode
 
+  def paint( self, paint ):
+    if paint:
+      self.EditBox.selectEffect('PaintEffect')
+    else:
+      self.EditBox.selectEffect('DefaultEffect')
+
   def validate( self, desiredBranchId = None ):
     self.IsValid = (self.getMasterNode() and self.MergeVolumeValid)
     self.IsValid = self.IsValid and self.PDFSegmenterSuccess
@@ -237,7 +243,7 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
       self.removeObservers(self.onPDFSegmenterCLIModified)
 
   def updateConfiguration( self, config ):
-    organ = config['Organ']
+    organ = config['Workflow']['Organ']
     organLower = organ.lower()
 
     groupboxTitle = 'Segment %s' % organLower
@@ -245,9 +251,22 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
       groupboxTitle = '%s %s' % (groupboxTitle, self.MergeNodeSuffix)
     self.get('SegmentCollapsibleGroupBox').setTitle(groupboxTitle)
 
-    self.get('SegmentMasterNodeLabel').setText('Input %s' % config['Volume1Name'].lower())
+    self.get('SegmentMasterNodeLabel').setText('Input %s' % config['Workflow']['Volume1Name'].lower())
     self.get('SegmentMergeVolumesLabel').setText('Segmented %s image' % organLower)
     self.get('SegmentOrganRadioButton').setText('%s (foreground)' %organ)
+
+    # Also update the image quality combobox
+    data = self.WorkflowStep.step('Initial').getConfigurationData()['PDFSegmenterParameters']
+    oldIndex = self.get('SegmentImageQualityComboBox').currentIndex
+    if oldIndex < 0:
+      oldIndex = 0
+
+    self.get('SegmentImageQualityComboBox').clear()
+    for key in data:
+      self.get('SegmentImageQualityComboBox').addItem(key, data[key])
+
+    self.get('SegmentImageQualityComboBox').setCurrentIndex(oldIndex)
+
 
   def getPDFSegmenterParameterName( self, parameterName ):
     return 'InteractiveConnectedComponentsUsingParzenPDFsOptions,' + parameterName
@@ -288,8 +307,6 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
 
   def getAdditionalNode( self, index ):
     if index not in [1, 2]:
-      print index
-      print (index not in [1,2])
       return
     return self.get('SegmentAdditionalVolume%iComboBox' %index).currentNode()
 
@@ -336,6 +353,12 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
       + ',' + parameterNode.GetParameter('Background')
       + ',' + parameterNode.GetParameter('Barrier')
       )
+
+    imageQuality = self.get('SegmentImageQualityComboBox').itemData(
+      self.get('SegmentImageQualityComboBox').currentIndex)
+    imageQualityParameters = ['erodeRadius', 'probSmoothingStdDev']
+    for imageQualityParameter in imageQualityParameters:
+      self.setParameterToPDFSegmenter(imageQualityParameter, imageQuality[imageQualityParameter])
 
     # Add resampled volume as Additional volumes
     for i in range(0, 2):

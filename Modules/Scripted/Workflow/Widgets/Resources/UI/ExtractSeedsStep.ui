@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ExtractSkeleton</class>
- <widget class="qSlicerWidget" name="ExtractSkeleton">
+ <class>ExtractSeeds</class>
+ <widget class="qSlicerWidget" name="ExtractSeeds">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -18,7 +18,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="ctkCollapsibleGroupBox" name="ExtractSkeletonCollapsibleGroupBox">
+    <widget class="ctkCollapsibleGroupBox" name="ExtractSeedsCollapsibleGroupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
        <horstretch>0</horstretch>
@@ -26,22 +26,16 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>A) Extract skeleton</string>
+      <string>A) Extract seeds</string>
      </property>
      <property name="collapsedHeight">
       <number>5</number>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="ExtractSkeletonInputLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
+      <item row="3" column="0">
+       <widget class="QLabel" name="ExtractSeedsMaskLabel">
         <property name="text">
-         <string>Enhance image</string>
+         <string>Organ mask</string>
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
@@ -51,7 +45,7 @@
        </widget>
       </item>
       <item row="0" column="1" colspan="2">
-       <widget class="qMRMLNodeComboBox" name="ExtractSkeletonInputNodeComboBox">
+       <widget class="qMRMLNodeComboBox" name="ExtractSeedsInputNodeComboBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -79,10 +73,16 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="ExtractSkeletonMaskLabel">
+      <item row="0" column="0">
+       <widget class="QLabel" name="ExtractSeedsInputLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
-         <string>Organ mask</string>
+         <string>Enhance image</string>
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
@@ -92,7 +92,7 @@
        </widget>
       </item>
       <item row="3" column="1" colspan="2">
-       <widget class="qMRMLNodeComboBox" name="ExtractSkeletonMaskNodeComboBox">
+       <widget class="qMRMLNodeComboBox" name="ExtractSeedsMaskNodeComboBox">
         <property name="nodeTypes">
          <stringlist>
           <string>vtkMRMLScalarVolumeNode</string>
@@ -111,7 +111,7 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="3">
+      <item row="8" column="0" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <spacer name="horizontalSpacer_2">
@@ -127,7 +127,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="ExtractSkeletonGoToModulePushButton">
+         <widget class="QPushButton" name="ExtractSeedsGoToModulePushButton">
           <property name="toolTip">
            <string>Open the &quot;BrainsFit&quot; module</string>
           </property>
@@ -142,14 +142,17 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="ExtractSkeletonApplyPushButton">
+         <widget class="QPushButton" name="ExtractSeedsApplyPushButton">
           <property name="text">
            <string>Extract</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="ExtractSkeletonSaveToolButton">
+         <widget class="QToolButton" name="ExtractSeedsSaveToolButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -165,8 +168,8 @@
         </item>
        </layout>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="ExtractSkeletonOutputLabel">
+      <item row="6" column="0">
+       <widget class="QLabel" name="ExtractSeedsOutputLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -184,8 +187,8 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="qMRMLNodeComboBox" name="ExtractSkeletonOutputNodeComboBox">
+      <item row="6" column="1">
+       <widget class="qMRMLNodeComboBox" name="ExtractSeedsOutputNodeComboBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -217,8 +220,8 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QToolButton" name="ExtractSkeletonOutputSaveToolButton">
+      <item row="6" column="2">
+       <widget class="QToolButton" name="ExtractSeedsOutputSaveToolButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -228,6 +231,27 @@
         <property name="workflow" stdset="0">
          <stringlist>
           <string>1</string>
+          <string>2</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="ExtractSeedsObjectIDLabel">
+        <property name="text">
+         <string>Organ label</string>
+        </property>
+        <property name="workflow" stdset="0">
+         <stringlist>
+          <string>2</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="qMRMLLabelComboBox" name="ExtractSeedsObjectIDLabelComboBox">
+        <property name="workflow" stdset="0">
+         <stringlist>
           <string>2</string>
          </stringlist>
         </property>
@@ -253,9 +277,20 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>qMRMLLabelComboBox</class>
+   <extends>qMRMLWidget</extends>
+   <header>qMRMLLabelComboBox.h</header>
+  </customwidget>
+  <customwidget>
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLWidget</class>
+   <extends>QWidget</extends>
+   <header>qMRMLWidget.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>qSlicerWidget</class>
@@ -273,9 +308,9 @@
  <resources/>
  <connections>
   <connection>
-   <sender>ExtractSkeleton</sender>
+   <sender>ExtractSeeds</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ExtractSkeletonInputNodeComboBox</receiver>
+   <receiver>ExtractSeedsInputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -289,9 +324,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>ExtractSkeleton</sender>
+   <sender>ExtractSeeds</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ExtractSkeletonMaskNodeComboBox</receiver>
+   <receiver>ExtractSeedsMaskNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -305,9 +340,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>ExtractSkeleton</sender>
+   <sender>ExtractSeeds</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ExtractSkeletonOutputNodeComboBox</receiver>
+   <receiver>ExtractSeedsOutputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">

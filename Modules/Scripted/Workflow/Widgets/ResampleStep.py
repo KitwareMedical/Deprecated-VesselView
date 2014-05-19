@@ -100,8 +100,8 @@ class ResampleStep( WorkflowStep ) :
   def updateConfiguration( self, config ):
     for i in range(len(self.ResampleVolumes)):
       self.ResampleVolumes[i].updateNames(
-        config['Volume%iName' %(i+1)],
-        '%s) Resample %s' % (string.ascii_uppercase[i], config['Volume%iName' %(i+1)].lower()))
+        config['Workflow']['Volume%iName' %(i+1)],
+        '%s) Resample %s' % (string.ascii_uppercase[i], config['Workflow']['Volume%iName' %(i+1)].lower()))
 
   def setNumberOfInputs( self, numberOfInputs ):
     if numberOfInputs not in range(1,4):

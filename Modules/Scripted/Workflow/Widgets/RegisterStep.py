@@ -114,8 +114,8 @@ class RegisterStep( WorkflowStep ) :
   def updateConfiguration( self, config ):
     for i in range(len(self.RegisterWidgets)):
       self.RegisterWidgets[i].updateNames(
-        config['Volume%iName' %(i+2)],
-        '%s) Register %s' % (string.ascii_uppercase[i], config['Volume%iName' %(i+2)].lower()))
+        config['Workflow']['Volume%iName' %(i+2)],
+        '%s) Register %s' % (string.ascii_uppercase[i], config['Workflow']['Volume%iName' %(i+2)].lower()))
 
   def getRegisteredNode( self, index):
     '''Return the volume obtained at the end of the registration step.
