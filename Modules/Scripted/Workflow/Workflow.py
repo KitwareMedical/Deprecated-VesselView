@@ -30,7 +30,7 @@ class Workflow:
     parent.dependencies = []
     parent.contributors = ["Julien Finet (Kitware), Johan Andruejol (Kitware)"]
     parent.helpText = """
-    Step by step workflow to monitor RFA of lesions. See <a href=\"http://public.kitware.com/Wiki/TubeTK\"</a> for more information.
+    Step by step workflow to show the vessels of an image. See the <a href=\"http://public.kitware.com/Wiki/TubeTK\">TubeTK wiki</a> for more information.
     """
     parent.acknowledgementText = """
     This work is supported by the National Institute of Health
@@ -243,6 +243,16 @@ class WorkflowWidget:
     return self.CLIProgressBar
 
   def enter(self):
+    # Pop-up the help
+    modulePanelWidget = self.findWidget(slicer.util.mainWindow(), 'ModulePanel')
+    helpButton = self.findWidget(modulePanelWidget, 'HelpCollapsibleButton')
+    if helpButton and not helpButton.isChecked():
+      helpButton.setChecked(True)
+
+      tabs = self.findWidget(helpButton, 'HelpAcknowledgementTabWidget')
+      if tabs:
+        tabs.currentIndex = 0 # Select the help (first) tab
+
     self.updateLayout(self._CurrentViewID)
 
     for s in self.steps:
