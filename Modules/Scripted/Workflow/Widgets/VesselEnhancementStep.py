@@ -182,7 +182,9 @@ class VesselEnhancementStep( WorkflowStep ) :
     if not storageNode or not storageNode.GetFileName():
       # Save it in temp dir
       tempPath = slicer.app.temporaryPath
-      volumeName = tempPath + '/' + volume.GetName() + '.nrrd'
+      volumeName = os.path.join(tempPath, volume.GetName() + '.nrrd')
+      if os.path.isfile(volumeName):
+        os.remove(volumeName)
       slicer.util.saveNode(volume, volumeName)
 
     return storageNode.GetFileName()
