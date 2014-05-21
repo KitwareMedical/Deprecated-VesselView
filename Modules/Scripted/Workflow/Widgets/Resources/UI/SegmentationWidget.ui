@@ -190,8 +190,13 @@
         </item>
         <item>
          <widget class="QPushButton" name="SegmentApplyPDFPushButton">
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
           <property name="text">
-           <string>Apply PDF segmenter</string>
+           <string>Segment</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
