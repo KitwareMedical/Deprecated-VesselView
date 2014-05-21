@@ -41,7 +41,7 @@ class VesselEnhancementStep( WorkflowStep ) :
                                                           self.setMaskColorNode)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('VesselEnhancementOutputSaveToolButton').icon = saveIcon
+    self.get('VesselEnhancementSaveToolButton').setVisible(False)
     self.get('VesselEnhancementSaveToolButton').icon = saveIcon
     self.get('VesselEnhancementSaveToolButton').connect('clicked()', self.saveVesselEnhancementImage)
 
@@ -52,7 +52,7 @@ class VesselEnhancementStep( WorkflowStep ) :
     validEnhancement = True
     cliNode = self.getCLINode(slicer.modules.enhancetubesusingdiscriminantanalysis)
     validEnhancement = (cliNode.GetStatusString() == 'Completed')
-    self.get('VesselEnhancementOutputSaveToolButton').enabled = validEnhancement
+    self.get('VesselEnhancementSaveToolButton').setVisible(validEnhancement)
     self.get('VesselEnhancementSaveToolButton').enabled = validEnhancement
 
     if validEnhancement:
@@ -182,7 +182,9 @@ class VesselEnhancementStep( WorkflowStep ) :
     if not storageNode or not storageNode.GetFileName():
       # Save it in temp dir
       tempPath = slicer.app.temporaryPath
-      volumeName = tempPath + '/' + volume.GetName() + '.nrrd'
+      volumeName = os.path.join(tempPath, volume.GetName() + '.nrrd')
+      if os.path.isfile(volumeName):
+        os.remove(volumeName)
       slicer.util.saveNode(volume, volumeName)
 
     return storageNode.GetFileName()
