@@ -75,46 +75,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="qMRMLNodeComboBox" name="SegmentMergeNodeComboBox">
-        <property name="nodeTypes">
-         <stringlist>
-          <string>vtkMRMLScalarVolumeNode</string>
-         </stringlist>
-        </property>
-        <property name="addEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="removeEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="renameEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>1</string>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QToolButton" name="SegmentOutputSaveToolButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>1</string>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1" colspan="3">
        <widget class="qMRMLNodeComboBox" name="SegmentMasterNodeComboBox">
         <property name="sizePolicy">
@@ -445,12 +405,35 @@
         </layout>
        </widget>
       </item>
+      <item row="3" column="1" colspan="3">
+       <widget class="qMRMLNodeComboBox" name="SegmentMergeNodeComboBox">
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLScalarVolumeNode</string>
+         </stringlist>
+        </property>
+        <property name="addEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="removeEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="renameEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="workflow" stdset="0">
+         <stringlist>
+          <string>1</string>
+          <string>2</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
      </layout>
      <zorder>SegmentAdditionalVolume1ComboBox</zorder>
      <zorder>SegmentMasterNodeLabel</zorder>
      <zorder>SegmentMergeVolumesLabel</zorder>
      <zorder>SegmentMergeNodeComboBox</zorder>
-     <zorder>SegmentOutputSaveToolButton</zorder>
      <zorder>SegmentMasterNodeComboBox</zorder>
      <zorder>SegmentPaintToolsFrame</zorder>
      <zorder>SegmentAdditionalVolume1Label</zorder>
@@ -515,22 +498,6 @@
     <hint type="destinationlabel">
      <x>251</x>
      <y>67</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SegmentOutputSaveToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>SegmentSaveToolButton</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>386</x>
-     <y>67</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>385</x>
-     <y>228</y>
     </hint>
    </hints>
   </connection>
