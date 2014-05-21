@@ -243,15 +243,8 @@ class WorkflowWidget:
     return self.CLIProgressBar
 
   def enter(self):
-    # Pop-up the help
-    modulePanelWidget = self.findWidget(slicer.util.mainWindow(), 'ModulePanel')
-    helpButton = self.findWidget(modulePanelWidget, 'HelpCollapsibleButton')
-    if helpButton and not helpButton.isChecked():
-      helpButton.setChecked(True)
-
-      tabs = self.findWidget(helpButton, 'HelpAcknowledgementTabWidget')
-      if tabs:
-        tabs.currentIndex = 0 # Select the help (first) tab
+    currentStep = self.step(self.workflow.currentStep().id())
+    currentStep.updateHelp()
 
     self.updateLayout(self._CurrentViewID)
 

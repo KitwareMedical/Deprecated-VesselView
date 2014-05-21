@@ -127,3 +127,8 @@ class RegisterStep( WorkflowStep ) :
       return self.RegisterWidgets[0].getFixedNode()
     else:
       return self.RegisterWidgets[index-1].getOutputNode()
+
+  def getHelp( self ):
+    return '''Register the images together so they are aligned for all the
+      subsequent steps. The images are all registered against the first image.
+      '''

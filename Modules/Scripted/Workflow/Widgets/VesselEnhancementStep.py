@@ -88,7 +88,7 @@ class VesselEnhancementStep( WorkflowStep ) :
     self.get('VesselEnhancementMaskNodeComboBox').setCurrentNode(
       self.step('SegmentationStep').getMergeNode())
 
-    super(WorkflowStep, self).onEntry(comingFrom, transitionType)
+    super(VesselEnhancementStep, self).onEntry(comingFrom, transitionType)
 
   def saveVesselEnhancementImage( self ):
     self.saveFile('Vessel Image', 'VolumeFile', '.mha', self.get('VesselEnhancementOutputNodeComboBox'))
@@ -248,3 +248,7 @@ class VesselEnhancementStep( WorkflowStep ) :
       subDictionnary['Label'] = labelNode.GetID() if labelNode is not None else ''
       viewDictionnary['Input%i' %i] = subDictionnary
     self.setViews(viewDictionnary)
+
+  def getHelp( self ):
+    return '''Enhance the vessels in the organ region of the image.
+      '''

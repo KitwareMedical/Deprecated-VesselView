@@ -120,3 +120,9 @@ class ResampleStep( WorkflowStep ) :
       subDictionnary['Foreground'] = id
       viewDictionnary['Input%i' %i] = subDictionnary
     self.setViews(viewDictionnary)
+
+  def getHelp( self ):
+    return '''Resample the first given image to make sure the volume is
+      isotropic. If the image is already isotropic, one can go directly to the
+      next step.
+      '''

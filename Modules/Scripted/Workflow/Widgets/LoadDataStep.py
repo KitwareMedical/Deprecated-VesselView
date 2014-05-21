@@ -134,3 +134,8 @@ class LoadDataStep( WorkflowStep ) :
     if index not in range(self.Workflow.maximumNumberOfInput):
       return
     return self.get('Volume%iNodeComboBox' %(index+1)).currentNode()
+
+  def getHelp( self ):
+    return '''Load the data from which the analysis will be run. One to three
+      volumes can be used.
+      '''

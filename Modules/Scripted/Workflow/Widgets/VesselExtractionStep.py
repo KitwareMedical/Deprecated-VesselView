@@ -58,7 +58,7 @@ class VesselExtractionStep( WorkflowStep ) :
     self.validateStep(validExtraction, desiredBranchId)
 
   def onEntry(self, comingFrom, transitionType):
-    super(WorkflowStep, self).onEntry(comingFrom, transitionType)
+    super(VesselExtractionStep, self).onEntry(comingFrom, transitionType)
 
     # Create output if necessary
     if not self.createExtractVesselOutputConnected:
@@ -116,3 +116,8 @@ class VesselExtractionStep( WorkflowStep ) :
   def updateConfiguration( self, config ):
     self.get('VesselExtractionInputLabel').setText('Enhanced ' + config['Workflow']['Organ'] + ' image')
     self.get('VesselExtractiontSkeletonMaskLabel').setText(config['Workflow']['Organ'] + ' vessel skeleton mask')
+
+  def getHelp( self ):
+    return '''Extract the vessels from the vessely image based on the seed
+      position and the seed image.
+      '''

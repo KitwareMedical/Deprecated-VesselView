@@ -238,3 +238,10 @@ class SegmentationStep( WorkflowStep ) :
     super( WorkflowStep, self ).onExit(goingTo, transitionType)
     if goingTo.id() != 'SegmentationStep':
       self.SegmentWidgets[0].paint(False)
+
+  def getHelp( self ):
+    return '''Segment the area of interest in the image. To do so, use the paint
+      brush to quickly mark the organ with the "Organ (Foreground)". Also mark
+      what is the background with the "Other (Background)".
+      Run the segmenter to segment the rest organ for you.
+      '''

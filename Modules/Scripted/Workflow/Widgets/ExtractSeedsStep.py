@@ -71,7 +71,7 @@ class ExtractSeedsStep( WorkflowStep ) :
     self.get('ExtractSeedsMaskNodeComboBox').setCurrentNode(
       self.step('VesselEnhancementStep').getMaskNode())
 
-    super(WorkflowStep, self).onEntry(comingFrom, transitionType)
+    super(ExtractSeedsStep, self).onEntry(comingFrom, transitionType)
 
   def setMaskColorNode( self, node ):
     if not node or not node.GetLabelMap():
@@ -152,3 +152,8 @@ class ExtractSeedsStep( WorkflowStep ) :
         }
       viewDictionnary['Input%i' %i] = subDictionnary
     self.setViews(viewDictionnary)
+
+  def getHelp( self ):
+    return '''Extract a seed image from the vessely image. These seeds will be
+      used to generate the vessel in the next step.
+      '''

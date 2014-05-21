@@ -175,6 +175,8 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
 
   def onEntry(self, comingFrom, transitionType):
     '''Can be reimplemented by the step'''
+    self.updateHelp()
+
     comingFromId = "None"
     if comingFrom: comingFromId = comingFrom.id()
     super( WorkflowStep, self ).onEntry(comingFrom, transitionType)
@@ -234,3 +236,21 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
     '''Overload this function to udpate the step depending on the number of
        inputs. This does nothing by default.'''
     pass
+
+  def getHelp( self ):
+    return '''Each step must re-implement the getHelp method so correct help can
+      be displayed at each step !'''
+
+  def updateHelp( self ):
+    '''<h1>Update the help dialog of the module with the text given by the
+       getHelp method.</h1>
+    '''
+
+    modulePanelWidget = self.findWidget(slicer.util.mainWindow(), 'ModulePanel')
+    helpButton = self.findWidget(modulePanelWidget, 'HelpCollapsibleButton')
+    helpButton.setChecked(True)
+
+    tab = self.findWidget(helpButton, 'HelpAcknowledgementTabWidget')
+    tab.currentIndex = 0 # Select the help (first) tab
+    helpLabel = self.findWidget(tab, 'HelpLabel')
+    helpLabel.setHtml(self.getHelp())

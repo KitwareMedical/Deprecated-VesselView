@@ -97,3 +97,8 @@ class InitialStep( WorkflowStep ) :
 
   def getConfigurationData( self ):
     return self.WorkflowConfigData
+
+  def getHelp( self ):
+    return '''Choose  what kind of organ the analysis is going to focus
+      on. The algorithm used in the workflow will be tailored according to this
+      choice.'''
