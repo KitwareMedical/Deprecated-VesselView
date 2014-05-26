@@ -41,9 +41,9 @@ class VesselEnhancementStep( WorkflowStep ) :
                                                           self.setMaskColorNode)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('VesselEnhancementSaveToolButton').setVisible(False)
-    self.get('VesselEnhancementSaveToolButton').icon = saveIcon
-    self.get('VesselEnhancementSaveToolButton').connect('clicked()', self.saveVesselEnhancementImage)
+    self.get('VesselEnhancementSavePushButton').setVisible(False)
+    self.get('VesselEnhancementSavePushButton').icon = saveIcon
+    self.get('VesselEnhancementSavePushButton').connect('clicked()', self.saveVesselEnhancementImage)
 
     self.get('VesselEnhancementApplyPushButton').connect('clicked(bool)', self.runVesselEnhancement)
     self.get('VesselEnhancementGoToModulePushButton').connect('clicked()', self.openVesselEnhancementModule)
@@ -52,8 +52,8 @@ class VesselEnhancementStep( WorkflowStep ) :
     validEnhancement = True
     cliNode = self.getCLINode(slicer.modules.enhancetubesusingdiscriminantanalysis)
     validEnhancement = (cliNode.GetStatusString() == 'Completed')
-    self.get('VesselEnhancementSaveToolButton').setVisible(validEnhancement)
-    self.get('VesselEnhancementSaveToolButton').enabled = validEnhancement
+    self.get('VesselEnhancementSavePushButton').setVisible(validEnhancement)
+    self.get('VesselEnhancementSavePushButton').enabled = validEnhancement
 
     if validEnhancement:
       viewDictionnary = {}

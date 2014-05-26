@@ -40,9 +40,9 @@ class ExtractSeedsStep( WorkflowStep ) :
     self.get('ExtractSeedsMaskNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('ExtractSeedsSaveToolButton').setVisible(False)
-    self.get('ExtractSeedsSaveToolButton').icon = saveIcon
-    self.get('ExtractSeedsSaveToolButton').connect('clicked()', self.saveExtractSeedsImage)
+    self.get('ExtractSeedsSavePushButton').setVisible(False)
+    self.get('ExtractSeedsSavePushButton').icon = saveIcon
+    self.get('ExtractSeedsSavePushButton').connect('clicked()', self.saveExtractSeedsImage)
 
     self.get('ExtractSeedsApplyPushButton').connect('clicked(bool)', self.runExtractSeeds)
     self.get('ExtractSeedsGoToModulePushButton').connect('clicked()', self.openExtractSeedsModule)
@@ -51,8 +51,8 @@ class ExtractSeedsStep( WorkflowStep ) :
     validExtraction = True
     cliNode = self.getCLINode(slicer.modules.segmenttubeseeds)
     validExtraction = (cliNode.GetStatusString() == 'Completed')
-    self.get('ExtractSeedsSaveToolButton').setVisible(validExtraction)
-    self.get('ExtractSeedsSaveToolButton').enabled = validExtraction
+    self.get('ExtractSeedsSavePushButton').setVisible(validExtraction)
+    self.get('ExtractSeedsSavePushButton').enabled = validExtraction
 
     self.validateStep(validExtraction, desiredBranchId)
 

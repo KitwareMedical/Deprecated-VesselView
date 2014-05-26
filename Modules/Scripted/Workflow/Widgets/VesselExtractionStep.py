@@ -41,19 +41,19 @@ class VesselExtractionStep( WorkflowStep ) :
                                                                                       self.get('VesselExtractionSkeletonMaskNodeComboBox').setCurrentNode)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('VesselExtractionOutputSaveToolButton').icon = saveIcon
-    self.get('VesselExtractionSaveToolButton').icon = saveIcon
-    self.get('VesselExtractionSaveToolButton').connect('clicked()', self.saveVesselExtractionImage)
+    self.get('VesselExtractionOutputSavePushButton').icon = saveIcon
+    self.get('VesselExtractionSavePushButton').icon = saveIcon
+    self.get('VesselExtractionSavePushButton').connect('clicked()', self.saveVesselExtractionImage)
 
     self.get('VesselExtractionApplyPushButton').connect('clicked(bool)', self.runVesselExtraction)
     self.get('VesselExtractionGoToModulePushButton').connect('clicked()', self.openVesselExtractionModule)
 
   def validate( self, desiredBranchId = None ):
     validExtraction = True
-    #cliNode = self.getCLINode(slicer.modules.segmenttubes)
-    #validExtraction = (cliNode.GetStatusString() == 'Completed')
-    #self.get('VesselExtractionOutputSaveToolButton').enabled = validExtraction
-    #self.get('VesselExtractionSaveToolButton').enabled = validExtraction
+    cliNode = self.getCLINode(slicer.modules.segmenttubes)
+    validExtraction = (cliNode.GetStatusString() == 'Completed')
+    self.get('VesselExtractionOutputSavePushButton').enabled = validExtraction
+    self.get('VesselExtractionSavePushButton').enabled = validExtraction
 
     self.validateStep(validExtraction, desiredBranchId)
 

@@ -44,9 +44,9 @@ class ResampleWidget( slicer.qMRMLWidget ) :
     self.setLayout(layout)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('ResampleSaveToolButton').setVisible(False)
-    self.get('ResampleSaveToolButton').icon = saveIcon
-    self.get('ResampleSaveToolButton').connect('clicked()', self.saveResampledImage)
+    self.get('ResampleSavePushButton').setVisible(False)
+    self.get('ResampleSavePushButton').icon = saveIcon
+    self.get('ResampleSavePushButton').connect('clicked()', self.saveResampledImage)
 
     self.get('ResampleApplyPushButton').connect('clicked(bool)', self.runResampling)
     self.get('ResampleGoToModulePushButton').connect('clicked()', self.openResampleImageModule)
@@ -64,8 +64,8 @@ class ResampleWidget( slicer.qMRMLWidget ) :
   def isResamplingValid( self ):
     validResampling = self.isVolumeIsotropic(self.getOutputNode())
 
-    self.get('ResampleSaveToolButton').setVisible(validResampling)
-    self.get('ResampleSaveToolButton').enabled = validResampling
+    self.get('ResampleSavePushButton').setVisible(validResampling)
+    self.get('ResampleSavePushButton').enabled = validResampling
 
     return validResampling
 

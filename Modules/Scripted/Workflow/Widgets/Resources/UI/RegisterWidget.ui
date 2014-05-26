@@ -83,7 +83,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="RegisterSaveToolButton">
+         <widget class="QPushButton" name="RegisterSavePushButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -91,12 +91,7 @@ p, li { white-space: pre-wrap; }
            <string>Save the output image</string>
           </property>
           <property name="text">
-           <string>...</string>
-          </property>
-          <property name="workflow" stdset="0">
-           <stringlist>
-            <string>0</string>
-           </stringlist>
+           <string>Save result </string>
           </property>
          </widget>
         </item>

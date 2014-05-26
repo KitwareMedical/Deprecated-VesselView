@@ -74,9 +74,9 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
       editLabelColorWidget.colorSpin.connect('valueChanged(int)', self.updateParameterNodeFromGUI)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('SegmentSaveToolButton').setVisible(False)
-    self.get('SegmentSaveToolButton').icon = saveIcon
-    self.get('SegmentSaveToolButton').connect('clicked()', self.saveSegmentedImage)
+    self.get('SegmentSavePushButton').setVisible(False)
+    self.get('SegmentSavePushButton').icon = saveIcon
+    self.get('SegmentSavePushButton').connect('clicked()', self.saveSegmentedImage)
 
     self.get('SegmentGoToModulePushButton').connect('clicked()', self.openSegmentModule)
 
@@ -170,8 +170,8 @@ class SegmentationWidget( slicer.qMRMLWidget ) :
     self.IsValid = (self.getMasterNode() and self.MergeVolumeValid)
     self.IsValid = self.IsValid and self.PDFSegmenterSuccess
 
-    self.get('SegmentSaveToolButton').setVisible(self.IsValid)
-    self.get('SegmentSaveToolButton').enabled = self.IsValid
+    self.get('SegmentSavePushButton').setVisible(self.IsValid)
+    self.get('SegmentSavePushButton').enabled = self.IsValid
 
     if self.IsValid and self.SegmentValidCallBack:
       self.SegmentValidCallBack()

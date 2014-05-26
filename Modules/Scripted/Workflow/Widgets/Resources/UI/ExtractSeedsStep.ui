@@ -157,17 +157,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="ExtractSeedsSaveToolButton">
+         <widget class="QPushButton" name="ExtractSeedsSavePushButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>...</string>
-          </property>
-          <property name="workflow" stdset="0">
-           <stringlist>
-            <string>0</string>
-           </stringlist>
+           <string>Save result </string>
           </property>
          </widget>
         </item>

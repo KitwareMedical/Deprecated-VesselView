@@ -43,9 +43,9 @@ class RegisterWidget( slicer.qMRMLWidget ) :
     self.setLayout(layout)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('RegisterSaveToolButton').setVisible(False)
-    self.get('RegisterSaveToolButton').icon = saveIcon
-    self.get('RegisterSaveToolButton').connect('clicked()', self.saveRegisteredImage)
+    self.get('RegisterSavePushButton').setVisible(False)
+    self.get('RegisterSavePushButton').icon = saveIcon
+    self.get('RegisterSavePushButton').connect('clicked()', self.saveRegisteredImage)
 
     self.get('RegisterApplyPushButton').connect('clicked(bool)', self.runRegistration)
     self.get('RegisterGoToModulePushButton').connect('clicked()', self.openRegisterImageModule)
@@ -61,8 +61,8 @@ class RegisterWidget( slicer.qMRMLWidget ) :
     validRegistration = (cliNode.GetStatusString() == 'Completed')
     validRegistration = validRegistration and self.getOutputNode()
 
-    self.get('RegisterSaveToolButton').setVisible(validRegistration)
-    self.get('RegisterSaveToolButton').enabled = validRegistration
+    self.get('RegisterSavePushButton').setVisible(validRegistration)
+    self.get('RegisterSavePushButton').enabled = validRegistration
     return validRegistration
 
   def initialize( self ):

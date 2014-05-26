@@ -60,9 +60,9 @@ class SegmentationStep( WorkflowStep ) :
     self.get('SegmentAddSegmentWidgetToolButton').connect('clicked()', self.addSegmentWidget)  
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('MergeAllSaveToolButton').setVisible(False)
-    self.get('MergeAllSaveToolButton').icon = saveIcon
-    self.get('MergeAllSaveToolButton').connect('clicked()', self.saveMergedImage)
+    self.get('MergeAllSavePushButton').setVisible(False)
+    self.get('MergeAllSavePushButton').icon = saveIcon
+    self.get('MergeAllSavePushButton').connect('clicked()', self.saveMergedImage)
 
     self.get('MergeAllGoToButton').connect('clicked()', self.openImageLabelCombineModule)
     self.get('MergeAllApplyButton').connect('clicked(bool)', self.runMergeAll)
@@ -96,8 +96,8 @@ class SegmentationStep( WorkflowStep ) :
       cliNode = self.getCLINode(slicer.modules.imagelabelcombine)
       validSegmentation = validSegmentation and (cliNode.GetStatusString() == 'Completed')
 
-      self.get('MergeAllSaveToolButton').setVisible(validSegmentation)
-      self.get('MergeAllSaveToolButton').enabled = validSegmentation
+      self.get('MergeAllSavePushButton').setVisible(validSegmentation)
+      self.get('MergeAllSavePushButton').enabled = validSegmentation
 
     self.validateStep(validSegmentation, desiredBranchId)
 

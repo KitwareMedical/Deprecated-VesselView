@@ -86,7 +86,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="VesselExtractionSaveToolButton">
+         <widget class="QPushButton" name="VesselExtractionSavePushButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -94,12 +94,7 @@ p, li { white-space: pre-wrap; }
            <string>Save the output image</string>
           </property>
           <property name="text">
-           <string>...</string>
-          </property>
-          <property name="workflow" stdset="0">
-           <stringlist>
-            <string>0</string>
-           </stringlist>
+           <string>Save result </string>
           </property>
          </widget>
         </item>
@@ -349,22 +344,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>408</x>
      <y>121</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>VesselExtractionOutputSaveToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>VesselExtractionSaveToolButton</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>356</x>
-     <y>93</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>122</y>
     </hint>
    </hints>
   </connection>
