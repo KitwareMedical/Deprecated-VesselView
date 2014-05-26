@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>379</width>
+    <width>383</width>
     <height>235</height>
    </rect>
   </property>
@@ -105,61 +105,6 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
-      <item row="4" column="2">
-       <widget class="QToolButton" name="VesselExtractionOutputSaveToolButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Save to file the output image</string>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>1</string>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="qMRMLNodeComboBox" name="VesselExtractionOutputNodeComboBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Select the output image</string>
-        </property>
-        <property name="nodeTypes">
-         <stringlist>
-          <string>vtkMRMLSpatialObjectsNode</string>
-         </stringlist>
-        </property>
-        <property name="showHidden">
-         <bool>true</bool>
-        </property>
-        <property name="baseName">
-         <string/>
-        </property>
-        <property name="renameEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="workflow" stdset="0">
-         <stringlist>
-          <string>1</string>
-          <string>2</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="0">
        <widget class="QLabel" name="VesselExtractionOutputLabel">
         <property name="sizePolicy">
@@ -235,7 +180,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QLabel" name="VesselExtractiontSkeletonMaskLabel">
+       <widget class="QLabel" name="VesselExtractiontSeedPointLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -243,7 +188,7 @@ p, li { white-space: pre-wrap; }
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Skeleton mask volume</string>
+         <string>Seed point</string>
         </property>
         <property name="workflow" stdset="0">
          <stringlist>
@@ -252,8 +197,44 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="qMRMLNodeComboBox" name="VesselExtractionOutputNodeComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Select the output image</string>
+        </property>
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLSpatialObjectsNode</string>
+         </stringlist>
+        </property>
+        <property name="showHidden">
+         <bool>true</bool>
+        </property>
+        <property name="baseName">
+         <string/>
+        </property>
+        <property name="renameEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="workflow" stdset="0">
+         <stringlist>
+          <string>1</string>
+          <string>2</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="1" colspan="2">
-       <widget class="qMRMLNodeComboBox" name="VesselExtractionSkeletonMaskNodeComboBox">
+       <widget class="qMRMLNodeComboBox" name="VesselExtractionSeedPointNodeComboBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -265,11 +246,14 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="nodeTypes">
          <stringlist>
-          <string>vtkMRMLScalarVolumeNode</string>
+          <string>vtkMRMLMarkupsFiducialNode</string>
          </stringlist>
         </property>
+        <property name="showHidden">
+         <bool>true</bool>
+        </property>
         <property name="baseName">
-         <string>Fixed</string>
+         <string/>
         </property>
         <property name="addEnabled">
          <bool>false</bool>
@@ -355,7 +339,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>VesselEnhancement</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>VesselExtractionSkeletonMaskNodeComboBox</receiver>
+   <receiver>VesselExtractionSeedPointNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">

@@ -103,6 +103,14 @@ class ExtractSeedsStep( WorkflowStep ) :
 
     return parameters
 
+  def updateFromCLIParameters( self ):
+    cliNode = self.getCLINode(slicer.modules.segmenttubeseeds)
+
+    self.get('ExtractSeedsInputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('inputImage'))
+    self.get('ExtractSeedsMaskNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('labelmap'))
+    self.get('ExtractSeedsObjectIDLabelComboBox').setCurrentColor(cliNode.GetParameterAsString('tubeId'))
+    self.get('ExtractSeedsOutputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('outputSeedImage'))
+
   def runExtractSeeds( self, run ):
     if run:
       cliNode = self.getCLINode(slicer.modules.segmenttubeseeds)

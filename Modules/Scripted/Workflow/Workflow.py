@@ -68,7 +68,7 @@ class WorkflowWidget:
       self.setup()
       self.parent.show()
 
-    self.setupLayouts()
+    self._setupLayouts()
 
   def setup(self):
 
@@ -97,7 +97,7 @@ class WorkflowWidget:
                   Widgets.SegmentationStep(),
                   Widgets.VesselEnhancementStep(),
                   Widgets.ExtractSeedsStep(),
-                  #Widgets.VesselExtractionStep(),
+                  Widgets.VesselExtractionStep(),
                  ]
     i = 0
     for step in self.steps:
@@ -347,8 +347,8 @@ class WorkflowWidget:
         step.onNumberOfInputsChanged(numberOfInputs)
 
   def updateLayout( self, numberOfViews ):
-    if numberOfViews not in range(1, self.maximumNumberOfInput + 1):
-      print 'This should not happen, the number of inputs should be in [1, %i[' %(self.maximumNumberOfInput + 1)
+    if numberOfViews not in range(1, len(self._layouts) + 1):
+      print 'This should not happen, the number of inputs should be in [1, %i[' %(len(self._layouts) + 1)
       return
 
     layoutNode = slicer.mrmlScene.GetNthNodeByClass(0, "vtkMRMLLayoutNode")
@@ -360,7 +360,7 @@ class WorkflowWidget:
     layoutNode.SetViewArrangement(newLayout)
     slicer.app.applicationLogic().FitSliceToAll()
 
-  def setupLayouts( self ):
+  def _setupLayouts( self ):
     layoutNode = slicer.mrmlScene.GetNthNodeByClass(0, "vtkMRMLLayoutNode")
     if layoutNode is None:
       return
@@ -369,6 +369,9 @@ class WorkflowWidget:
       tag = 'Input'
       for i in range(1, self.maximumNumberOfInput + 1):
         self._layouts.append(self._inputLayout(tag, i))
+
+      # Add the special 1 slice-1 3D view layout
+      self._layouts.append(self._inputLayout(tag, 1, True))
 
       oldView = layoutNode.GetViewArrangement()
       # The slice composite node are created when the layout is used.
@@ -383,13 +386,14 @@ class WorkflowWidget:
         sliceCompositeNode = slicer.mrmlScene.GetNodeByID('vtkMRMLSliceCompositeNode' + tag + str(i))
         if sliceCompositeNode:
           sliceCompositeNode.SetDoPropagateVolumeSelection(False)
-        else:
-          print('Developer error ! There should be a slice composite node here !')
 
-  def _inputLayout( self, tag, numberOfInputs ):
+  def _inputLayout( self, tag, numberOfInputs, with3D = False ):
     sliceItems = ''
     for i in range(1, numberOfInputs + 1):
       sliceItems = sliceItems + self._sliceItemLayout(tag + str(i), 'Axial', '#a9a9a9')
+
+    if (with3D):
+      sliceItems = sliceItems + self._3DViewItemLayout(tag)
 
     return (
       "<layout type=\"vertical\" split=\"true\" >"
@@ -400,6 +404,15 @@ class WorkflowWidget:
       " </item>"
       "</layout>"
       ) % sliceItems
+
+  def _3DViewItemLayout( self, tag ):
+    return (
+      "<item>"
+      "<view class=\"vtkMRMLViewNode\" singletontag=\"%s3D\">"
+      "<property name=\"viewlabel\" action=\"default\">%s</property>"
+      "</view>"
+      "</item>"
+      ) % (tag, tag)
 
   def _sliceItemLayout( self, tag, axe, color ):
     return (
