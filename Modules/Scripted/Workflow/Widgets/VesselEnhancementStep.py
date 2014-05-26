@@ -187,7 +187,10 @@ class VesselEnhancementStep( WorkflowStep ) :
         os.remove(volumeName)
       slicer.util.saveNode(volume, volumeName)
 
-    return storageNode.GetFileName()
+    if storageNode:
+      return storageNode.GetFileName()
+    else:
+      return ''
 
   def getVolumeIDFromFilename( self, filename ):
     if not filename:
