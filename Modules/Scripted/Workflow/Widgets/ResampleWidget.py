@@ -143,7 +143,7 @@ class ResampleWidget( slicer.qMRMLWidget ) :
       self.WorkflowStep.observeCLINode(cliNode, self.onResampleCLIModified)
       cliNode = slicer.cli.run(slicer.modules.resampleimage, cliNode, parameters, wait_for_completion = False)
     else:
-      cliNode = self.observer(
+      cliNode = self.WorkflowStep.observer(
         slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
         self.onResampleCLIModified)
       self.get('ResampleApplyPushButton').enabled = False
