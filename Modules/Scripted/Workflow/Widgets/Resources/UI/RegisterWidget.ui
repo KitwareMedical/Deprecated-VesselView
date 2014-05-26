@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>323</width>
-    <height>180</height>
+    <width>377</width>
+    <height>190</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,7 +63,7 @@
          <widget class="QPushButton" name="RegisterApplyPushButton">
           <property name="font">
            <font>
-            <pointsize>16</pointsize>
+            <pointsize>20</pointsize>
            </font>
           </property>
           <property name="toolTip">
@@ -74,8 +74,13 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Register image together&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
+          <property name="styleSheet">
+           <string notr="true">#RegisterApplyPushButton {
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #76b740, stop: 1 #3d7719);
+}</string>
+          </property>
           <property name="text">
-           <string>Register</string>
+           <string>  Register  </string>
           </property>
           <property name="checkable">
            <bool>true</bool>

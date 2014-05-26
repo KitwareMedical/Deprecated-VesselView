@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>440</width>
+    <width>498</width>
     <height>343</height>
    </rect>
   </property>
@@ -152,11 +152,16 @@
          <widget class="QPushButton" name="SegmentApplyPDFPushButton">
           <property name="font">
            <font>
-            <pointsize>16</pointsize>
+            <pointsize>20</pointsize>
            </font>
           </property>
+          <property name="styleSheet">
+           <string notr="true">#SegmentApplyPDFPushButton {
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #76b740, stop: 1 #3d7719);
+}</string>
+          </property>
           <property name="text">
-           <string>Segment</string>
+           <string>  Segment  </string>
           </property>
           <property name="checkable">
            <bool>true</bool>

@@ -145,11 +145,16 @@
          <widget class="QPushButton" name="ExtractSeedsApplyPushButton">
           <property name="font">
            <font>
-            <pointsize>16</pointsize>
+            <pointsize>20</pointsize>
            </font>
           </property>
+          <property name="styleSheet">
+           <string notr="true">#ExtractSeedsApplyPushButton {
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #76b740, stop: 1 #3d7719);
+}</string>
+          </property>
           <property name="text">
-           <string>Extract</string>
+           <string>  Extract  </string>
           </property>
           <property name="checkable">
            <bool>true</bool>
