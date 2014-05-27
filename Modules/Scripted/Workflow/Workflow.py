@@ -238,6 +238,7 @@ class WorkflowWidget:
     for i in range(0, sliceCompositeNodes.GetNumberOfItems()):
       sliceCompositeNode = sliceCompositeNodes.GetItemAsObject(i)
       sliceCompositeNode.SetForegroundOpacity(ratio)
+      sliceCompositeNode.SetLabelOpacity(ratio)
 
   def getProgressBar( self ):
     return self.CLIProgressBar
