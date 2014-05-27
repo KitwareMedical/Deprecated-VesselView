@@ -41,9 +41,9 @@ class VesselEnhancementStep( WorkflowStep ) :
                                                           self.setMaskColorNode)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('VesselEnhancementOutputSaveToolButton').icon = saveIcon
-    self.get('VesselEnhancementSaveToolButton').icon = saveIcon
-    self.get('VesselEnhancementSaveToolButton').connect('clicked()', self.saveVesselEnhancementImage)
+    self.get('VesselEnhancementSavePushButton').setVisible(False)
+    self.get('VesselEnhancementSavePushButton').icon = saveIcon
+    self.get('VesselEnhancementSavePushButton').connect('clicked()', self.saveVesselEnhancementImage)
 
     self.get('VesselEnhancementApplyPushButton').connect('clicked(bool)', self.runVesselEnhancement)
     self.get('VesselEnhancementGoToModulePushButton').connect('clicked()', self.openVesselEnhancementModule)
@@ -52,8 +52,8 @@ class VesselEnhancementStep( WorkflowStep ) :
     validEnhancement = True
     cliNode = self.getCLINode(slicer.modules.enhancetubesusingdiscriminantanalysis)
     validEnhancement = (cliNode.GetStatusString() == 'Completed')
-    self.get('VesselEnhancementOutputSaveToolButton').enabled = validEnhancement
-    self.get('VesselEnhancementSaveToolButton').enabled = validEnhancement
+    self.get('VesselEnhancementSavePushButton').setVisible(validEnhancement)
+    self.get('VesselEnhancementSavePushButton').enabled = validEnhancement
 
     if validEnhancement:
       viewDictionnary = {}
@@ -88,7 +88,7 @@ class VesselEnhancementStep( WorkflowStep ) :
     self.get('VesselEnhancementMaskNodeComboBox').setCurrentNode(
       self.step('SegmentationStep').getMergeNode())
 
-    super(WorkflowStep, self).onEntry(comingFrom, transitionType)
+    super(VesselEnhancementStep, self).onEntry(comingFrom, transitionType)
 
   def saveVesselEnhancementImage( self ):
     self.saveFile('Vessel Image', 'VolumeFile', '.mha', self.get('VesselEnhancementOutputNodeComboBox'))
@@ -182,10 +182,15 @@ class VesselEnhancementStep( WorkflowStep ) :
     if not storageNode or not storageNode.GetFileName():
       # Save it in temp dir
       tempPath = slicer.app.temporaryPath
-      volumeName = tempPath + '/' + volume.GetName() + '.nrrd'
+      volumeName = os.path.join(tempPath, volume.GetName() + '.nrrd')
+      if os.path.isfile(volumeName):
+        os.remove(volumeName)
       slicer.util.saveNode(volume, volumeName)
 
-    return storageNode.GetFileName()
+    if storageNode:
+      return storageNode.GetFileName()
+    else:
+      return ''
 
   def getVolumeIDFromFilename( self, filename ):
     if not filename:
@@ -246,3 +251,7 @@ class VesselEnhancementStep( WorkflowStep ) :
       subDictionnary['Label'] = labelNode.GetID() if labelNode is not None else ''
       viewDictionnary['Input%i' %i] = subDictionnary
     self.setViews(viewDictionnary)
+
+  def getHelp( self ):
+    return '''Enhance the vessels in the organ region of the image.
+      '''

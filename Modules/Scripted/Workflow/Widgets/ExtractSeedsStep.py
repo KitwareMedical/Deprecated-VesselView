@@ -40,9 +40,9 @@ class ExtractSeedsStep( WorkflowStep ) :
     self.get('ExtractSeedsMaskNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('ExtractSeedsOutputSaveToolButton').icon = saveIcon
-    self.get('ExtractSeedsSaveToolButton').icon = saveIcon
-    self.get('ExtractSeedsSaveToolButton').connect('clicked()', self.saveExtractSeedsImage)
+    self.get('ExtractSeedsSavePushButton').setVisible(False)
+    self.get('ExtractSeedsSavePushButton').icon = saveIcon
+    self.get('ExtractSeedsSavePushButton').connect('clicked()', self.saveExtractSeedsImage)
 
     self.get('ExtractSeedsApplyPushButton').connect('clicked(bool)', self.runExtractSeeds)
     self.get('ExtractSeedsGoToModulePushButton').connect('clicked()', self.openExtractSeedsModule)
@@ -51,8 +51,8 @@ class ExtractSeedsStep( WorkflowStep ) :
     validExtraction = True
     cliNode = self.getCLINode(slicer.modules.segmenttubeseeds)
     validExtraction = (cliNode.GetStatusString() == 'Completed')
-    self.get('ExtractSeedsOutputSaveToolButton').enabled = validExtraction
-    self.get('ExtractSeedsSaveToolButton').enabled = validExtraction
+    self.get('ExtractSeedsSavePushButton').setVisible(validExtraction)
+    self.get('ExtractSeedsSavePushButton').enabled = validExtraction
 
     self.validateStep(validExtraction, desiredBranchId)
 
@@ -71,7 +71,7 @@ class ExtractSeedsStep( WorkflowStep ) :
     self.get('ExtractSeedsMaskNodeComboBox').setCurrentNode(
       self.step('VesselEnhancementStep').getMaskNode())
 
-    super(WorkflowStep, self).onEntry(comingFrom, transitionType)
+    super(ExtractSeedsStep, self).onEntry(comingFrom, transitionType)
 
   def setMaskColorNode( self, node ):
     if not node or not node.GetLabelMap():
@@ -102,6 +102,14 @@ class ExtractSeedsStep( WorkflowStep ) :
     parameters['outputSeedImage'] = self.get('ExtractSeedsOutputNodeComboBox').currentNode()
 
     return parameters
+
+  def updateFromCLIParameters( self ):
+    cliNode = self.getCLINode(slicer.modules.segmenttubeseeds)
+
+    self.get('ExtractSeedsInputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('inputImage'))
+    self.get('ExtractSeedsMaskNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('labelmap'))
+    self.get('ExtractSeedsObjectIDLabelComboBox').setCurrentColor(cliNode.GetParameterAsString('tubeId'))
+    self.get('ExtractSeedsOutputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('outputSeedImage'))
 
   def runExtractSeeds( self, run ):
     if run:
@@ -152,3 +160,8 @@ class ExtractSeedsStep( WorkflowStep ) :
         }
       viewDictionnary['Input%i' %i] = subDictionnary
     self.setViews(viewDictionnary)
+
+  def getHelp( self ):
+    return '''Extract a seed image from the vessely image. These seeds will be
+      used to generate the vessel in the next step.
+      '''

@@ -44,9 +44,9 @@ class ResampleWidget( slicer.qMRMLWidget ) :
     self.setLayout(layout)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('ResampleOutputSaveToolButton').icon = saveIcon
-    self.get('ResampleSaveToolButton').icon = saveIcon
-    self.get('ResampleSaveToolButton').connect('clicked()', self.saveResampledImage)
+    self.get('ResampleSavePushButton').setVisible(False)
+    self.get('ResampleSavePushButton').icon = saveIcon
+    self.get('ResampleSavePushButton').connect('clicked()', self.saveResampledImage)
 
     self.get('ResampleApplyPushButton').connect('clicked(bool)', self.runResampling)
     self.get('ResampleGoToModulePushButton').connect('clicked()', self.openResampleImageModule)
@@ -64,8 +64,8 @@ class ResampleWidget( slicer.qMRMLWidget ) :
   def isResamplingValid( self ):
     validResampling = self.isVolumeIsotropic(self.getOutputNode())
 
-    self.get('ResampleOutputSaveToolButton').enabled = validResampling
-    self.get('ResampleSaveToolButton').enabled = validResampling
+    self.get('ResampleSavePushButton').setVisible(validResampling)
+    self.get('ResampleSavePushButton').enabled = validResampling
 
     return validResampling
 
@@ -143,7 +143,7 @@ class ResampleWidget( slicer.qMRMLWidget ) :
       self.WorkflowStep.observeCLINode(cliNode, self.onResampleCLIModified)
       cliNode = slicer.cli.run(slicer.modules.resampleimage, cliNode, parameters, wait_for_completion = False)
     else:
-      cliNode = self.observer(
+      cliNode = self.WorkflowStep.observer(
         slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
         self.onResampleCLIModified)
       self.get('ResampleApplyPushButton').enabled = False

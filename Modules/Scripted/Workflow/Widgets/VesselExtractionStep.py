@@ -32,39 +32,46 @@ class VesselExtractionStep( WorkflowStep ) :
     self.setDescription('Extract the shape of the vessels of the input image')
 
     self.createExtractVesselOutputConnected = False
+    self.createExtractVesselSeed = False
 
   def setupUi( self ):
     self.loadUi('VesselExtractionStep.ui')
-    self.step('ExtractSkeletonStep').get('ExtractSkeletonInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                                                     self.get('VesselExtractionInputNodeComboBox').setCurrentNode)
-    self.step('ExtractSkeletonStep').get('ExtractSkeletonOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)',
-                                                                                      self.get('VesselExtractionSkeletonMaskNodeComboBox').setCurrentNode)
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
-    self.get('VesselExtractionOutputSaveToolButton').icon = saveIcon
-    self.get('VesselExtractionSaveToolButton').icon = saveIcon
-    self.get('VesselExtractionSaveToolButton').connect('clicked()', self.saveVesselExtractionImage)
+    self.get('VesselExtractionSavePushButton').icon = saveIcon
+    self.get('VesselExtractionSavePushButton').connect('clicked()', self.saveVesselExtractionImage)
 
     self.get('VesselExtractionApplyPushButton').connect('clicked(bool)', self.runVesselExtraction)
     self.get('VesselExtractionGoToModulePushButton').connect('clicked()', self.openVesselExtractionModule)
 
   def validate( self, desiredBranchId = None ):
     validExtraction = True
-    #cliNode = self.getCLINode(slicer.modules.segmenttubes)
-    #validExtraction = (cliNode.GetStatusString() == 'Completed')
-    #self.get('VesselExtractionOutputSaveToolButton').enabled = validExtraction
-    #self.get('VesselExtractionSaveToolButton').enabled = validExtraction
+    cliNode = self.getCLINode(slicer.modules.segmenttubes)
+    validExtraction = (cliNode.GetStatusString() == 'Completed')
+    self.get('VesselExtractionSavePushButton').setVisible(validExtraction)
+    self.get('VesselExtractionSavePushButton').enabled = validExtraction
 
     self.validateStep(validExtraction, desiredBranchId)
 
   def onEntry(self, comingFrom, transitionType):
-    super(WorkflowStep, self).onEntry(comingFrom, transitionType)
+    self.Workflow.updateLayout(self.Workflow.maximumNumberOfInput + 1)
+
+    self.get('VesselExtractionInputNodeComboBox').setCurrentNode(
+      self.step('ExtractSeedsStep').get('ExtractSeedsOutputNodeComboBox').currentNode())
 
     # Create output if necessary
     if not self.createExtractVesselOutputConnected:
       self.get('VesselExtractionInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createVesselExtractionOutput)
       self.createExtractVesselOutputConnected = True
     self.createVesselExtractionOutput()
+
+    if not self.createExtractVesselSeed:
+      self.get('VesselExtractionSeedPointNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createVesselExtractSeed)
+      self.createExtractVesselSeed = True
+    self.createVesselExtractSeed()
+
+    self.updateViews()
+    super(VesselExtractionStep, self).onEntry(comingFrom, transitionType)
 
   def saveVesselExtractionImage( self ):
     self.saveFile('Tube objects', 'SpatialObject', '.tre', self.get('VesselExtractionOutputNodeComboBox'))
@@ -74,20 +81,40 @@ class VesselExtractionStep( WorkflowStep ) :
                                'tubes',
                                self.get('VesselExtractionOutputNodeComboBox') )
 
+  def createVesselExtractSeed( self ):
+    nodeName = 'VesselExtractionSeed'
+    node = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLMarkupsFiducialNode')
+    if node == None:
+      nodeID = slicer.modules.markups.logic().AddNewFiducialNode(nodeName)
+      node = slicer.mrmlScene.GetNodeByID(nodeID)
+
+      imageCenter = self.getImageCenter(
+        self.get('VesselExtractionInputNodeComboBox').currentNode())
+      slicer.modules.markups.logic().AddFiducial(imageCenter[0], imageCenter[1], imageCenter[2])
+      node.SetNthMarkupLabel(0, '')
+
+    self.get('VesselExtractionSeedPointNodeComboBox').setCurrentNode(node)
+
   def vesselExtractionParameters( self ):
     parameters = self.getJsonParameters(slicer.modules.segmenttubes)
     parameters['inputVolume'] = self.get('VesselExtractionInputNodeComboBox').currentNode()
     parameters['outputTubeFile'] = self.get('VesselExtractionOutputNodeComboBox').currentNode()
-    parameters['seedMaskVolume'] = self.get('VesselExtractionMaskNodeComboBox').currentNode()
+    parameters['seedX'] = self.get('VesselExtractionSeedPointNodeComboBox').currentNode()
 
     return parameters
+
+  def updateFromCLIParameters( self ):
+    cliNode = self.getCLINode(slicer.modules.segmenttubes)
+    self.get('VesselExtractionInputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('inputVolume'))
+    self.get('VesselExtractionOutputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('outputTubeFile'))
+    self.get('VesselExtractionSeedPointNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('seedX'))
 
   def runVesselExtraction( self, run ):
     if run:
       cliNode = self.getCLINode(slicer.modules.segmenttubes)
       parameters = self.vesselExtractionParameters()
       self.get('VesselExtractionApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.segmenttubes)
+      self.observeCLINode(cliNode, self.onVesselExtractionCLIModified)
       cliNode = slicer.cli.run(slicer.modules.segmenttubes, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(
@@ -115,4 +142,31 @@ class VesselExtractionStep( WorkflowStep ) :
 
   def updateConfiguration( self, config ):
     self.get('VesselExtractionInputLabel').setText('Enhanced ' + config['Workflow']['Organ'] + ' image')
-    self.get('VesselExtractiontSkeletonMaskLabel').setText(config['Workflow']['Organ'] + ' vessel skeleton mask')
+    self.get('VesselExtractiontSeedPointLabel').setText(config['Workflow']['Organ'] + ' vessel seed')
+
+  def getHelp( self ):
+    return '''Extract the vessels from the vessely image based on the seed
+      position and the seed image.
+      '''
+
+  def updateViews( self ):
+    viewDictionnary = {}
+
+    subDictionnary = {}
+    backgroundNode =  self.get('VesselExtractionInputNodeComboBox').currentNode()
+    subDictionnary['Background'] = backgroundNode.GetID() if backgroundNode is not None else ''
+    subDictionnary['Foreground'] = ''
+    subDictionnary['Label'] = ''
+    viewDictionnary['Input1'] = subDictionnary
+    self.setViews(viewDictionnary)
+
+  def getImageCenter( self, volumeNode ):
+    if not volumeNode:
+      return [0.0, 0.0, 0.0]
+
+    dims = range(6)
+    volumeNode.GetRASBounds(dims)
+    origin = []
+    for i in range(0, 6, 2):
+      origin.append( dims[i] + (dims[i + 1] - dims[i])*0.5 )
+    return origin

@@ -101,6 +101,23 @@ int SlicerAppMain(int argc, char* argv[])
   QApplication::setDesktopSettingsAware(false);
   QApplication::setStyle("Dark Slicer"); // to be changed
 
+  QSettings settings(
+    QSettings::IniFormat,
+    QSettings::UserScope,
+    Slicer_ORGANIZATION_NAME,
+    Slicer_MAIN_PROJECT_APPLICATION_NAME);
+
+  if (!settings.contains("SlicerWikiURL"))
+    {
+    QString defaultPath = QString(":/DefaultSettings.ini");
+    QSettings defaultSettings(defaultPath, QSettings::IniFormat);
+
+    foreach(QString key, defaultSettings.allKeys())
+      {
+      settings.setValue(key, defaultSettings.value(key));
+      }
+    }
+
   qSlicerApplication app(argc, argv);
   if (app.returnCode() != -1)
     {

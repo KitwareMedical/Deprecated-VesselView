@@ -31,27 +31,52 @@ class InitialStep( WorkflowStep ) :
 
     self.Presets = {}
     self.WorkflowConfigData = {}
+    self.PresetButtons = []
 
   def setupUi( self ):
     self.loadUi('InitialStep.ui')
 
+    moduleName = 'Workflow'
+    scriptedModulesPath = eval('slicer.modules.%s.path' % moduleName.lower())
+    scriptedModulesPath = os.path.dirname(scriptedModulesPath)
+    iconsPath = os.path.join(scriptedModulesPath, 'Widgets', 'Resources', 'Icons')
+
+    buttonGroup = qt.QButtonGroup(self.get('InitialCollapsibleGroupBox'))
+
     logic = slicer.modules.workflow.logic()
     resourceDir = qt.QDir(logic.GetModuleShareDirectory() + '/Resources')
     for dir in resourceDir.entryList(resourceDir.Dirs | resourceDir.NoDotAndDotDot):
-      self.get('InitialAnalysisTypeComboBox').addItem(dir.replace('_', ' '), resourceDir.absolutePath() + '/' + dir)
+      pushButton = qt.QPushButton(self.get('InitialCollapsibleGroupBox'))
+      buttonGroup.addButton(pushButton)
+      pushButton.text = dir.replace('_', ' ')
+      pushButton.setProperty('Path', resourceDir.absolutePath() + '/' + dir)
+      pushButton.checkable = True
+      pushButton.connect('clicked()', self.onPresetSelected)
+      pushButton.setIcon(qt.QIcon(os.path.join(iconsPath, dir)))
+      pushButton.setIconSize(qt.QSize(75, 75))
 
-    self.get('InitialAnalysisTypeComboBox').connect('currentIndexChanged(int)', self.onPresetSelected)
+      self.PresetButtons.append(pushButton)
+      self.get('InitialCollapsibleGroupBox').layout().addWidget(pushButton)
+
     # No init, it is done by the workflow once everything is set up
 
   def validate( self, desiredBranchId = None ):
-    validInitializaton = True
+    validInitializaton = self.getSelectedButton() is not None
     self.validateStep(validInitializaton, desiredBranchId)
 
-  def onPresetSelected( self, index = None ):
-    if not index:
-      index = self.get('InitialAnalysisTypeComboBox').currentIndex
+  def getSelectedButton( self ):
+    for p in self.PresetButtons:
+      if p.isChecked():
+        return p
+    return None
 
-    path = self.get('InitialAnalysisTypeComboBox').itemData(index)
+  def onPresetSelected( self ):
+    clickedButton = self.getSelectedButton()
+    if clickedButton is None:
+      self.validate()
+      return
+
+    path = clickedButton.property('Path')
     presetFiles = qt.QDir(path)
 
     self.Presets = {}
@@ -65,9 +90,15 @@ class InitialStep( WorkflowStep ) :
         self.WorkflowConfigData[filename[:-len('.dict')]] = eval(file.read())
 
     self.Workflow.updateConfiguration()
+    self.validate()
 
   def getPresets( self ):
     return self.Presets
 
   def getConfigurationData( self ):
     return self.WorkflowConfigData
+
+  def getHelp( self ):
+    return '''Choose  what kind of organ the analysis is going to focus
+      on. The algorithm used in the workflow will be tailored according to this
+      choice.'''
