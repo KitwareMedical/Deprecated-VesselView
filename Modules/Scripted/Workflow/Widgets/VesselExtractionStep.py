@@ -38,6 +38,7 @@ class VesselExtractionStep( WorkflowStep ) :
     self.loadUi('VesselExtractionStep.ui')
 
     saveIcon = self.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
+    self.get('VesselExtractionSavePushButton').setVisible(False)
     self.get('VesselExtractionSavePushButton').icon = saveIcon
     self.get('VesselExtractionSavePushButton').connect('clicked()', self.saveVesselExtractionImage)
 
@@ -99,7 +100,7 @@ class VesselExtractionStep( WorkflowStep ) :
     parameters = self.getJsonParameters(slicer.modules.segmenttubes)
     parameters['inputVolume'] = self.get('VesselExtractionInputNodeComboBox').currentNode()
     parameters['outputTubeFile'] = self.get('VesselExtractionOutputNodeComboBox').currentNode()
-    parameters['seedX'] = self.get('VesselExtractionSeedPointNodeComboBox').currentNode()
+    parameters['seedPhysicalPoint'] = self.get('VesselExtractionSeedPointNodeComboBox').currentNode()
 
     return parameters
 
@@ -107,7 +108,7 @@ class VesselExtractionStep( WorkflowStep ) :
     cliNode = self.getCLINode(slicer.modules.segmenttubes)
     self.get('VesselExtractionInputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('inputVolume'))
     self.get('VesselExtractionOutputNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('outputTubeFile'))
-    self.get('VesselExtractionSeedPointNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('seedX'))
+    self.get('VesselExtractionSeedPointNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('seedPhysicalPoint'))
 
   def runVesselExtraction( self, run ):
     if run:
