@@ -71,8 +71,8 @@ file(COPY ${${MODULE_NAME}_PRESET_RESOURCES_DIR}
   )
 
 install(
-  FILES ${CMAKE_BINARY_DIR}/${Slicer_QTSCRIPTEDMODULES_DIR}/Workflow
-  DESTINATION ${Slicer_QTSCRIPTEDMODULES_SHARE_DIR}/Workflow COMPONENT Runtime)
+  DIRECTORY ${CMAKE_BINARY_DIR}/${Slicer_QTSCRIPTEDMODULES_SHARE_DIR}/Workflow
+  DESTINATION ${Slicer_INSTALL_QTSCRIPTEDMODULES_SHARE_DIR} COMPONENT Runtime)
 
 #-----------------------------------------------------------------------------
 ctkMacroCompilePythonScript(
