@@ -99,7 +99,8 @@ class VesselExtractionStep( WorkflowStep ) :
   def vesselExtractionParameters( self ):
     parameters = self.getJsonParameters(slicer.modules.segmenttubes)
     parameters['inputVolume'] = self.get('VesselExtractionInputNodeComboBox').currentNode()
-    parameters['outputTubeFile'] = self.get('VesselExtractionOutputNodeComboBox').currentNode()
+    parameters['outputTubeFile'] = self.getFilenameFromNode(
+      self.get('VesselExtractionOutputNodeComboBox').currentNode(), '.tre')
     parameters['seedPhysicalPoint'] = self.get('VesselExtractionSeedPointNodeComboBox').currentNode()
 
     return parameters
@@ -126,6 +127,7 @@ class VesselExtractionStep( WorkflowStep ) :
 
   def onVesselExtractionCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
+      slicer.app.ioManager().loadFile(cliNode.GetParameterAsString('outputTubeFile'))
       self.validate()
 
     if not cliNode.IsBusy():

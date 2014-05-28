@@ -254,3 +254,24 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
     tab.currentIndex = 0 # Select the help (first) tab
     helpLabel = self.findWidget(tab, 'HelpLabel')
     helpLabel.setHtml(self.getHelp())
+
+  def getFilenameFromNode(self, node, extension):
+    if not node:
+      return ''
+
+    storageNode = node.GetNthStorageNode(0)
+    if not storageNode or not storageNode.GetFileName():
+      # Save it in temp dir
+      tempPath = slicer.app.temporaryPath
+      nodeName = os.path.join(tempPath, node.GetName() + extension)
+      if os.path.isfile(nodeName):
+        os.remove(nodeName)
+
+      if extension == '.tre':
+        spatialObjectLogic = slicer.modules.spatialobjects.logic()
+        spatialObjectLogic.SaveSpatialObject(nodeName, node)
+      else:
+        slicer.util.saveNode(node, nodeName)
+      return nodeName
+
+    return storageNode.GetFileName()
