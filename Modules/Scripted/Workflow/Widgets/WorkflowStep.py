@@ -113,6 +113,9 @@ class WorkflowStep( ctk.ctkWorkflowWidgetStep ) :
     self.saveNode(title, fileType, fileSuffix, nodeComboBox.currentNode())
 
   def saveNode(self, title, fileType, fileSuffix, node):
+    if not node:
+      return
+
     manager = slicer.app.ioManager()
     properties = {}
     properties['nodeID'] = node.GetID()
