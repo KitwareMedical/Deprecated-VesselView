@@ -33,6 +33,7 @@ class VesselExtractionStep( WorkflowStep ) :
 
     self.createExtractVesselOutputConnected = False
     self.createExtractVesselSeed = False
+    self.currentOutputNode = None
 
   def setupUi( self ):
     self.loadUi('VesselExtractionStep.ui')
@@ -72,6 +73,7 @@ class VesselExtractionStep( WorkflowStep ) :
     self.createVesselExtractSeed()
 
     self.updateViews()
+    slicer.modules.markups.logic().StartPlaceMode(False)
     super(VesselExtractionStep, self).onEntry(comingFrom, transitionType)
 
   def saveVesselExtractionImage( self ):
@@ -81,6 +83,7 @@ class VesselExtractionStep( WorkflowStep ) :
     self.createOutputIfNeeded( self.get('VesselExtractionInputNodeComboBox').currentNode(),
                                'tubes',
                                self.get('VesselExtractionOutputNodeComboBox') )
+    self.updateViews()
 
   def createVesselExtractSeed( self ):
     nodeName = 'VesselExtractionSeed'
@@ -88,11 +91,11 @@ class VesselExtractionStep( WorkflowStep ) :
     if node == None:
       nodeID = slicer.modules.markups.logic().AddNewFiducialNode(nodeName)
       node = slicer.mrmlScene.GetNodeByID(nodeID)
+      node.SetMarkupLabelFormat('')
 
-      imageCenter = self.getImageCenter(
-        self.get('VesselExtractionInputNodeComboBox').currentNode())
-      slicer.modules.markups.logic().AddFiducial(imageCenter[0], imageCenter[1], imageCenter[2])
-      node.SetNthMarkupLabel(0, '')
+      selectionNodeID = slicer.modules.markups.logic().GetSelectionNodeID()
+      selectionNode = slicer.mrmlScene.GetNodeByID(selectionNodeID)
+      selectionNode.SetReferenceActivePlaceNodeID(nodeID)
 
     self.get('VesselExtractionSeedPointNodeComboBox').setCurrentNode(node)
 
@@ -117,6 +120,7 @@ class VesselExtractionStep( WorkflowStep ) :
       parameters = self.vesselExtractionParameters()
       self.get('VesselExtractionApplyPushButton').setChecked(True)
       self.observeCLINode(cliNode, self.onVesselExtractionCLIModified)
+      self.currentOutputNode = self.get('VesselExtractionOutputNodeComboBox').currentNode()
       cliNode = slicer.cli.run(slicer.modules.segmenttubes, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(
@@ -127,10 +131,20 @@ class VesselExtractionStep( WorkflowStep ) :
 
   def onVesselExtractionCLIModified( self, cliNode, event ):
     if cliNode.GetStatusString() == 'Completed':
-      slicer.app.ioManager().loadFile(cliNode.GetParameterAsString('outputTubeFile'))
+      # Automatically load the output tube file
+      spatialObjectLogic = slicer.modules.spatialobjects.logic()
+      obj = spatialObjectLogic.AddSpatialObject(cliNode.GetParameterAsString('outputTubeFile'))
+
+      currentName = self.currentOutputNode.GetName()
+      self.currentOutputNode.Copy(obj)
+      self.currentOutputNode.SetName(currentName)
+
+      slicer.mrmlScene.RemoveNode(obj)
+
       self.validate()
 
     if not cliNode.IsBusy():
+      self.currentOutputNode = None
       self.get('VesselExtractionApplyPushButton').setChecked(False)
       self.get('VesselExtractionApplyPushButton').enabled = True
       print 'Segment Tubes %s' % cliNode.GetStatusString()
@@ -140,7 +154,7 @@ class VesselExtractionStep( WorkflowStep ) :
     self.openModule('SegmentTubes')
 
     cliNode = self.getCLINode(slicer.modules.segmenttubes)
-    parameters = self.VesselExtractionParameters()
+    parameters = self.vesselExtractionParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def updateConfiguration( self, config ):
