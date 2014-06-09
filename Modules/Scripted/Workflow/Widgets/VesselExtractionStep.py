@@ -135,11 +135,11 @@ class VesselExtractionStep( WorkflowStep ) :
       spatialObjectLogic = slicer.modules.spatialobjects.logic()
       obj = spatialObjectLogic.AddSpatialObject(cliNode.GetParameterAsString('outputTubeFile'))
 
-      currentName = self.currentOutputNode.GetName()
-      self.currentOutputNode.Copy(obj)
-      self.currentOutputNode.SetName(currentName)
-
-      slicer.mrmlScene.RemoveNode(obj)
+      if obj:
+        currentName = self.currentOutputNode.GetName()
+        self.currentOutputNode.Copy(obj)
+        self.currentOutputNode.SetName(currentName)
+        slicer.mrmlScene.RemoveNode(obj)
 
       self.validate()
 
