@@ -43,6 +43,8 @@ class VesselExtractionStep( WorkflowStep ) :
     self.get('VesselExtractionSavePushButton').icon = saveIcon
     self.get('VesselExtractionSavePushButton').connect('clicked()', self.saveVesselExtractionImage)
 
+    self.get('VesselExtractionOutputNodeComboBox').connect('nodeAddedByUser(vtkMRMLNode*)', self.addDisplayNodes)
+
     self.get('VesselExtractionApplyPushButton').connect('clicked(bool)', self.runVesselExtraction)
     self.get('VesselExtractionGoToModulePushButton').connect('clicked()', self.openVesselExtractionModule)
 
@@ -136,9 +138,7 @@ class VesselExtractionStep( WorkflowStep ) :
       obj = spatialObjectLogic.AddSpatialObject(cliNode.GetParameterAsString('outputTubeFile'))
 
       if obj:
-        currentName = self.currentOutputNode.GetName()
-        self.currentOutputNode.Copy(obj)
-        self.currentOutputNode.SetName(currentName)
+        spatialObjectLogic.CopySpatialObject(obj, self.currentOutputNode)
         slicer.mrmlScene.RemoveNode(obj)
 
       self.validate()
@@ -187,3 +187,8 @@ class VesselExtractionStep( WorkflowStep ) :
     for i in range(0, 6, 2):
       origin.append( dims[i] + (dims[i + 1] - dims[i])*0.5 )
     return origin
+
+  def addDisplayNodes( self, node ):
+    if node:
+      spatialObjectLogic = slicer.modules.spatialobjects.logic()
+      spatialObjectLogic.AddDisplayNodes(node)
