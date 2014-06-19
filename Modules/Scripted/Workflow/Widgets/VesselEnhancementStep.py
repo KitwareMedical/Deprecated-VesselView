@@ -175,7 +175,22 @@ class VesselEnhancementStep( WorkflowStep ) :
     return ','.join(filenames)
 
   def getFilenameFromVolume( self, volume ):
-    return self.getFilenameFromNode(volume, '.nrrd')
+    if not volume:
+      return ''
+
+    storageNode = volume.GetNthStorageNode(0)
+    if not storageNode or not storageNode.GetFileName():
+      # Save it in temp dir
+      tempPath = slicer.app.temporaryPath
+      nodeName = os.path.join(tempPath, volume.GetName() + '.nrrd')
+      if os.path.isfile(nodeName):
+        os.remove(nodeName)
+
+      volumesLogic = slicer.modules.volumes.logic()
+      volumesLogic.SaveArchetypeVolume(nodeName, volume)
+      storageNode = volume.GetNthStorageNode(0)
+
+    return storageNode.GetFileName()
 
   def getVolumeIDFromFilename( self, filename ):
     if not filename:

@@ -107,8 +107,8 @@ class VesselExtractionStep( WorkflowStep ) :
     parameters = self.getJsonParameters(slicer.modules.segmenttubes)
     parameters['inputVolume'] = self.get('VesselExtractionInputNodeComboBox').currentNode()
     parameters['OutputNode'] = self.get('VesselExtractionOutputNodeComboBox').currentNode()
-    parameters['outputTubeFile'] = self.logic.getFilenameFromNode(parameters['OutputNode'], '.tre')
-    parameters['seedPhysicalPoint'] = self.get('VesselExtractionSeedPointNodeComboBox').currentNode()
+    parameters['outputTubeFile'] = self.logic.getFilenameFromNode(parameters['OutputNode'])
+    parameters['seedP'] = self.get('VesselExtractionSeedPointNodeComboBox').currentNode()
 
     return parameters
 

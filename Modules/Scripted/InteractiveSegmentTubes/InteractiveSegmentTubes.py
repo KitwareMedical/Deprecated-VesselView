@@ -149,7 +149,7 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     parameters['inputVolume'] = self.get('InputNodeComboBox').currentNode()
     parameters['OutputNode'] = self.get('OutputNodeComboBox').currentNode()
     parameters['outputTubeFile'] = self.logic.getFilenameFromNode(parameters['OutputNode'], '.tre')
-    parameters['seedPhysicalPoint'] = self.get('SeedPointNodeComboBox').currentNode()
+    parameters['seedP'] = self.get('SeedPointNodeComboBox').currentNode()
 
     return parameters
 
@@ -242,7 +242,7 @@ class InteractiveSegmentTubesLogic(AbstractInteractiveSegmentTubes):
       spatialObjectLogic = slicer.modules.spatialobjects.logic()
       spatialObjectLogic.AddDisplayNodes(node)
 
-  def getFilenameFromNode(self, node, extension):
+  def getFilenameFromNode(self, node):
     if not node:
       return ''
 
@@ -250,15 +250,12 @@ class InteractiveSegmentTubesLogic(AbstractInteractiveSegmentTubes):
     if not storageNode or not storageNode.GetFileName():
       # Save it in temp dir
       tempPath = slicer.app.temporaryPath
-      nodeName = os.path.join(tempPath, node.GetName() + extension)
+      nodeName = os.path.join(tempPath, node.GetName() + 'tre')
       if os.path.isfile(nodeName):
         os.remove(nodeName)
 
-      if extension == '.tre':
-        spatialObjectLogic = slicer.modules.spatialobjects.logic()
-        spatialObjectLogic.SaveSpatialObject(nodeName, node)
-      else:
-        slicer.util.saveNode(node, nodeName)
+      spatialObjectLogic = slicer.modules.spatialobjects.logic()
+      spatialObjectLogic.SaveSpatialObject(nodeName, node)
       return nodeName
 
     return storageNode.GetFileName()
