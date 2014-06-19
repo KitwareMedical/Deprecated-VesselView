@@ -19,6 +19,7 @@
 import os
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
+from InteractiveSegmentTubes import InteractiveSegmentTubesLogic
 
 class VesselExtractionStep( WorkflowStep ) :
 
@@ -33,7 +34,7 @@ class VesselExtractionStep( WorkflowStep ) :
 
     self.createExtractVesselOutputConnected = False
     self.createExtractVesselSeed = False
-    self.currentOutputNode = None
+    self.logic = InteractiveSegmentTubesLogic()
 
   def setupUi( self ):
     self.loadUi('VesselExtractionStep.ui')
@@ -43,7 +44,8 @@ class VesselExtractionStep( WorkflowStep ) :
     self.get('VesselExtractionSavePushButton').icon = saveIcon
     self.get('VesselExtractionSavePushButton').connect('clicked()', self.saveVesselExtractionImage)
 
-    self.get('VesselExtractionOutputNodeComboBox').connect('nodeAddedByUser(vtkMRMLNode*)', self.addDisplayNodes)
+    self.get('VesselExtractionOutputNodeComboBox').connect(
+    'nodeAddedByUser(vtkMRMLNode*)', self.logic.addDisplayNodes)
 
     self.get('VesselExtractionApplyPushButton').connect('clicked(bool)', self.runVesselExtraction)
     self.get('VesselExtractionGoToModulePushButton').connect('clicked()', self.openVesselExtractionModule)
@@ -104,8 +106,8 @@ class VesselExtractionStep( WorkflowStep ) :
   def vesselExtractionParameters( self ):
     parameters = self.getJsonParameters(slicer.modules.segmenttubes)
     parameters['inputVolume'] = self.get('VesselExtractionInputNodeComboBox').currentNode()
-    parameters['outputTubeFile'] = self.getFilenameFromNode(
-      self.get('VesselExtractionOutputNodeComboBox').currentNode(), '.tre')
+    parameters['OutputNode'] = self.get('VesselExtractionOutputNodeComboBox').currentNode()
+    parameters['outputTubeFile'] = self.logic.getFilenameFromNode(parameters['OutputNode'], '.tre')
     parameters['seedPhysicalPoint'] = self.get('VesselExtractionSeedPointNodeComboBox').currentNode()
 
     return parameters
@@ -117,38 +119,23 @@ class VesselExtractionStep( WorkflowStep ) :
     self.get('VesselExtractionSeedPointNodeComboBox').setCurrentNodeID(cliNode.GetParameterAsString('seedPhysicalPoint'))
 
   def runVesselExtraction( self, run ):
+    parameters = {}
     if run:
-      cliNode = self.getCLINode(slicer.modules.segmenttubes)
       parameters = self.vesselExtractionParameters()
       self.get('VesselExtractionApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.onVesselExtractionCLIModified)
-      self.currentOutputNode = self.get('VesselExtractionOutputNodeComboBox').currentNode()
-      cliNode = slicer.cli.run(slicer.modules.segmenttubes, cliNode, parameters, wait_for_completion = False)
     else:
-      cliNode = self.observer(
-        slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-        self.onVesselExtractionCLIModified)
       self.get('VesselExtractionApplyPushButton').enabled = False
-      cliNode.Cancel()
+    self.logic.run(run, parameters, self.onVesselExtractionCLIModified)
 
-  def onVesselExtractionCLIModified( self, cliNode, event ):
+  def onVesselExtractionCLIModified( self, cliNode ):
     if cliNode.GetStatusString() == 'Completed':
-      # Automatically load the output tube file
-      spatialObjectLogic = slicer.modules.spatialobjects.logic()
-      obj = spatialObjectLogic.AddSpatialObject(cliNode.GetParameterAsString('outputTubeFile'))
-
-      if obj:
-        spatialObjectLogic.CopySpatialObject(obj, self.currentOutputNode)
-        slicer.mrmlScene.RemoveNode(obj)
-
       self.validate()
 
     if not cliNode.IsBusy():
-      self.currentOutputNode = None
       self.get('VesselExtractionApplyPushButton').setChecked(False)
       self.get('VesselExtractionApplyPushButton').enabled = True
       print 'Segment Tubes %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onVesselExtractionCLIModified)
+    self.Workflow.getProgressBar().setCommandLineModuleNode(cliNode)
 
   def openVesselExtractionModule( self ):
     self.openModule('SegmentTubes')
@@ -176,19 +163,3 @@ class VesselExtractionStep( WorkflowStep ) :
     subDictionnary['Label'] = ''
     viewDictionnary['Input1'] = subDictionnary
     self.setViews(viewDictionnary)
-
-  def getImageCenter( self, volumeNode ):
-    if not volumeNode:
-      return [0.0, 0.0, 0.0]
-
-    dims = range(6)
-    volumeNode.GetRASBounds(dims)
-    origin = []
-    for i in range(0, 6, 2):
-      origin.append( dims[i] + (dims[i + 1] - dims[i])*0.5 )
-    return origin
-
-  def addDisplayNodes( self, node ):
-    if node:
-      spatialObjectLogic = slicer.modules.spatialobjects.logic()
-      spatialObjectLogic.AddDisplayNodes(node)
