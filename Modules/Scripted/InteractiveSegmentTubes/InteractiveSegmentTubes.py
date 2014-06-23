@@ -148,7 +148,7 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     parameters = {}
     parameters['inputVolume'] = self.get('InputNodeComboBox').currentNode()
     parameters['OutputNode'] = self.get('OutputNodeComboBox').currentNode()
-    parameters['outputTubeFile'] = self.logic.getFilenameFromNode(parameters['OutputNode'], '.tre')
+    parameters['outputTubeFile'] = self.logic.getFilenameFromNode(parameters['OutputNode'])
     parameters['seedP'] = self.get('SeedPointNodeComboBox').currentNode()
 
     return parameters
