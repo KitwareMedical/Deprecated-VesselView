@@ -189,6 +189,13 @@ p, li { white-space: pre-wrap; }
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item row="2" column="0">
+       <widget class="QLabel" name="SeedsShowStatusLabel">
+        <property name="text">
+         <string>Show seed status</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="1" colspan="2">
        <widget class="qMRMLNodeComboBox" name="SeedPointNodeComboBox">
         <property name="sizePolicy">
@@ -216,19 +223,6 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="renameEnabled">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="SeedsSizeLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Seeds size</string>
         </property>
        </widget>
       </item>
@@ -264,6 +258,29 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="unitAwareProperties">
          <set>qMRMLSliderWidget::Precision|qMRMLSliderWidget::Prefix|qMRMLSliderWidget::Suffix</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="SeedsSizeLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Seeds size</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="QCheckBox" name="SeedsShowStatusCheckBox">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

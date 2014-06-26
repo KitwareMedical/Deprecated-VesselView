@@ -52,6 +52,7 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
 
     # Connect widget internal signals here:
     self.get('SeedsSizeSliderWidget').connect('valueChanged(double)', self.updateMRMLFromWidget)
+    self.get('SeedsShowStatusCheckBox').connect('stateChanged(int)', self.updateMRMLFromWidget)
 
     # Connect widget signals to logic here:
     self.get('OutputNodeComboBox').connect('nodeAddedByUser(vtkMRMLNode*)', self.logic.addDisplayNodes)
@@ -108,13 +109,14 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     seedNode = self.get('SeedPointNodeComboBox').currentNode()
     if seedNode:
 
-      # Seed scale
-      scale = self.get('SeedsSizeSliderWidget').value
       seedDisplayNode = seedNode.GetMarkupsDisplayNode() if seedNode else None
       if seedDisplayNode:
         disabledModify = seedDisplayNode.StartModify()
+        scale = self.get('SeedsSizeSliderWidget').value
         seedDisplayNode.SetGlyphScale(scale)
-        seedDisplayNode.SetTextScale(scale)
+
+        textScale = scale if self.get('SeedsShowStatusCheckBox').isChecked() else 0.0
+        seedDisplayNode.SetTextScale(textScale)
         seedDisplayNode.EndModify(disabledModify)
 
   def updateWidgetFromMRML( self, *unused ):
@@ -124,6 +126,7 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     seedDisplayNode = seedNode.GetMarkupsDisplayNode() if seedNode else None
     if seedDisplayNode:
       self.get('SeedsSizeSliderWidget').value = seedDisplayNode.GetGlyphScale()
+      self.get('SeedsShowStatusCheckBox').setChecked(seedDisplayNode.GetTextScale() > 1e-6)
 
   #-----------------------------------------------------------------------------
   # Utilities functions
