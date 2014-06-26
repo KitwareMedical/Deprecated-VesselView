@@ -42,6 +42,9 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
   # Re-implementation of Segment Tubes Logic
   #
   def getCLINode( self, *unused ):
+    ''' Re-implement getCLINode so it returns a segment tubes cli setup with
+        the correct autorun.
+    '''
     if not self.segmentTubesCLI:
       self.segmentTubesCLI = SegmentTubesLogic.getCLINode(self,
         slicer.modules.segmenttubes, 'Interactive Segment Tubes CLI')
@@ -49,6 +52,15 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     self.segmentTubesCLI.SetAutoRunMode(self.segmentTubesCLI.AutoRunEnabledMask)
     self.status = self.segmentTubesCLI.GetStatusString()
     return self.segmentTubesCLI
+
+  def loadTREFileCallback( self, cliNode, *unused ):
+    ''' Re-implement loadTREFileCallback to use the logic merge function instead
+        of replacing the spatial object.
+    '''
+    if cliNode.GetStatusString() == 'Completed' and self.currentOutputNode:
+      spatialObjectLogic = slicer.modules.spatialobjects.logic()
+      spatialObjectLogic.MergeSpatialObjectFromFilename(
+        self.currentOutputNode, cliNode.GetParameterAsString('outputTubeFile'))
 
   # Original methods
   #
