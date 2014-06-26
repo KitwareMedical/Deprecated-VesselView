@@ -19,7 +19,7 @@
 import os
 from __main__ import qt, ctk, slicer
 from WorkflowStep import *
-from InteractiveSegmentTubes import InteractiveSegmentTubesLogic
+from InteractiveSegmentTubesLogic import SegmentTubesLogic
 
 class VesselExtractionStep( WorkflowStep ) :
 
@@ -34,7 +34,7 @@ class VesselExtractionStep( WorkflowStep ) :
 
     self.createExtractVesselOutputConnected = False
     self.createExtractVesselSeed = False
-    self.logic = InteractiveSegmentTubesLogic()
+    self.logic = SegmentTubesLogic()
 
   def setupUi( self ):
     self.loadUi('VesselExtractionStep.ui')
@@ -127,11 +127,12 @@ class VesselExtractionStep( WorkflowStep ) :
       self.get('VesselExtractionApplyPushButton').enabled = False
     self.logic.run(run, parameters, self.onVesselExtractionCLIModified)
 
-  def onVesselExtractionCLIModified( self, cliNode ):
+  def onVesselExtractionCLIModified( self, cliNode, *unused ):
     if cliNode.GetStatusString() == 'Completed':
       self.validate()
 
     if not cliNode.IsBusy():
+      self.logic.removeObservers(self.onVesselExtractionCLIModified)
       self.get('VesselExtractionApplyPushButton').setChecked(False)
       self.get('VesselExtractionApplyPushButton').enabled = True
       print 'Segment Tubes %s' % cliNode.GetStatusString()

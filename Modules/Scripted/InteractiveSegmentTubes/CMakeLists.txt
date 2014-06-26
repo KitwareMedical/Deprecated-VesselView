@@ -28,6 +28,11 @@ endif()
 #-----------------------------------------------------------------------------
 set(MODULE_PYTHON_SCRIPTS
   InteractiveSegmentTubes.py
+  InteractiveSegmentTubesLogic/__init__.py
+  InteractiveSegmentTubesLogic/InteractiveSegmentTubesLogic.py
+  InteractiveSegmentTubesLogic/SegmentTubesLogic.py
+  InteractiveSegmentTubesWidget/__init__.py
+  InteractiveSegmentTubesWidget/InteractiveSegmentTubesWidget.py
   )
 
 set(MODULE_PYTHON_RESOURCES
