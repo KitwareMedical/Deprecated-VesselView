@@ -26,8 +26,21 @@ class InteractiveSegmentTubes:
     parent.title = "Interactive Segment Tubes"
     parent.categories = ["TubeTK"]
     parent.contributors = ["Johan Andruejol (Kitware)"]
-    parent.helpText = string.Template("""TODO""")
-    parent.acknowledgementText = """TODO"""
+    parent.helpText = """
+    <p>This module is an interactive gui wrapping around the <i>Segment Tubes</i>
+    module. It automatically processes the seeds points, allowing the user to 
+    click its way through an image without having to worry about running the 
+    <i>Segment Tubes</i> CLI by hand.
+
+    <p>To use, simply specify the <b>Input image</b>, the <b>Output tube</b> and 
+    the <b>Seed points</b> list. The seed list is the list that will contains 
+    all the seeds to process. Click the <b>Start</b> button to start 
+    processing seeds as they come.\n
+    <p>Each new markup added to the list will be queued ('Queued' status) for 
+    processing. Once the <i>Segment Tubes</i> CLI processed the queued seeds, 
+    their status will change to 'Processed'. The new vessels will be merged to 
+    the <b>Output tube</b>."""
+    parent.acknowledgementText = """"""
     #parent.icon = qt.QIcon('')
     self.parent = parent
 
