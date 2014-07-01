@@ -69,6 +69,9 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
     self.updateWidgetFromMRML()
 
+    interactionNode = slicer.app.applicationLogic().GetInteractionNode()
+    interactionNode.SetPlaceModePersistence(1)
+
   def exit(self):
     pass
 
