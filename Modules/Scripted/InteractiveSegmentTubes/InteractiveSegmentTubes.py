@@ -20,6 +20,9 @@ import imp, sys, os, unittest
 
 from __main__ import vtk, qt, ctk, slicer
 
+from InteractiveSegmentTubesWidget import *
+from InteractiveSegmentTubesLogic import *
+
 class InteractiveSegmentTubes:
   def __init__(self, parent):
     import string
@@ -41,8 +44,8 @@ class InteractiveSegmentTubes:
     their status will change to 'Processed'. The new vessels will be merged to 
     the <b>Output tube</b>."""
     parent.acknowledgementText = """"""
-    #parent.icon = qt.QIcon('')
-    self.parent = parent
 
-from InteractiveSegmentTubesWidget import *
-from InteractiveSegmentTubesLogic import *
+    iconPath = os.path.join(ICON_DIR, 'InteractiveSegmentTubesIcon.png')
+    parent.icon = qt.QIcon(iconPath)
+
+    self.parent = parent
