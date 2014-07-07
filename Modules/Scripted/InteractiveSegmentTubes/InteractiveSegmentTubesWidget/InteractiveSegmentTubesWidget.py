@@ -96,6 +96,9 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     self.get('ApplyPushButton').setChecked(False)
     self.logic.setInputNode(inputNode)
 
+    self.createOutputIfNeeded(inputNode, 'vessel', self.get('OutputNodeComboBox'))
+    self.createOutputIfNeeded(inputNode, 'seed', self.get('SeedPointNodeComboBox'))
+
   def setOutputNode( self, outputNode ):
     self.get('ApplyPushButton').setChecked(False)
     self.logic.setOutputNode(outputNode)
@@ -140,6 +143,18 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     if seedDisplayNode:
       self.get('SeedsSizeSliderWidget').value = seedDisplayNode.GetGlyphScale()
       self.get('SeedsShowStatusCheckBox').setChecked(seedDisplayNode.GetTextScale() > 1e-6)
+
+  def createOutputIfNeeded( self, node, suffix, combobox ):
+    if node == None:
+        return
+
+    nodeName = '%s-%s' % (node.GetName(), suffix)
+    node = slicer.util.getFirstNodeByClassByName(nodeName, node.GetClassName())
+    if node == None:
+      newNode = combobox.addNode()
+      newNode.SetName(nodeName)
+      node = newNode
+    combobox.setCurrentNode(node)
 
   #-----------------------------------------------------------------------------
   # Utilities functions
