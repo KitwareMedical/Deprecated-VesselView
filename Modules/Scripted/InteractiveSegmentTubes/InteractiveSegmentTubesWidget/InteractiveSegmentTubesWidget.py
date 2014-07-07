@@ -58,11 +58,11 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     self.get('OutputNodeComboBox').connect('nodeAddedByUser(vtkMRMLNode*)', self.logic.addDisplayNodes)
     self.logic.setGUICallback(self.onSegmentTubesUpdated)
 
-    self.get('InputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.logic.setInputNode)
-    self.get('OutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.logic.setOutputNode)
+    self.get('InputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setInputNode)
+    self.get('OutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setOutputNode)
 
     # Connect signals that needs to be treated by both logic and GUI here:
-    self.get('ApplyPushButton').connect('clicked(bool)', self.run)
+    self.get('ApplyPushButton').connect('toggled(bool)', self.run)
     self.get('SeedPointNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setSeedNode)
 
   def enter(self):
@@ -92,7 +92,17 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     self.get('ApplyPushButton').enabled = not self.logic.isInTransitionState()
     self.get('CLIProgressBar').setCommandLineModuleNode(cliNode)
 
+  def setInputNode( self, inputNode ):
+    self.get('ApplyPushButton').setChecked(False)
+    self.logic.setInputNode(inputNode)
+
+  def setOutputNode( self, outputNode ):
+    self.get('ApplyPushButton').setChecked(False)
+    self.logic.setOutputNode(outputNode)
+
   def setSeedNode( self, seedNode ):
+    self.get('ApplyPushButton').setChecked(False)
+
     # Observe seed node to update GUI
     if not self.hasObserver(seedNode, 'ModifiedEvent', self.updateWidgetFromMRML):
       self.removeObservers('ModifiedEvent', 'vtkMRMLMarkupsFiducialNode')
