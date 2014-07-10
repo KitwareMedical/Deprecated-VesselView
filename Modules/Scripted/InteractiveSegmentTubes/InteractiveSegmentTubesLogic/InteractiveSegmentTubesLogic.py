@@ -39,6 +39,11 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     self.guiCallback = None
     self.status = 'Idle'
 
+    self.started = False
+    self.noProcessing = False
+    self.queue = []
+    self.processing = []
+
   # Re-implementation of Segment Tubes Logic
   #
   def getCLINode( self, *unused ):
@@ -49,7 +54,7 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
       self.segmentTubesCLI = SegmentTubesLogic.getCLINode(self,
         slicer.modules.segmenttubes, 'Interactive Segment Tubes CLI')
 
-    self.segmentTubesCLI.SetAutoRunMode(self.segmentTubesCLI.AutoRunEnabledMask)
+    self.segmentTubesCLI.SetAutoRunMode(self.segmentTubesCLI.AutoRunOnAnyInputEvent)
     self.status = self.segmentTubesCLI.GetStatusString()
     return self.segmentTubesCLI
 
@@ -64,18 +69,20 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
 
   # Original methods
   #
-  def createToDoMarkup( self ):
+
+  def createTodoMarkup( self ):
     todoMarkup = slicer.mrmlScene.AddNode(slicer.vtkMRMLMarkupsFiducialNode())
     todoMarkup.SetHideFromEditors(1)
     todoMarkup.SetName('Interactive Segment Tubes To Do list')
     todoMarkup.SetDisplayVisibility(0)
     # Set None as an active list otherwise the user might add fiducial to todoMarkup
     self.setActivePlaceNodeID(None)
+
     return todoMarkup
 
-  def getToDoMarkup( self ):
+  def getTodoMarkup( self ):
     if not self.todoMarkup:
-      self.todoMarkup = self.createToDoMarkup()
+      self.todoMarkup = self.createTodoMarkup()
     return self.todoMarkup
 
   def setActivePlaceNodeID( self, node ):
@@ -99,7 +106,7 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     if not node or node == self.seedNode:
       return
 
-    self.removeObservers(self.updateToDoMarkup)
+    self.removeObservers(self.queueSeeds)
     self.seedNode = node
 
     # Select it
@@ -114,9 +121,9 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
       displayNode.SetColor(0, 1, 0) # Processed is green (unselected)
       displayNode.SetSelectedColor(1, 0, 0) # To Do is red
 
-    self.addObserver(self.seedNode, self.seedNode.PointModifiedEvent, self.updateToDoMarkup)
-    self.addObserver(self.seedNode, self.seedNode.NthMarkupModifiedEvent, self.updateToDoMarkup)
-    self.updateToDoMarkup()
+    self.addObserver(self.seedNode, self.seedNode.PointModifiedEvent, self.queueSeeds)
+    self.addObserver(self.seedNode, self.seedNode.NthMarkupModifiedEvent, self.queueSeeds)
+    self.queueSeeds()
     self.updateCLINode()
 
   def updateCLINode( self ):
@@ -127,6 +134,7 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     '''Re-implement run method here to allow to use autorun correctly.
     '''
 
+    self.started = run
     cliNode = self.getCLINode()
     if run:
       self.observeCLINode(cliNode, self.onSegmentTubesUpdated)
@@ -138,14 +146,14 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     cliNode.SetAutoRun(run)
     # Kickstart the cli if it's the first time it's started
     if not wasRunning and run:
-      self.sendToDoModifiedEventIfNecessary()
+      self.addQueuedSeedToTodoMarkup()
 
   def segmentTubesParameters( self ):
     parameters = {}
     parameters['inputVolume'] = self.inputNode
     parameters['OutputNode'] = self.currentOutputNode
     parameters['outputTubeFile'] = self.getFilenameFromNode(parameters['OutputNode'])
-    parameters['seedP'] = self.getToDoMarkup()
+    parameters['seedP'] = self.getTodoMarkup()
 
     return parameters
 
@@ -155,8 +163,8 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
 
     self.status = cliNode.GetStatusString()
 
-    if not self.isRunning():
-      self.updateSeedNode()
+    if not self.isCLIRunning():
+      self.reportSeeds()
 
     if self.status == 'Cancelled':
       self.removeObservers(self.onSegmentTubesUpdated)
@@ -165,11 +173,7 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     if self.guiCallback:
       self.guiCallback(cliNode, event)
 
-  def sendToDoModifiedEventIfNecessary( self ):
-    if self.getToDoMarkup().GetNumberOfMarkups() > 0:
-      self.getToDoMarkup().Modified()
-
-  def isRunning( self ):
+  def isCLIRunning( self ):
     return (self.status == 'Scheduled'
       or self.status == 'Running'
       or self.status == 'Cancelling'
@@ -179,6 +183,9 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     return (self.status == 'Scheduled'
       or self.status == 'Cancelling'
       or self.status == 'Completing')
+
+  def isSeedMarked( self, label ):
+    return label == 'Processed' or label == 'Queued'
 
   def updateMarkup( self, node, index, processed ):
     if not node:
@@ -190,47 +197,75 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
       node.SetNthMarkupLabel(index, 'Queued')
     self.seedNode.SetNthMarkupSelected(index, not processed)
 
-  def updateToDoMarkup( self, *unused ):
+  def queueSeeds( self, *unused ):
+    if self.noProcessing:
+      return
+
+    if not self.seedNode:
+      self.queue = []
+      return
+
+    self.noProcessing = True
+    for i in range(self.seedNode.GetNumberOfMarkups()):
+      label = self.seedNode.GetNthMarkupLabel(i)
+      if self.isSeedMarked(label):
+        continue
+
+      point = [0.0, 0.0, 0.0, 0.0]
+      self.seedNode.GetNthFiducialWorldCoordinates(i, point)
+      self.updateMarkup(self.seedNode, i, False)
+      self.queue.append(point)
+    self.noProcessing = False
+
+    self.addQueuedSeedToTodoMarkup()
+
+  def canAddSeedForProcessing( self ):
+    return self.started and (not self.isCLIRunning()) and (not self.noProcessing)
+
+  def addQueuedSeedToTodoMarkup( self ):
+    if not self.canAddSeedForProcessing():
+      return
+
+    wasModifying = self.getTodoMarkup().StartModify()
+    for seed in self.queue:
+      self.getTodoMarkup().AddFiducial(0.0, 0.0, 0.0)
+      self.getTodoMarkup().SetNthFiducialWorldCoordinates(
+          self.getTodoMarkup().GetNumberOfMarkups() - 1, seed)
+
+      self.processing.append(seed)
+    self.queue = []
+
+    self.getTodoMarkup().EndModify(wasModifying)
+
+  def reportSeeds( self ):
     if not self.seedNode:
       return
+
+    self.noProcessing = True
+
+    # Clear to do markup. Ignore the modified event it triggers to prevent from
+    # re-running the CLI.
+    wasRunning = self.getCLINode().GetAutoRun()
+    self.getCLINode().SetAutoRun(False)
+    self.getTodoMarkup().RemoveAllMarkups()
+    self.getCLINode().SetAutoRun(wasRunning)
 
     for i in range(self.seedNode.GetNumberOfMarkups()):
       label = self.seedNode.GetNthMarkupLabel(i)
-      if label == 'Processed' or label == 'Queued':
-        continue
-
-      self.updateMarkup(self.seedNode, i, False)
-
-      point = [0.0, 0.0, 0.0, 0.0]
-      self.seedNode.GetNthFiducialWorldCoordinates(i, point)
-
-      self.getToDoMarkup().AddFiducial(0.0, 0.0, 0.0)
-      self.getToDoMarkup().SetNthFiducialWorldCoordinates(
-        self.getToDoMarkup().GetNumberOfMarkups() - 1, point)
-
-  def updateSeedNode( self ):
-    if not self.seedNode:
-      return
-
-    for i in range(self.seedNode.GetNumberOfMarkups()):
-      if self.seedNode.GetNthMarkupLabel(i) != 'Queued':
+      if label != 'Queued':
         continue
 
       point = [0.0, 0.0, 0.0, 0.0]
       self.seedNode.GetNthFiducialWorldCoordinates(i, point)
 
-      for j in range(self.getToDoMarkup().GetNumberOfMarkups()):
-        todoPoint = [0.0, 0.0, 0.0, 0.0]
-        self.getToDoMarkup().GetNthFiducialWorldCoordinates(j, todoPoint)
-
-        if self.comparePoint(todoPoint, point):
+      for seed in self.processing:
+        if self.comparePoint(point, seed):
           self.updateMarkup(self.seedNode, i, True)
 
-          self.getToDoMarkup().DisableModifiedEventOn()
-          self.getToDoMarkup().RemoveMarkup(j)
-          self.getToDoMarkup().DisableModifiedEventOff()
+    self.processing = []
+    self.noProcessing = False
 
-    self.sendToDoModifiedEventIfNecessary()
+    self.addQueuedSeedToTodoMarkup()
 
   def comparePoint( self, p1, p2 ):
     if (len(p1) != len(p2)):
