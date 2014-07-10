@@ -271,7 +271,7 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     if (len(p1) != len(p2)):
       return False
 
-    samePoint = True
-    for k in range(len(p1)):
-      samePoint = samePoint and (abs(p1[k] - p2[k]) < 1e-6)
-    return samePoint
+    for v1, v2 in zip(p1, p2):
+      if abs(v1 - v2) > 1e-6:
+        return False
+    return True
