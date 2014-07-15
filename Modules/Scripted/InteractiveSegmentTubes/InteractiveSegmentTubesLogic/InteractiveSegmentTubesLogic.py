@@ -21,6 +21,8 @@ import imp, sys, os, unittest
 from __main__ import vtk, qt, ctk, slicer
 
 from SegmentTubesLogic import *
+from __init__ import *
+
 
 #
 # Interactive Segment Tubes logic
@@ -43,6 +45,9 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     self.noProcessing = False
     self.queue = []
     self.processing = []
+
+    self.scaleValue = 2.0
+    self.parameterFile = ''
 
   # Re-implementation of Segment Tubes Logic
   #
@@ -96,11 +101,11 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
 
   def setInputNode( self, node ):
     self.inputNode = node
-    self.updateCLINode()
+    self.stopAndUpdateCLINode()
 
   def setOutputNode( self, node ):
     self.currentOutputNode = node
-    self.updateCLINode()
+    self.stopAndUpdateCLINode()
 
   def setSeedNode( self, node ):
     if not node or node == self.seedNode:
@@ -124,10 +129,13 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     self.addObserver(self.seedNode, self.seedNode.PointModifiedEvent, self.queueSeeds)
     self.addObserver(self.seedNode, self.seedNode.NthMarkupModifiedEvent, self.queueSeeds)
     self.queueSeeds()
+    self.stopAndUpdateCLINode()
+
+  def stopAndUpdateCLINode( self ):
+    self.run(False)
     self.updateCLINode()
 
   def updateCLINode( self ):
-    self.run(False)
     slicer.cli.setNodeParameters(self.getCLINode(), self.segmentTubesParameters())
 
   def run( self, run, *unused ):
@@ -154,6 +162,8 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     parameters['OutputNode'] = self.currentOutputNode
     parameters['outputTubeFile'] = self.getFilenameFromNode(parameters['OutputNode'])
     parameters['seedP'] = self.getTodoMarkup()
+    parameters['scale'] = self.scaleValue
+    parameters['parametersFile'] = self.parameterFile
 
     return parameters
 
@@ -275,3 +285,18 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
       if abs(v1 - v2) > 1e-6:
         return False
     return True
+
+  def setScaleValue( self, value ):
+    if value == self.scaleValue:
+      return
+    self.scaleValue = value
+    self.updateCLINode()
+
+  def setParameterFile( self, file ):
+    if file == self.parameterFile:
+      return
+    self.parameterFile = file
+    self.updateCLINode()
+
+  def getParameterFile( self ):
+    return self.parameterFile
