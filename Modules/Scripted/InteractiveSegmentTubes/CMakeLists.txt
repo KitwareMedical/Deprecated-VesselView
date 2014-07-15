@@ -41,6 +41,7 @@ set(MODULE_PYTHON_RESOURCES
   Resources/Icons/InteractiveSegmentTubesIcon.png
   Resources/Icons/README
   Resources/UI/InteractiveSegmentTubes.ui
+  Resources/ParameterFiles/Default_Parameters.mtp
   )
 
 #-----------------------------------------------------------------------------

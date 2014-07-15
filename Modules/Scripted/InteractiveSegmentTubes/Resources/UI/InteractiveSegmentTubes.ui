@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
-    <height>290</height>
+    <width>299</width>
+    <height>362</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -200,7 +200,7 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="SeedsShowStatusLabel">
         <property name="text">
          <string>Show seed status</string>
@@ -253,7 +253,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="SeedsSizeLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -266,7 +266,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="2">
+      <item row="4" column="1" colspan="2">
        <widget class="QCheckBox" name="SeedsShowStatusCheckBox">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the seeds status or not.&lt;/p&gt;&lt;p&gt;A seed can be &lt;span style=&quot; font-weight:600;&quot;&gt;'Queued'&lt;/span&gt; (waiting to be processed) or &lt;span style=&quot; font-weight:600;&quot;&gt;'Processed&lt;/span&gt;' (after it went through the &lt;span style=&quot; font-style:italic;&quot;&gt;Segment Tubes&lt;/span&gt; CLI).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -279,7 +279,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="qMRMLSliderWidget" name="SeedScaleSliderWidget">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Controls the &lt;span style=&quot; font-weight:600;&quot;&gt;scale&lt;/span&gt; of the vessels in the &lt;span style=&quot; font-style:italic;&quot;&gt;Segment Tubes&lt;/span&gt; CLI.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;By default, this is linked to the displayed &lt;span style=&quot; font-weight:600;&quot;&gt;Seed size&lt;/span&gt;. The two parameters can be controled separatly by clicking the button with the chain icon. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Note that the &lt;span style=&quot; font-weight:600;&quot;&gt;sale&lt;/span&gt; used in the CLI is the &lt;span style=&quot; font-weight:600;&quot;&gt;scale&lt;/span&gt; at the moment the CLI is ran (and *NOT* when the &lt;span style=&quot; font-weight:600;&quot;&gt;seed&lt;/span&gt; is clicked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -304,7 +304,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="qMRMLSliderWidget" name="SeedsSizeSliderWidget">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Control the seeds' point size.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -332,14 +332,14 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="SeedScaleLabel">
         <property name="text">
          <string>Seed scale</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2" rowspan="2">
+      <item row="2" column="2" rowspan="2">
        <widget class="QPushButton" name="SizeAndScaleLinkedButton">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Link&lt;/span&gt; or &lt;span style=&quot; font-weight:600;&quot;&gt;Unlink&lt;/span&gt; the &lt;span style=&quot; font-weight:600;&quot;&gt;seed scale&lt;/span&gt; and the &lt;span style=&quot; font-weight:600;&quot;&gt;seed displayed size&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;When linking back the two together, the &lt;span style=&quot; font-weight:600;&quot;&gt;seed scale&lt;/span&gt; will snap to the &lt;span style=&quot; font-weight:600;&quot;&gt;seed displayed size.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -352,6 +352,23 @@
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QComboBox" name="ParameterFileComboBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a &lt;span style=&quot; font-weight:600;&quot;&gt;Parameter file&lt;/span&gt; from the list of available file. It will be used to configure the &lt;span style=&quot; font-style:italic;&quot;&gt;Segment Tubes&lt;/span&gt; CLI each time it's ran.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;It is possible to select your own file using the &lt;span style=&quot; font-weight:600;&quot;&gt;Load from file...&lt;/span&gt; option. A dialog be prompt to choose what file to use. This new file will be added to the list of default files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::InsertAtTop</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Parameter file</string>
         </property>
        </widget>
       </item>

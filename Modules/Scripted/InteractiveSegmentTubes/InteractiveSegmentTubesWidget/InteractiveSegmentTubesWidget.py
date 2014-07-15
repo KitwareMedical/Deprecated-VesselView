@@ -21,6 +21,7 @@ import imp, sys, os, unittest
 from __main__ import vtk, qt, ctk, slicer
 
 from InteractiveSegmentTubesLogic import *
+from __init__ import *
 
 #
 # Interactive Segment Tubes widget
@@ -53,6 +54,8 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     self.loadUi('InteractiveSegmentTubes.ui')
     self.widget.setMRMLScene(slicer.mrmlScene)
 
+    self.populateParameters()
+
     # Connect widget internal signals here:
     self.get('SeedsSizeSliderWidget').connect('valueChanged(double)', self.updateMRMLFromWidget)
     self.get('SeedsShowStatusCheckBox').connect('stateChanged(int)', self.updateMRMLFromWidget)
@@ -68,9 +71,13 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     # Connect signals that needs to be treated by both logic and GUI here:
     self.get('ApplyPushButton').connect('toggled(bool)', self.run)
     self.get('SeedPointNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setSeedNode)
-    self.get('SizeAndScaleLinkedButton').connect('toggled(bool)', self.linkSizeAndScale)
 
+    self.get('SizeAndScaleLinkedButton').connect('toggled(bool)', self.linkSizeAndScale)
     self.linkSizeAndScale(self.get('SizeAndScaleLinkedButton').isChecked())
+
+    self.get('ParameterFileComboBox').connect('currentIndexChanged(int)', self.onParamertClicked)
+    self.get('ParameterFileComboBox').setCurrentIndex(0)
+    self.onParamertClicked(0)
 
   def enter(self):
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
@@ -176,6 +183,38 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
       self.get('SeedScaleSliderWidget').disconnect('valueChanged(double)', self.get('SeedsSizeSliderWidget').setValue)
 
     self.get('SeedScaleSliderWidget').setValue(self.get('SeedsSizeSliderWidget').value)
+
+  def populateParameters( self ):
+    parameterDir = qt.QDir(PARAM_FILES_DIR)
+    for path in parameterDir.entryList(parameterDir.Files):
+      fileInfo = qt.QFileInfo(path)
+      name = fileInfo.baseName().replace("_", " ")
+      self.get('ParameterFileComboBox').addItem(name, fileInfo.absolutePath() + '/' + path)
+
+    # Add load from file
+    self.get('ParameterFileComboBox').insertSeparator(
+      self.get('ParameterFileComboBox').count)
+    self.get('ParameterFileComboBox').addItem('Load from file...', None)
+
+  def onParamertClicked( self, index ):
+    data = self.get('ParameterFileComboBox').itemData(index)
+    if data == self.logic.getParameterFile():
+      return
+
+    if not data:
+      data = qt.QFileDialog.getOpenFileName(
+        self.widget, 'Load a parameter file', qt.QDir.home().absolutePath(), '*.mtp')
+
+      if not data:
+        self.get('ParameterFileComboBox').setCurrentIndex(0)
+        return
+
+      wasBlocking = self.get('ParameterFileComboBox').blockSignals(True)
+      self.get('ParameterFileComboBox').insertItem(0, qt.QFileInfo(data).baseName(), data)
+      self.get('ParameterFileComboBox').blockSignals(wasBlocking)
+      self.get('ParameterFileComboBox').setCurrentIndex(0)
+    else:
+      self.logic.setParameterFile(data)
 
   #-----------------------------------------------------------------------------
   # Utilities functions

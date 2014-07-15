@@ -21,6 +21,8 @@ import imp, sys, os, unittest
 from __main__ import vtk, qt, ctk, slicer
 
 from SegmentTubesLogic import *
+from __init__ import *
+
 
 #
 # Interactive Segment Tubes logic
@@ -45,6 +47,7 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     self.processing = []
 
     self.scaleValue = 2.0
+    self.parameterFile = ''
 
   # Re-implementation of Segment Tubes Logic
   #
@@ -160,6 +163,7 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
     parameters['outputTubeFile'] = self.getFilenameFromNode(parameters['OutputNode'])
     parameters['seedP'] = self.getTodoMarkup()
     parameters['scale'] = self.scaleValue
+    parameters['parametersFile'] = self.parameterFile
 
     return parameters
 
@@ -287,3 +291,12 @@ class InteractiveSegmentTubesLogic(SegmentTubesLogic):
       return
     self.scaleValue = value
     self.updateCLINode()
+
+  def setParameterFile( self, file ):
+    if file == self.parameterFile:
+      return
+    self.parameterFile = file
+    self.updateCLINode()
+
+  def getParameterFile( self ):
+    return self.parameterFile
