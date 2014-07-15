@@ -36,7 +36,10 @@ set(MODULE_PYTHON_SCRIPTS
   )
 
 set(MODULE_PYTHON_RESOURCES
+  Resources/Icons/Broken.png
+  Resources/Icons/Link.png
   Resources/Icons/InteractiveSegmentTubesIcon.png
+  Resources/Icons/README
   Resources/UI/InteractiveSegmentTubes.ui
   )
 
