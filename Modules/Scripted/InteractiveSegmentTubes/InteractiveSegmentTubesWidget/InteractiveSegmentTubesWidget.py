@@ -83,6 +83,8 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
     self.updateWidgetFromMRML()
 
+    self.get('SeedsShowStatusCheckBox').setChecked(False)
+
     interactionNode = slicer.app.applicationLogic().GetInteractionNode()
     interactionNode.SetPlaceModePersistence(1)
 
