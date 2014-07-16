@@ -250,10 +250,13 @@ add_executable(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX}
 set_target_properties(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX} PROPERTIES LABELS ${PROJECT_NAME})
 
 if(APPLE)
+  set(link_flags "-Wl,-rpath,@loader_path/../")
   set_target_properties(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX}
     PROPERTIES
       OUTPUT_NAME ${SlicerApp_APPLICATION_NAME}
       MACOSX_BUNDLE_BUNDLE_VERSION "${Slicer_VERSION_FULL}"
+      MACOSX_BUNDLE_INFO_PLIST "${Slicer_CMAKE_DIR}/MacOSXBundleInfo.plist.in"
+      LINK_FLAGS ${link_flags}
     )
   if(DEFINED Slicer_VERSION_TWEAK)
     set_target_properties(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX} PROPERTIES
@@ -318,6 +321,7 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
     include(${CTKAPPLAUNCHER_DIR}/CMake/ctkAppLauncher.cmake)
 
     # Define list of extra 'application to launch' to associate with the launcher
+    # within the build tree
     set(extraApplicationToLaunchListForBuildTree)
     if(EXISTS "${QT_DESIGNER_EXECUTABLE}")
       ctkAppLauncherAppendExtraAppToLaunchToList(
@@ -338,7 +342,7 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
     foreach(executable ${executables})
       find_program(${executable}_EXECUTABLE ${executable})
       if(${executable}_EXECUTABLE)
-        message(STATUS "Enabling Slicer launcher option: --${executable}")
+        message(STATUS "Enabling Slicer build tree launcher option: --${executable}")
         ctkAppLauncherAppendExtraAppToLaunchToList(
           LONG_ARG ${executable}
           HELP "Start ${executable}"
@@ -357,6 +361,27 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
       list(APPEND ${PROJECT_NAME}_LIBRARY_PATHS_BUILD ${${APPLICATION_NAME}_LIBRARY_DIR}/<CMAKE_CFG_INTDIR>)
     endforeach()
 
+    # Define list of extra 'application to launch' to associate with the launcher
+    # within the install tree
+    set(executables)
+    if(WIN32)
+      list(APPEND executables cmd)
+      set(cmd_ARGUMENTS "/c start cmd")
+    endif()
+    foreach(executable ${executables})
+      find_program(${executable}_EXECUTABLE ${executable})
+      if(${executable}_EXECUTABLE)
+        message(STATUS "Enabling Slicer install tree launcher option: --${executable}")
+        ctkAppLauncherAppendExtraAppToLaunchToList(
+          LONG_ARG ${executable}
+          HELP "Start ${executable}"
+          PATH ${${executable}_EXECUTABLE}
+          ARGUMENTS ${${executable}_ARGUMENTS}
+          OUTPUTVAR extraApplicationToLaunchListForInstallTree
+          )
+      endif()
+    endforeach()
+
     ctkAppLauncherConfigure(
       TARGET ${PROJECT_NAME}${SlicerApp_EXE_SUFFIX}
       APPLICATION_INSTALL_SUBDIR ${Slicer_INSTALL_BIN_DIR}
@@ -370,8 +395,9 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
       SPLASHSCREEN_HIDE_DELAY_MS 3000
       HELP_SHORT_ARG "-h"
       HELP_LONG_ARG "--help"
-      NOSPLASH_ARGS "--no-splash,--help,--version,--home,--program-path,--no-main-window"
+      NOSPLASH_ARGS "--no-splash,--help,--version,--home,--program-path,--no-main-window,--settings-path,--temporary-path"
       EXTRA_APPLICATION_TO_LAUNCH_BUILD ${extraApplicationToLaunchListForBuildTree}
+      EXTRA_APPLICATION_TO_LAUNCH_INSTALLED ${extraApplicationToLaunchListForInstallTree}
       DESTINATION_DIR ${Slicer_BINARY_DIR}
       LIBRARY_PATHS_BUILD "${${PROJECT_NAME}_LIBRARY_PATHS_BUILD}"
       PATHS_BUILD "${SLICER_PATHS_BUILD}"
@@ -379,24 +405,37 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
       LIBRARY_PATHS_INSTALLED "${SLICER_LIBRARY_PATHS_INSTALLED}"
       PATHS_INSTALLED "${SLICER_PATHS_INSTALLED}"
       ENVVARS_INSTALLED "${SLICER_ENVVARS_INSTALLED}"
+      ADDITIONAL_PATH_ENVVARS_BUILD "${SLICER_ADDITIONAL_PATH_ENVVARS_BUILD}"
+      ADDITIONAL_PATH_ENVVARS_INSTALLED "${SLICER_ADDITIONAL_PATH_ENVVARS_INSTALLED}"
+      ADDITIONAL_PATH_ENVVARS_PREFIX SLICER_
       )
-    # HACK - Waiting "ctkAppLauncherConfigure" macro is updated so that it reconfigures the settings,
-    #        if possible, only if "SlicerBlockCTKAppLauncherSettings.cmake" has been modified.
-    #        Let's force a systematic reconfiguration of SlicerLauncherSettings.
-    add_custom_target(${SlicerApp_APPLICATION_NAME}RemoveLauncherSettings
-      COMMAND ${CMAKE_COMMAND} -E remove
-        ${Slicer_BINARY_DIR}/${SlicerApp_APPLICATION_NAME}LauncherSettings.ini
-        ${Slicer_BINARY_DIR}/${SlicerApp_APPLICATION_NAME}LauncherSettingsToInstall.ini
-      )
-    add_dependencies(${SlicerApp_APPLICATION_NAME}RemoveLauncherSettings ${PROJECT_NAME}${SlicerApp_EXE_SUFFIX})
-    add_dependencies(${SlicerApp_APPLICATION_NAME}ConfigureLauncher ${SlicerApp_APPLICATION_NAME}RemoveLauncherSettings)
 
     if(NOT APPLE)
       if(Slicer_HAS_CONSOLE_IO_SUPPORT)
         install(PROGRAMS "${Slicer_BINARY_DIR}/${SlicerApp_APPLICATION_NAME}${CMAKE_EXECUTABLE_SUFFIX}" DESTINATION ".")
       else()
+        # Create command to update launcher icon
+        add_custom_command(
+          DEPENDS
+            ${CTKAPPLAUNCHER_DIR}/bin/CTKAppLauncherW${CMAKE_EXECUTABLE_SUFFIX}
+          OUTPUT
+            ${Slicer_BINARY_DIR}/CMakeFiles/${SlicerApp_APPLICATION_NAME}W${CMAKE_EXECUTABLE_SUFFIX}
+          COMMAND ${CMAKE_COMMAND} -E copy
+            ${CTKAPPLAUNCHER_DIR}/bin/CTKAppLauncherW${CMAKE_EXECUTABLE_SUFFIX}
+            ${Slicer_BINARY_DIR}/CMakeFiles/${SlicerApp_APPLICATION_NAME}W${CMAKE_EXECUTABLE_SUFFIX}
+          COMMAND
+            ${CTKResEdit_EXECUTABLE}
+              --update-resource-ico ${Slicer_BINARY_DIR}/CMakeFiles/${SlicerApp_APPLICATION_NAME}W${CMAKE_EXECUTABLE_SUFFIX}
+              IDI_ICON1 ${CMAKE_CURRENT_SOURCE_DIR}/Resources/${SlicerApp_APPLICATION_NAME}.ico
+          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+          COMMEND ""
+          )
+        add_custom_target(${SlicerApp_APPLICATION_NAME}UpdateLauncherWIcon ALL
+          DEPENDS
+            ${Slicer_BINARY_DIR}/CMakeFiles/${SlicerApp_APPLICATION_NAME}W${CMAKE_EXECUTABLE_SUFFIX}
+          )
         install(
-          PROGRAMS "${CTKAPPLAUNCHER_DIR}/bin/CTKAppLauncherW${CMAKE_EXECUTABLE_SUFFIX}"
+          PROGRAMS "${Slicer_BINARY_DIR}/CMakeFiles/${SlicerApp_APPLICATION_NAME}W${CMAKE_EXECUTABLE_SUFFIX}"
           DESTINATION "."
           RENAME "${SlicerApp_APPLICATION_NAME}${CMAKE_EXECUTABLE_SUFFIX}"
           )
@@ -412,6 +451,18 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
         RENAME ${SlicerApp_APPLICATION_NAME}LauncherSettings.ini
         )
     endif()
+
+    if(WIN32)
+      # Create target to update launcher icon
+      add_custom_target(${SlicerApp_APPLICATION_NAME}UpdateLauncherIcon ALL
+        COMMAND
+          ${CTKResEdit_EXECUTABLE}
+            --update-resource-ico ${Slicer_BINARY_DIR}/${SlicerApp_APPLICATION_NAME}${CMAKE_EXECUTABLE_SUFFIX}
+            IDI_ICON1 ${CMAKE_CURRENT_SOURCE_DIR}/Resources/${SlicerApp_APPLICATION_NAME}.ico
+        )
+      add_dependencies(${SlicerApp_APPLICATION_NAME}UpdateLauncherIcon ${SlicerApp_APPLICATION_NAME}ConfigureLauncher)
+    endif()
+
   endif()
 endif()
 
