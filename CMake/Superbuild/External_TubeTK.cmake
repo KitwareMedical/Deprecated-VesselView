@@ -23,7 +23,7 @@ set(proj TubeTK)
 
 # Set dependency list
 # TubeTK depends on all of these so we are sure it's built after them
-set(${proj}_DEPENDENCIES ITKv4 VTK CTK SlicerExecutionModel)
+set(${proj}_DEPENDENCIES ITKv4 VTKv5 CTK SlicerExecutionModel)
 
 # Include dependent projects if any
 ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj DEPENDS_VAR ${proj}_DEPENDENCIES)
