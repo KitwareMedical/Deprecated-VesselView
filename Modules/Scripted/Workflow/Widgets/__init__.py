@@ -10,5 +10,4 @@ from RegisterStep import *
 from ResampleStep import *
 from SegmentationStep import *
 from VesselEnhancementStep import *
-from ExtractSeedsStep import *
 from VesselExtractionStep import *

@@ -96,7 +96,6 @@ class WorkflowWidget:
                   Widgets.RegisterStep(),
                   Widgets.SegmentationStep(),
                   Widgets.VesselEnhancementStep(),
-                  Widgets.ExtractSeedsStep(),
                   Widgets.VesselExtractionStep(),
                  ]
     i = 0

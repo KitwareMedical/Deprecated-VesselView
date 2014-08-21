@@ -45,7 +45,7 @@ class VesselExtractionStep( WorkflowStep ) :
     self.get('VesselExtractionSavePushButton').connect('clicked()', self.saveVesselExtractionImage)
 
     self.get('VesselExtractionOutputNodeComboBox').connect(
-    'nodeAddedByUser(vtkMRMLNode*)', self.logic.addDisplayNodes)
+      'nodeAddedByUser(vtkMRMLNode*)', self.logic.addDisplayNodes)
 
     self.get('VesselExtractionApplyPushButton').connect('clicked(bool)', self.runVesselExtraction)
     self.get('VesselExtractionGoToModulePushButton').connect('clicked()', self.openVesselExtractionModule)
@@ -63,7 +63,7 @@ class VesselExtractionStep( WorkflowStep ) :
     self.Workflow.updateLayout(self.Workflow.maximumNumberOfInput + 1)
 
     self.get('VesselExtractionInputNodeComboBox').setCurrentNode(
-      self.step('ExtractSeedsStep').get('ExtractSeedsOutputNodeComboBox').currentNode())
+      self.step('VesselEnhancementStep').getVesselNode())
 
     # Create output if necessary
     if not self.createExtractVesselOutputConnected:
