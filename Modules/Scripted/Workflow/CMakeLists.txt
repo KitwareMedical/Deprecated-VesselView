@@ -39,7 +39,6 @@ set(MODULE_PYTHON_SCRIPTS
   Widgets/SegmentationStep.py
   Widgets/SegmentationWidget.py
   Widgets/VesselEnhancementStep.py
-  Widgets/ExtractSeedsStep.py
   Widgets/VesselExtractionStep.py
   )
 
@@ -48,7 +47,6 @@ set(MODULE_PYTHON_RESOURCES
   Widgets/Resources/Icons/DesktopIcon.png
   Widgets/Resources/Icons/Heart_Vessels.png
   Widgets/Resources/Icons/Liver_Vessels.png
-  Widgets/Resources/UI/ExtractSeedsStep.ui
   Widgets/Resources/UI/InitialStep.ui
   Widgets/Resources/UI/LoadDataStep.ui
   Widgets/Resources/UI/RegisterStep.ui
