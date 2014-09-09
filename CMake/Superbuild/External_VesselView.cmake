@@ -22,7 +22,7 @@
 set(proj VesselView)
 
 # Set dependency list
-set(${proj}_DEPENDENCIES VTKv5 ITKv4)
+set(${proj}_DEPENDENCIES VTKv6 ITKv4)
 
 # Include dependent projects if any
 ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj DEPENDS_VAR ${proj}_DEPENDENCIES)

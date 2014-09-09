@@ -23,7 +23,7 @@ set(proj TubeTK)
 
 # Set dependency list
 # TubeTK depends on all of these so we are sure it's built after them
-set(${proj}_DEPENDENCIES ITKv4 VTKv5 CTK SlicerExecutionModel)
+set(${proj}_DEPENDENCIES ITKv4 VTKv6 CTK SlicerExecutionModel)
 
 # Include dependent projects if any
 ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj DEPENDS_VAR ${proj}_DEPENDENCIES)
@@ -73,7 +73,8 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DUSE_SYSTEM_CTK:BOOL=ON
       -DCTK_DIR:PATH=${CTK_DIR}
       # Build only TubeTK lib, not the modules. They will be built by Slicer.
-      -DTubeTK_BUILD_MODULES:BOOL=OFF
+      -DTubeTK_BUILD_ALL_MODULES:BOOL=OFF
+      -DTubeTK_BUILD_APPLICATIONS:BOOL=OFF
       -DTubeTK_BUILD_SLICER_EXTENSION:BOOL=OFF
       -DTubeTK_USE_LIBSVM:BOOL=OFF
       -DTubeTK_USE_PYTHON:BOOL=OFF
