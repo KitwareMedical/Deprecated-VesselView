@@ -117,6 +117,14 @@ public slots:
   virtual void on_PasteAction_triggered();
   virtual void on_ViewExtensionsManagerAction_triggered();
 
+  /// VesselView slots:
+  /// For vesselview use only, do no commit back to Slicer and be careful when
+  /// merging !
+
+  /// Set the panel dock widget visibility now and whenever a module is opened.
+  /// Default is the panel is visible and open everytime a module is selected.
+  void setPanelDockWidgetVisible(bool visible);
+
 protected slots:
   virtual void onModuleLoaded(const QString& moduleName);
   virtual void onModuleAboutToBeUnloaded(const QString& moduleName);

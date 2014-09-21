@@ -198,8 +198,7 @@ void qSlicerAppMainWindowPrivate::setupUi(QMainWindow * mainWindow)
                    this->ModulePanel, SLOT(setModule(QString)));
 
   // Ensure the panel dock widget is visible
-  QObject::connect(this->ModuleSelectorToolBar, SIGNAL(moduleSelected(QString)),
-                   this->PanelDockWidget, SLOT(show()));
+  q->setPanelDockWidgetVisible(true);
 
   //----------------------------------------------------------------------------
   // MouseMode ToolBar
@@ -1285,6 +1284,27 @@ void qSlicerAppMainWindow::on_ViewExtensionsManagerAction_triggered()
   app->openExtensionsManagerDialog();
 #endif
 }
+
+/// VesselView slots:
+///
+//---------------------------------------------------------------------------
+void qSlicerAppMainWindow::setPanelDockWidgetVisible(bool visible)
+{
+  Q_D(qSlicerAppMainWindow);
+  d->PanelDockWidget->setVisible(visible);
+  if (visible)
+    {
+    QObject::connect(d->ModuleSelectorToolBar, SIGNAL(moduleSelected(QString)),
+      d->PanelDockWidget, SLOT(show()), Qt::UniqueConnection);
+    }
+  else
+    {
+    QObject::disconnect(d->ModuleSelectorToolBar, SIGNAL(moduleSelected(QString)),
+      d->PanelDockWidget, SLOT(show()));
+    }
+}
+///
+/// End VesselView slots
 
 //---------------------------------------------------------------------------
 void qSlicerAppMainWindow::onModuleLoaded(const QString& moduleName)
