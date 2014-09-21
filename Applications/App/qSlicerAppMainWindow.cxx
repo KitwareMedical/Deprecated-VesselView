@@ -50,6 +50,7 @@
 #include <ctkVTKWidgetsUtils.h>
 
 // SlicerApp includes
+#include "qAppLayoutViewFactory.h"
 #include "qSlicerActionsDialog.h"
 #include "qSlicerApplication.h"
 #include "qSlicerAppAboutDialog.h"
@@ -1062,6 +1063,27 @@ void qSlicerAppMainWindow::setupMenuActions()
 {
   Q_D(qSlicerAppMainWindow);
 
+  qSlicerApplication* app = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = app->layoutManager();
+  layoutManager->registerViewFactory(new qAppLayoutViewFactory(layoutManager));
+  assert(layoutManager);
+
+  const char* welcomeScreenLayout =
+    "<layout type=\"horizontal\">"
+    " <item>"
+    "  <welcome></welcome>"
+    " </item>"
+    "</layout>";
+  int stepLayout = vtkMRMLLayoutNode::SlicerLayoutUserView;
+
+  app->mrmlScene()->InitTraversal();
+  vtkMRMLLayoutNode* layoutNode =
+    vtkMRMLLayoutNode::SafeDownCast(
+      app->mrmlScene()->GetNextNodeByClass("vtkMRMLLayoutNode"));
+  assert(layoutNode);
+  layoutNode->AddLayoutDescription(stepLayout, welcomeScreenLayout);
+  layoutManager->setLayout(stepLayout);
+
   d->ViewLayoutConventionalAction->setData(vtkMRMLLayoutNode::SlicerLayoutConventionalView);
   d->ViewLayoutConventionalWidescreenAction->setData(vtkMRMLLayoutNode::SlicerLayoutConventionalWidescreenView);
   d->ViewLayoutConventionalQuantitativeAction->setData(vtkMRMLLayoutNode::SlicerLayoutConventionalQuantitativeView);
@@ -1123,8 +1145,6 @@ void qSlicerAppMainWindow::setupMenuActions()
     this->pythonConsole()->installEventFilter(this);
     }
 #endif
-
-  qSlicerApplication * app = qSlicerApplication::application();
 
 #ifdef Slicer_BUILD_EXTENSIONMANAGER_SUPPORT
   d->ViewExtensionsManagerAction->setVisible(

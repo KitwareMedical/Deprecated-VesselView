@@ -68,6 +68,10 @@ endif()
 # Sources
 # --------------------------------------------------------------------------
 set(SlicerApp_SRCS
+  qAppLayoutViewFactory.cxx
+  qAppLayoutViewFactory.h
+  qAppWelcomeScreen.cxx
+  qAppWelcomeScreen.h
   qSlicerAppAboutDialog.cxx
   qSlicerAppAboutDialog.h
   qSlicerAppMainWindow.cxx
@@ -76,6 +80,8 @@ set(SlicerApp_SRCS
   )
 
 set(SlicerApp_MOC_SRCS
+  qAppLayoutViewFactory.h
+  qAppWelcomeScreen.h
   qSlicerAppAboutDialog.h
   qSlicerAppMainWindow.h
   )
