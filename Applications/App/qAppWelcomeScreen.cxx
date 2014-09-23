@@ -62,6 +62,7 @@ void qAppWelcomeScreenPrivate::init()
   Q_Q(qAppWelcomeScreen);
   q->rootContext()->setContextProperty("welcomeScreen", q);
   q->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+  q->setMinimumSize(QSize(640, 480));
   q->setSource(QUrl("qrc:/WelcomeScreen.qml"));
 }
 
