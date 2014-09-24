@@ -19,28 +19,28 @@ Rectangle  {
         ListElement {
             name: "Interactive Segment Tubes"
             module: "InteractiveSegmentTubes"
-            imageSource: "InteractiveSegmentTubesIcon.png"
+            imageSource: "InteractiveSegmentTubesIcon.svg"
             description:  "Interactively segment the vessels of a given image."
             layout: -1
         }
         ListElement {
             name: "Workflow"
             module: "Workflow"
-            imageSource: "Workflow.png"
+            imageSource: "Workflow.svg"
             description:  "Workflow that guides you on all the necessary steps requiredt to show the vessels of an image."
             layout: -1
         }
         ListElement {
             name: "Tortuosity"
             module: "Tortuosity"
-            imageSource: "Workflow.png"
+            imageSource: "Workflow.svg"
             description:  "Compute tortuosity metrics on vessels."
             layout: 4 // SlicerLayoutOneUp3DView
         }
         ListElement {
             name: "Spatial Objects Display"
             module: "SpatialObjects"
-            imageSource: "Workflow.png"
+            imageSource: "Workflow.svg"
             description: "Visualize the vessels and all their related metrics."
             layout: 1 // SlicerLayoutDefaultView
         }
