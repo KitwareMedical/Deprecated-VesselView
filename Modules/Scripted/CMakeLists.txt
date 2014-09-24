@@ -18,6 +18,7 @@
 
 set(modules
   InteractiveSegmentTubes
+  Welcome
   Workflow
   )
 

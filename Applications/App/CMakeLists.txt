@@ -68,20 +68,22 @@ endif()
 # Sources
 # --------------------------------------------------------------------------
 set(SlicerApp_SRCS
+  qAppLayoutViewFactory.cxx
+  qAppLayoutViewFactory.h
+  qAppWelcomeScreen.cxx
+  qAppWelcomeScreen.h
   qSlicerAppAboutDialog.cxx
   qSlicerAppAboutDialog.h
   qSlicerAppMainWindow.cxx
   qSlicerAppMainWindow.h
-  qSlicerAppMainWindowCore.cxx
-  qSlicerAppMainWindowCore.h
-  qSlicerAppMainWindowCore_p.h
+  qSlicerAppMainWindow_p.h
   )
 
 set(SlicerApp_MOC_SRCS
+  qAppLayoutViewFactory.h
+  qAppWelcomeScreen.h
   qSlicerAppAboutDialog.h
   qSlicerAppMainWindow.h
-  qSlicerAppMainWindowCore.h
-  qSlicerAppMainWindowCore_p.h
   )
 
 set(SlicerApp_UI_SRCS
@@ -337,14 +339,6 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
       endif()
     endforeach()
 
-    include(SlicerBlockCTKAppLauncherSettings)
-    set(splash_image_path ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/SplashScreen.png)
-
-    set(${PROJECT_NAME}_LIBRARY_PATHS_BUILD ${SLICER_LIBRARY_PATHS_BUILD})
-    foreach(${APPLICATION_NAME}_LIBRARY_DIR ${${APPLICATION_NAME}_LIBRARY_DIRS})
-      list(APPEND ${PROJECT_NAME}_LIBRARY_PATHS_BUILD ${${APPLICATION_NAME}_LIBRARY_DIR}/<CMAKE_CFG_INTDIR>)
-    endforeach()
-
     # Define list of extra 'application to launch' to associate with the launcher
     # within the install tree
     set(executables)
@@ -366,13 +360,15 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
       endif()
     endforeach()
 
+    include(SlicerBlockCTKAppLauncherSettings)
+    set(splash_image_path ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/SplashScreen.png)
     ctkAppLauncherConfigure(
       TARGET ${PROJECT_NAME}${SlicerApp_EXE_SUFFIX}
       APPLICATION_INSTALL_SUBDIR ${Slicer_INSTALL_BIN_DIR}
       APPLICATION_NAME ${SlicerApp_APPLICATION_NAME}
-      APPLICATION_REVISION ${${APPLICATION_NAME}_WC_REVISION}
-      ORGANIZATION_DOMAIN ${${APPLICATION_NAME}_ORGANIZATION_DOMAIN}
-      ORGANIZATION_NAME ${${APPLICATION_NAME}_ORGANIZATION_NAME}
+      APPLICATION_REVISION ${Slicer_WC_REVISION}
+      ORGANIZATION_DOMAIN ${Slicer_ORGANIZATION_DOMAIN}
+      ORGANIZATION_NAME ${Slicer_ORGANIZATION_NAME}
       USER_ADDITIONAL_SETTINGS_FILEBASENAME ${SLICER_REVISION_SPECIFIC_USER_SETTINGS_FILEBASENAME}
       SPLASH_IMAGE_PATH ${splash_image_path}
       SPLASH_IMAGE_INSTALL_SUBDIR ${Slicer_INSTALL_BIN_DIR}
@@ -383,7 +379,7 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
       EXTRA_APPLICATION_TO_LAUNCH_BUILD ${extraApplicationToLaunchListForBuildTree}
       EXTRA_APPLICATION_TO_LAUNCH_INSTALLED ${extraApplicationToLaunchListForInstallTree}
       DESTINATION_DIR ${Slicer_BINARY_DIR}
-      LIBRARY_PATHS_BUILD "${${PROJECT_NAME}_LIBRARY_PATHS_BUILD}"
+      LIBRARY_PATHS_BUILD "${SLICER_LIBRARY_PATHS_BUILD}"
       PATHS_BUILD "${SLICER_PATHS_BUILD}"
       ENVVARS_BUILD "${SLICER_ENVVARS_BUILD}"
       LIBRARY_PATHS_INSTALLED "${SLICER_LIBRARY_PATHS_INSTALLED}"
@@ -396,7 +392,11 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
 
     if(NOT APPLE)
       if(Slicer_HAS_CONSOLE_IO_SUPPORT)
-        install(PROGRAMS "${Slicer_BINARY_DIR}/${SlicerApp_APPLICATION_NAME}${CMAKE_EXECUTABLE_SUFFIX}" DESTINATION ".")
+        install(
+          PROGRAMS "${Slicer_BINARY_DIR}/${SlicerApp_APPLICATION_NAME}${CMAKE_EXECUTABLE_SUFFIX}"
+          DESTINATION "."
+          COMPONENT Runtime
+          )
       else()
         # Create command to update launcher icon
         add_custom_command(
@@ -422,17 +422,20 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
           PROGRAMS "${Slicer_BINARY_DIR}/CMakeFiles/${SlicerApp_APPLICATION_NAME}W${CMAKE_EXECUTABLE_SUFFIX}"
           DESTINATION "."
           RENAME "${SlicerApp_APPLICATION_NAME}${CMAKE_EXECUTABLE_SUFFIX}"
+          COMPONENT Runtime
           )
       endif()
 
       install(
         FILES ${splash_image_path}
         DESTINATION ${Slicer_INSTALL_BIN_DIR}
+        COMPONENT Runtime
         )
       install(
         FILES "${Slicer_BINARY_DIR}/${SlicerApp_APPLICATION_NAME}LauncherSettingsToInstall.ini"
         DESTINATION ${Slicer_INSTALL_BIN_DIR}
         RENAME ${SlicerApp_APPLICATION_NAME}LauncherSettings.ini
+        COMPONENT Runtime
         )
     endif()
 

@@ -79,8 +79,8 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   else()
     set(${proj}_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
     list(APPEND ${proj}_EP_ARGS
-      GIT_REPOSITORY "${git_protocol}://github.com/Slicer/Slicer.git"
-      GIT_TAG "22262b98d43d5f68546eab686fa41fb117632fa4"
+      GIT_REPOSITORY "${git_protocol}://github.com/KitwareMedical/Slicer.git"
+      GIT_TAG "b763aed5288e9223e322bf73413035d969b56ad7"
       )
   endif()
 
@@ -101,6 +101,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -D${proj}_INSTALL_LIB_DIR:STRING=${${APPLICATION_NAME}_INSTALL_BIN_DIR}
       -D${proj}_USE_GIT_PROTOCOL:BOOL=${${APPLICATION_NAME}_USE_GIT_PROTOCOL}
       # Qt
+      -DSlicer_ADDITIONAL_REQUIRED_QT_MODULES:STRING=QTDECLARATIVE;QTSCRIPT
       -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
       -DSlicer_REQUIRED_QT_VERSION:STRING=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
       # External projects

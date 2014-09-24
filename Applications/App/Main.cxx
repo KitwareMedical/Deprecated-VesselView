@@ -21,6 +21,8 @@
 #include <QSettings>
 #include <QSplashScreen>
 #include <QString>
+#include <QStyleFactory>
+#include <QSysInfo>
 #include <QTimer>
 
 // Slicer includes
@@ -92,6 +94,21 @@ int SlicerAppMain(int argc, char* argv[])
 
   QCoreApplication::setApplicationName(Slicer_MAIN_PROJECT_APPLICATION_NAME);
   QCoreApplication::setApplicationVersion(qSlicerApp_VERSION_FULL);
+
+#if QT_VERSION >= 0x040803
+#ifdef Q_OS_MACX
+  if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_8)
+    {
+    QString defaultPath = QString(":/DefaultSettings.ini");
+    QSettings defaultSettings(defaultPath, QSettings::IniFormat);
+
+    // Fix Mac OS X 10.9 (mavericks) font issue
+    // https://bugreports.qt-project.org/browse/QTBUG-32789
+    QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
+    }
+#endif
+#endif
+
   //vtkObject::SetGlobalWarningDisplay(false);
   QApplication::setDesktopSettingsAware(false);
   QApplication::setStyle("Dark Slicer"); // to be changed
@@ -118,6 +135,26 @@ int SlicerAppMain(int argc, char* argv[])
     {
     return app.returnCode();
     }
+  app.installEventFilter(app.style());
+
+  // VesselView code:
+  // HACKISH: Developer mode that doesn't show welcome module and all
+  bool developerMode = false;
+  foreach(QString arg, app.arguments())
+    {
+    if (arg == "-d" || arg == "--developer")
+      {
+      developerMode = true;
+      break;
+      }
+    }
+  if (developerMode)
+    {
+    // Wipes some states (otherwise you can't select modules, layout...)
+    settings.setValue("MainWindow/windowState", "");
+    settings.setValue("MainWindow/layout", 0);
+    }
+  // end VesselView mode
 
 
 #ifdef Slicer_USE_QtTesting
@@ -149,17 +186,38 @@ int SlicerAppMain(int argc, char* argv[])
   qSlicerModuleManager * moduleManager = qSlicerApplication::application()->moduleManager();
   qSlicerModuleFactoryManager * moduleFactoryManager = moduleManager->factoryManager();
   moduleFactoryManager->addSearchPaths(app.commandOptions()->additonalModulePaths());
+
+  // VesselView code:
+  // HACKISH: Developer mode that doesn't show welcome module and all
+  QStringList modulesToIgnore = moduleFactoryManager->modulesToIgnore();
+  if (developerMode)
+    {
+    modulesToIgnore << "Welcome";
+    }
+  else
+    {
+    modulesToIgnore.removeOne("Welcome");
+    }
+  moduleFactoryManager->setModulesToIgnore(modulesToIgnore);
+  // End VesselView code
+
   qSlicerApplicationHelper::setupModuleFactoryManager(moduleFactoryManager);
 
   // Register and instantiate modules
   splashMessage(splashScreen, "Registering modules...");
   moduleFactoryManager->registerModules();
-  qDebug() << "Number of registered modules:"
-           << moduleFactoryManager->registeredModuleNames().count();
+  if (app.commandOptions()->verbose())
+    {
+    qDebug() << "Number of registered modules:"
+             << moduleFactoryManager->registeredModuleNames().count();
+    }
   splashMessage(splashScreen, "Instantiating modules...");
   moduleFactoryManager->instantiateModules();
-  qDebug() << "Number of instantiated modules:"
-           << moduleFactoryManager->instantiatedModuleNames().count();
+  if (app.commandOptions()->verbose())
+    {
+    qDebug() << "Number of instantiated modules:"
+             << moduleFactoryManager->instantiatedModuleNames().count();
+    }
   // Create main window
   splashMessage(splashScreen, "Initializing user interface...");
   QScopedPointer<qSlicerAppMainWindow> window;
@@ -178,7 +236,10 @@ int SlicerAppMain(int argc, char* argv[])
     splashMessage(splashScreen, "Loading module \"" + name + "\"...");
     moduleFactoryManager->loadModule(name);
     }
-  qDebug() << "Number of loaded modules:" << moduleManager->modulesNames().count();
+  if (app.commandOptions()->verbose())
+    {
+    qDebug() << "Number of loaded modules:" << moduleManager->modulesNames().count();
+    }
 
   splashMessage(splashScreen, QString());
 
