@@ -137,6 +137,25 @@ int SlicerAppMain(int argc, char* argv[])
     }
   app.installEventFilter(app.style());
 
+  // VesselView code:
+  // HACKISH: Developer mode that doesn't show welcome module and all
+  bool developerMode = false;
+  foreach(QString arg, app.arguments())
+    {
+    if (arg == "-d" || arg == "--developer")
+      {
+      developerMode = true;
+      break;
+      }
+    }
+  if (developerMode)
+    {
+    // Wipes some states (otherwise you can't select modules, layout...)
+    settings.setValue("MainWindow/windowState", "");
+    settings.setValue("MainWindow/layout", 0);
+    }
+  // end VesselView mode
+
 
 #ifdef Slicer_USE_QtTesting
   setEnableQtTesting(); // disabled the native menu bar.
@@ -167,6 +186,21 @@ int SlicerAppMain(int argc, char* argv[])
   qSlicerModuleManager * moduleManager = qSlicerApplication::application()->moduleManager();
   qSlicerModuleFactoryManager * moduleFactoryManager = moduleManager->factoryManager();
   moduleFactoryManager->addSearchPaths(app.commandOptions()->additonalModulePaths());
+
+  // VesselView code:
+  // HACKISH: Developer mode that doesn't show welcome module and all
+  QStringList modulesToIgnore = moduleFactoryManager->modulesToIgnore();
+  if (developerMode)
+    {
+    modulesToIgnore << "Welcome";
+    }
+  else
+    {
+    modulesToIgnore.removeOne("Welcome");
+    }
+  moduleFactoryManager->setModulesToIgnore(modulesToIgnore);
+  // End VesselView code
+
   qSlicerApplicationHelper::setupModuleFactoryManager(moduleFactoryManager);
 
   // Register and instantiate modules
