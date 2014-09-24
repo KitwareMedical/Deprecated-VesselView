@@ -33,8 +33,18 @@ class Welcome(ScriptedLoadableModule):
 
 class WelcomeWidget(ScriptedLoadableModuleWidget):
   def setup(self):
+    # Add a button to return to the welcome module in the status bar
+    statusBar = slicer.util.mainWindow().statusBar()
+    self.ReturnToWelcome = qt.QPushButton(statusBar)
+    self.ReturnToWelcome.text = 'Return to Welcome screen'
+    self.ReturnToWelcome.connect('clicked()', self.selectWelcomeModule)
+    statusBar.addPermanentWidget(self.ReturnToWelcome, 1)
+
     slicer.util.mainWindow().moduleSelector().connect('moduleSelected(QString)', self.onModuleSelected)
     self.onModuleSelected()
+
+  def selectWelcomeModule(self):
+    slicer.util.selectModule('Welcome')
 
   def hideWidget(self, parent, name):
     w = self.findWidget(parent, name)
@@ -47,6 +57,7 @@ class WelcomeWidget(ScriptedLoadableModuleWidget):
     moduleIsWelcome = (module == 'Welcome')
     mainWindow = slicer.util.mainWindow()
     mainWindow.setPanelDockWidgetVisible(not moduleIsWelcome)
+    self.ReturnToWelcome.setVisible(not moduleIsWelcome)
 
     if not moduleIsWelcome:
       return
@@ -59,7 +70,6 @@ class WelcomeWidget(ScriptedLoadableModuleWidget):
     #self.hideWidget(mainWindow, 'menubar')
     self.hideWidget(mainWindow, 'ModuleToolBar')
     self.hideWidget(mainWindow, 'MouseModeToolBar')
-    self.hideWidget(mainWindow, 'StatusBar')
     self.hideWidget(mainWindow, 'ViewersToolBar')
     self.hideWidget(mainWindow, 'ViewToolBar')
 
