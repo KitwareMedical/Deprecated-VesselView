@@ -33,7 +33,7 @@ public:
   virtual ~qAppWelcomeScreen();
 
 public slots:
-  void loadMouseAtlas();
+  void loadModule(const QString& moduleName, int layout = -1);
 
 signals:
   /// Fired when the welcome screen is done and the workflow can start.

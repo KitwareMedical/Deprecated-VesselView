@@ -16,11 +16,14 @@
 // Qt includes
 #include <QDeclarativeContext>
 #include <QMessageBox>
+#include <QMainwindow>
 #include <QSettings>
 
 // Slicer includes
 #include <qSlicerApplication.h>
+#include <qSlicerAppMainWindow.h>
 #include <qSlicerIOManager.h>
+#include <qSlicerModuleSelectorToolBar.h>
 #include <qSlicerLayoutManager.h>
 
 // SlicerApp includes
@@ -84,21 +87,17 @@ qAppWelcomeScreen::~qAppWelcomeScreen()
 }
 
 //-----------------------------------------------------------------------------
-void qAppWelcomeScreen::loadMouseAtlas()
+void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
 {
-  QSettings settings;
-  if (!settings.contains("mouseAtlas"))
+  if (layout > 0)
     {
-    QMessageBox::critical(this, "Mouse Atlas", "No \"mouseAtlas\" in settings file.");
-    return;
+    qSlicerApplication::application()->layoutManager()->setLayout(layout);
     }
-  const QString mouseAtlasFilePath = settings.value("mouseAtlas").toString();
-  const bool res = qSlicerApplication::application()->ioManager()->loadScene(mouseAtlasFilePath);
-  if (!res)
-    {
-    QMessageBox::critical(this, "Mouse Atlas",
-                          QString("Failed to read mouse atlas in ") + mouseAtlasFilePath);
-    return;
-    }
+
+  qSlicerAppMainWindow* slicerMainWindow =
+    qobject_cast<qSlicerAppMainWindow*>(
+      qSlicerApplication::application()->mainWindow());
+  assert(slicerMainWindow);
+  slicerMainWindow->moduleSelector()->selectModule(moduleName);
   emit done();
 }

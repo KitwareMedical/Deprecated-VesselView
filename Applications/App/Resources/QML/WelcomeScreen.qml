@@ -203,6 +203,9 @@ Rectangle  {
                 openRectangle.color = activePalette.button
                 openText.color = activePalette.text
             }
+            onClicked: {
+                welcomeScreen.loadModule(selectedModule, selectedLayout)
+            }
         }
     }
 }
