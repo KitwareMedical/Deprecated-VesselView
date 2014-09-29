@@ -98,10 +98,14 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     pass
 
   def run( self, run ):
+    # GUI stuff
+    self.get('DropSeedsPushButton').setChecked(run)
     if run:
       self.get('ApplyPushButton').setText('Stop')
     else:
       self.get('ApplyPushButton').setText('Start')
+
+    # Logic
     self.logic.run(run)
 
   def onSegmentTubesUpdated( self, cliNode, *unused ):
