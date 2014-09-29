@@ -35,6 +35,7 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     self.widget = None
     self.moduleName = 'Interactive Segment Tubes'
     self.logic = InteractiveSegmentTubesLogic()
+    self.interactionNode = None
 
     self.linkIcon = qt.QIcon(os.path.join(ICON_DIR, 'Link.png'))
     self.brokenIcon = qt.QIcon(os.path.join(ICON_DIR, 'Broken.png'))
@@ -59,6 +60,11 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     # Connect widget internal signals here:
     self.get('SeedsSizeSliderWidget').connect('valueChanged(double)', self.updateMRMLFromWidget)
     self.get('SeedsShowStatusCheckBox').connect('stateChanged(int)', self.updateMRMLFromWidget)
+
+    self.get('DropSeedsPushButton').setIcon(qt.QIcon(os.path.join(ICON_DIR, 'AnnotationPointWithArrow.png')))
+    self.get('DropSeedsPushButton').connect('toggled(bool)', self.updateMRMLFromWidget)
+    interactionNode = slicer.app.applicationLogic().GetInteractionNode()
+    self.addObserver(interactionNode, 'ModifiedEvent', self.updateWidgetFromMRML)
 
     # Connect widget signals to logic here:
     self.get('OutputNodeComboBox').connect('nodeAddedByUser(vtkMRMLNode*)', self.logic.addDisplayNodes)
@@ -151,6 +157,12 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
         seedDisplayNode.SetTextScale(textScale)
         seedDisplayNode.EndModify(disabledModify)
 
+    interactionNode = slicer.app.applicationLogic().GetInteractionNode()
+    if self.get('DropSeedsPushButton').isChecked():
+      interactionNode.SetCurrentInteractionMode(interactionNode.Place)
+    else:
+      interactionNode.SetCurrentInteractionMode(interactionNode.ViewTransform)
+
   def updateWidgetFromMRML( self, *unused ):
     seedNode = self.get('SeedPointNodeComboBox').currentNode()
     seedDisplayNode = None
@@ -159,6 +171,9 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     if seedDisplayNode:
       self.get('SeedsSizeSliderWidget').value = seedDisplayNode.GetGlyphScale()
       self.get('SeedsShowStatusCheckBox').setChecked(seedDisplayNode.GetTextScale() > 1e-6)
+
+    interactionNode = slicer.app.applicationLogic().GetInteractionNode()
+    self.get('DropSeedsPushButton').setChecked(interactionNode.GetCurrentInteractionMode() == interactionNode.Place)
 
   def createOutputIfNeeded( self, node, suffix, combobox ):
     if node == None:

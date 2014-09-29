@@ -36,6 +36,7 @@ set(MODULE_PYTHON_SCRIPTS
   )
 
 set(MODULE_PYTHON_RESOURCES
+  Resources/Icons/AnnotationPointWithArrow.png
   Resources/Icons/Broken.png
   Resources/Icons/Link.png
   Resources/Icons/InteractiveSegmentTubesIcon.png
