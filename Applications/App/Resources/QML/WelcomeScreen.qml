@@ -110,6 +110,9 @@ Rectangle  {
                     descriptionRectangleImage.source = imageSource
                     expanded = false
                 }
+                onDoubleClicked: {
+                    welcomeScreen.loadModule(selectedModule, selectedLayout)
+                }
                 z: 2
             }
             states: [
