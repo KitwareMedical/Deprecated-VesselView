@@ -43,6 +43,16 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="DropSeedsPushButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="ApplyPushButton">
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start running the &lt;span style=&quot; font-style:italic;&quot;&gt;Segment Tubes&lt;/span&gt; CLI to process all the &lt;span style=&quot; font-weight:600;&quot;&gt;Seed points&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;The module will be run any time there is a &lt;span style=&quot; font-weight:600;&quot;&gt;'Queued'&lt;/span&gt; seed in &lt;span style=&quot; font-weight:600;&quot;&gt;Seed points&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
