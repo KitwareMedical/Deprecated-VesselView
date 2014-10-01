@@ -10,7 +10,6 @@ Rectangle  {
 
     property string selectedModule: ""
     property int selectedLayout: -1
-    property bool expanded: true
     property int generalMargin: 5
 
     ListModel {
@@ -55,15 +54,11 @@ Rectangle  {
         anchors.top: parent.top
         anchors.topMargin: generalMargin
         anchors.rightMargin: generalMargin
-        width: expanded ? (parent.width - 2*generalMargin): ((parent.width - 2*generalMargin) / 3)
+        width: (parent.width - 2*generalMargin) / 3
 
         focus: true
         highlightFollowsCurrentItem: true
         spacing: 10
-
-        Behavior on width {
-            NumberAnimation{ duration: 150 }
-        }
 
         model: welcomeScreenModel
         delegate: Rectangle {
@@ -108,7 +103,6 @@ Rectangle  {
 
                     descriptionRectangleText.text = description
                     descriptionRectangleImage.source = imageSource
-                    expanded = false
                 }
                 onDoubleClicked: {
                     welcomeScreen.loadModule(selectedModule, selectedLayout)
@@ -168,7 +162,7 @@ Rectangle  {
 
         Text {
             id: openText
-            text: expanded ? "" : "Open in VesselView"
+            text: "Open in VesselView"
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
 
@@ -188,9 +182,9 @@ Rectangle  {
             id: openRectangle
             color: activePalette.button
             anchors.fill: openText
-            anchors.bottomMargin: expanded ? 0 : Math.floor( (openText.height - openText.paintedHeight) / 2) - generalMargin
+            anchors.bottomMargin: Math.floor( (openText.height - openText.paintedHeight) / 2) - generalMargin
             anchors.topMargin: anchors.bottomMargin
-            anchors.rightMargin: expanded ? 0 :Math.floor( (openText.width - openText.paintedWidth) / 2) - generalMargin
+            anchors.rightMargin: Math.floor( (openText.width - openText.paintedWidth) / 2) - generalMargin
             anchors.leftMargin: anchors.rightMargin
             border.color: activePalette.dark
             radius: generalMargin
