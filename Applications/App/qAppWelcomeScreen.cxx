@@ -16,7 +16,6 @@
 // Qt includes
 #include <QDeclarativeContext>
 #include <QMessageBox>
-#include <QMainwindow>
 #include <QSettings>
 
 // Slicer includes
