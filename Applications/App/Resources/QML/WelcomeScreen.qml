@@ -11,6 +11,9 @@ Rectangle  {
     property string selectedModule: ""
     property int selectedLayout: -1
     property int generalMargin: 5
+    property int generalSpacing: 2*generalMargin
+    property real gradientStart: 0.8
+    property real gradientEnd: 1.0
 
     ListModel {
         id: welcomeScreenModel
@@ -45,31 +48,58 @@ Rectangle  {
         }
     }
 
+    function elementHeightFunction(height, numberOfElements, spacing)
+    {
+        return Math.floor( (height - (numberOfElements-1)*spacing) / numberOfElements )
+    }
+    property int elementHeight : elementHeightFunction(welcomeRectangle.height - 2*generalMargin, welcomeListView.count + 1, generalSpacing)
+
+    Rectangle {
+        id: aboutRectangle
+        anchors.left: parent.left
+        anchors.leftMargin: generalMargin
+        anchors.top: parent.top
+        anchors.topMargin: generalMargin
+        anchors.rightMargin: generalMargin
+        width: Math.floor((parent.width - 2*generalMargin) / 3)
+        height: elementHeight + generalSpacing
+
+        color: activePalette.base
+
+        Rectangle {
+            id: aboutImageRectangle
+            anchors.fill: parent
+            anchors.bottomMargin: welcomeListView.spacing
+            color: activePalette.base
+
+            Image {
+                id: aboutImage
+                anchors.fill: parent
+                fillMode: Image.PreserveAspectFit
+                source: ":/Icons/Medium/kitware_full_logo.svg"
+            }
+        }
+    }
+
     ListView {
         id: welcomeListView
+        spacing: generalSpacing
         anchors.left: parent.left
         anchors.leftMargin: generalMargin
         anchors.bottom: parent.bottom
         anchors.bottomMargin: generalMargin
-        anchors.top: parent.top
-        anchors.topMargin: generalMargin
         anchors.rightMargin: generalMargin
-        width: (parent.width - 2*generalMargin) / 3
+        anchors.top: aboutRectangle.bottom
+        width: Math.floor((parent.width - 2*generalMargin) / 3)
 
         focus: true
         highlightFollowsCurrentItem: true
-        spacing: 10
 
         model: welcomeScreenModel
         delegate: Rectangle {
 
-            function elementHeight(listView)
-            {
-                return Math.floor( (listView.height - (listView.count - 1)*listView.spacing) / listView.count )
-            }
-
             id: elementItem
-            height: elementHeight( welcomeListView )
+            height: elementHeight
             width: welcomeListView.width
             color: activePalette.button
             border.color: activePalette.dark
@@ -103,6 +133,7 @@ Rectangle  {
 
                     descriptionRectangleText.text = description
                     descriptionRectangleImage.source = imageSource
+                    openButton.visible = true
                 }
                 onDoubleClicked: {
                     welcomeScreen.loadModule(selectedModule, selectedLayout)
@@ -158,13 +189,14 @@ Rectangle  {
             verticalAlignment: Text.AlignTop
             horizontalAlignment: Text.AlignHCenter
             z: 1
+
+            text: ""
         }
 
-        Text {
-            id: openText
-            text: "Open in VesselView"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
+        Item
+            {
+            id: openButton
+            visible: false
 
             anchors.right: parent.right
             anchors.rightMargin: 0
@@ -174,35 +206,44 @@ Rectangle  {
             anchors.topMargin: generalMargin
             height: Math.floor( (parent.height - generalMargin) / 4)
 
-            font.pointSize: 22
-            color: activePalette.text
-            z: 1
-        }
-        Rectangle {
-            id: openRectangle
-            color: activePalette.button
-            anchors.fill: openText
-            anchors.bottomMargin: Math.floor( (openText.height - openText.paintedHeight) / 2) - generalMargin
-            anchors.topMargin: anchors.bottomMargin
-            anchors.rightMargin: Math.floor( (openText.width - openText.paintedWidth) / 2) - generalMargin
-            anchors.leftMargin: anchors.rightMargin
-            border.color: activePalette.dark
-            radius: generalMargin
-        }
-        MouseArea {
-            anchors.fill: openRectangle
-            hoverEnabled: true
-            onEntered: {
-                openRectangle.color = activePalette.highlight
-                openText.color = activePalette.highlightedText
+            Text {
+                id: openText
+                text: "Open in VesselView"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                anchors.fill: parent
+
+                font.pointSize: 22
+                color: activePalette.text
+                z: 1
             }
-            onExited: {
-                openRectangle.color = activePalette.button
-                openText.color = activePalette.text
+            Rectangle {
+                id: openRectangle
+                color: activePalette.button
+                anchors.fill: openText
+                anchors.bottomMargin: Math.floor( (openText.height - openText.paintedHeight) / 2) - generalMargin
+                anchors.topMargin: anchors.bottomMargin
+                anchors.rightMargin: Math.floor( (openText.width - openText.paintedWidth) / 2) - generalMargin
+                anchors.leftMargin: anchors.rightMargin
+                border.color: activePalette.dark
+                radius: generalMargin
             }
-            onClicked: {
-                welcomeScreen.loadModule(selectedModule, selectedLayout)
+            MouseArea {
+                anchors.fill: openRectangle
+                hoverEnabled: true
+                onEntered: {
+                    openRectangle.color = activePalette.highlight
+                    openText.color = activePalette.highlightedText
+                }
+                onExited: {
+                    openRectangle.color = activePalette.button
+                    openText.color = activePalette.text
+                }
+                onClicked: {
+                    welcomeScreen.loadModule(selectedModule, selectedLayout)
+                }
             }
-        }
+            }
     }
+
 }

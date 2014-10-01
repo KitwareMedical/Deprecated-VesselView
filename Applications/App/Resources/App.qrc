@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
     <file alias="Icons/Medium/DesktopIcon.png">Icons/Medium/DesktopIcon.png</file>
+    <file alias="Icons/Medium/kitware_full_logo.svg">Icons/Medium/kitware_full_logo.svg</file>
     <file alias="Workflow.svg">Icons/Medium/VesselViewLogo.svg</file>
     <file alias="InteractiveSegmentTubesIcon.svg">Icons/Medium/InteractiveSegmentTubesIcon.svg</file>
     <file alias="SplashScreen.png">Images/SplashScreen.png</file>
