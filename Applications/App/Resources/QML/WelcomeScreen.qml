@@ -29,7 +29,7 @@ Rectangle  {
             name: "Workflow"
             module: "Workflow"
             imageSource: "Workflow.svg"
-            description:  "Workflow that guides you on all the necessary steps requiredt to show the vessels of an image."
+            description:  "Workflow that guides you on all the necessary steps required to show the vessels of an image."
             layout: -1
         }
         ListElement {
