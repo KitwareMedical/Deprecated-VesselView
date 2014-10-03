@@ -37,7 +37,7 @@ class Workflow:
     """
     self.parent = parent
 
-    parent.icon = qt.QIcon("%s/DesktopIcon.png" % Widgets.ICON_DIR)
+    parent.icon = qt.QIcon("%s/VesselViewLogo.svg" % Widgets.ICON_DIR)
 
 #
 # Workflow widget

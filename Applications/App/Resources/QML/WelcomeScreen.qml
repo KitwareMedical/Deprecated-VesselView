@@ -35,14 +35,14 @@ Rectangle  {
         ListElement {
             name: "Tortuosity"
             module: "Tortuosity"
-            imageSource: "Workflow.svg"
+            imageSource: "VesselViewLogo.svg"
             description:  "Compute tortuosity metrics on vessels."
             layout: 4 // SlicerLayoutOneUp3DView
         }
         ListElement {
             name: "Spatial Objects Display"
             module: "SpatialObjects"
-            imageSource: "Workflow.svg"
+            imageSource: "VesselViewLogo.svg"
             description: "Visualize the vessels and all their related metrics."
             layout: 1 // SlicerLayoutDefaultView
         }
@@ -172,6 +172,7 @@ Rectangle  {
             anchors.topMargin: 0
             height: Math.floor( (parent.height - generalMargin) / 4)
             fillMode: Image.PreserveAspectFit
+            source: ":/Icons/Medium/VesselViewSplashScreen.svg"
         }
 
         Text {
@@ -190,7 +191,18 @@ Rectangle  {
             horizontalAlignment: Text.AlignHCenter
             z: 1
 
-            text: ""
+            text: "<html>
+                   VesselView is a open-source custom graphical interface to the vessel segmentation, registration, and analysis
+                   methods of Kitware’s <a href=\"http://www.tubetk.org/\">TubeTK</a> software toolkit.
+                   <p>
+                   Based on <a href=\"http://www.slicer.org/\">3D Slicer</a>, VesselView is free for academic and commercial use.
+                   Furthermore, it can be customized by Kitware to provide workflows that streamline the analysis of vessels for
+                   tumor malignancy assessment, surgical planning, surgical guidance, stroke assessment, and more.
+
+                   For more information, visit <a href=\"http://public.kitware.com/Wiki/TubeTK/About\">http://public.kitware.com/Wiki/TubeTK/About</a>
+                   </html>
+                  "
+            onLinkActivated: Qt.openUrlExternally(link)
         }
 
         Item
