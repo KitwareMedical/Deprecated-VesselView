@@ -49,7 +49,7 @@ Rectangle  {
         ListElement {
             name: "Convert Vessel Files"
             module: "ConvertTRE"
-            imageSource: "ConvertTRE.svg"
+            imageSource: "VesselViewLogo.svg"
             description: "<html>
                          The ConvertTRE module is a bridge between TubeX and TubeTK.
                          It allows to convert a TubeX compatible file to a TubeTK file and vice versa.
