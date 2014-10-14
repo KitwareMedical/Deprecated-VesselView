@@ -63,6 +63,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DSubversion_SVN_EXECUTABLE:FILEPATH=${Subversion_SVN_EXECUTABLE}
       -DVTK_DIR:PATH=${VTK_DIR}
       -DITK_DIR:PATH=${ITK_DIR}
+      -BUILD_TESTING:BOOL=${BUILD_TESTING}
       #${dependency_args}
     DEPENDS
       ${${proj}_DEPENDENCIES}

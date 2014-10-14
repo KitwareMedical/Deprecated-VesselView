@@ -36,6 +36,7 @@ class WelcomeWidget(ScriptedLoadableModuleWidget):
     # Add a button to return to the welcome module in the status bar
     statusBar = slicer.util.mainWindow().statusBar()
     self.ReturnToWelcome = qt.QPushButton(statusBar)
+    self.ReturnToWelcome.objectName = 'ReturnToWelcomeScreenButton'
     self.ReturnToWelcome.text = 'Return to Welcome screen'
     self.ReturnToWelcome.connect('clicked()', self.selectWelcomeModule)
     statusBar.addPermanentWidget(self.ReturnToWelcome, 1)
