@@ -99,7 +99,7 @@ macro(VESSELVIEW_ADD_PYTHON_UNITTEST)
     --no-splash
     --testing
     --ignore-slicerrc ${Slicer_ADDITIONAL_LAUNCHER_SETTINGS}
-    --python-code "import slicer.testing\\; slicer.testing.runUnitTest(['${CMAKE_CURRENT_BINARY_DIR}', '${_script_source_dir}'], '${test_name}')"
+    --python-code "import slicer.testing;slicer.testing.runUnitTest(['${CMAKE_CURRENT_BINARY_DIR}', '${_script_source_dir}'], '${test_name}')"
     ${MY_SLICER_ARGS}
     )
   set_property(TEST py_${MY_TESTNAME_PREFIX}${test_name} PROPERTY RUN_SERIAL TRUE)
@@ -108,9 +108,11 @@ endmacro()
 if(Slicer_USE_PYTHONQT)
 
   # add as unit test for use at build/test time
+  vesselview_add_python_unittest(SCRIPT WelcomeModuleTests.py)
 
   # add as hidden module for use at run time
   set(KIT_PYTHON_SCRIPTS
+    WelcomeModuleTests.py
     )
 
   set(KIT_PYTHON_RESOURCES
