@@ -1,6 +1,6 @@
 
 #-----------------------------------------------------------------------------
-set(INPUT ${CMAKE_CURRENT_SOURCE_DIR}/../../Data/Input)
+set(INPUT ${Slicer_SOURCE_DIR}/Applications/SlicerApp/Data/Input)
 
 #
 # Check if '--python-code' / 'slicer.testing' works as expected
@@ -44,6 +44,38 @@ add_test(
   )
 set_tests_properties(py_nomainwindow_SlicerPythonCodeTest5 PROPERTIES WILL_FAIL TRUE)
 
+include(SlicerMacroPythonTesting)
+
+#
+# Check if '--python-scripts' / 'testing' works as expected
+#
+set(slicer_app_dir ${Slicer_SOURCE_DIR}/Applications/SlicerApp)
+set(slicer_app_python_testing_dir ${slicer_app_dir}/Testing/Python)
+
+slicer_add_python_test(
+  SCRIPT SlicerTestingExitSuccessTest.py
+  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT_ARGS --no-main-window TESTNAME_PREFIX nomainwindow_
+  )
+
+slicer_add_python_test(
+  SCRIPT SlicerTestingExitFailureTest.py
+  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT_ARGS --no-main-window TESTNAME_PREFIX nomainwindow_
+  )
+set_tests_properties(py_nomainwindow_SlicerTestingExitFailureTest PROPERTIES WILL_FAIL TRUE)
+
+slicer_add_python_test(
+  SCRIPT SlicerTestingExitSuccessTest.py
+  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  )
+
+slicer_add_python_test(
+  SCRIPT SlicerTestingExitFailureTest.py
+  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  )
+set_tests_properties(py_SlicerTestingExitFailureTest PROPERTIES WILL_FAIL TRUE)
+
 #
 # Exercise different Slicer command line option and check that no warnings are displayed.
 #
@@ -79,36 +111,83 @@ nowarning_test(nomainwindow_nocli_noloadable_noscripted --no-main-window --disab
 nowarning_test(nomainwindow_ignoreslicerrc --no-main-window --ignore-slicerrc)
 
 #
+# Application tests
+#
+
+slicer_add_python_unittest(
+  SCRIPT ${slicer_app_python_testing_dir}/SlicerSceneObserverTest.py
+  SLICER_ARGS --no-main-window --disable-cli-modules --disable-loadable-modules --disable-scripted-loadable-modules
+  TESTNAME_PREFIX nomainwindow_
+  )
+
+if(VTK_DEBUG_LEAKS AND Slicer_HAS_CONSOLE_IO_SUPPORT)
+  set(testname MRMLCreateNodeByClassWithoutSetReferenceCount)
+  slicer_add_python_test(
+    SCRIPT ${slicer_app_python_testing_dir}/${testname}.py
+    SCRIPT_ARGS --no-main-window --disable-cli-modules --disable-loadable-modules --disable-scripted-loadable-modules
+    TESTNAME_PREFIX nomainwindow_
+    )
+  set_tests_properties(py_nomainwindow_${testname}
+    PROPERTIES PASS_REGULAR_EXPRESSION "instances? still around"
+    )
+endif()
+
+set(testname MRMLCreateNodeByClassWithSetReferenceCountMinusOne)
+slicer_add_python_test(
+  SCRIPT ${slicer_app_python_testing_dir}/${testname}.py
+  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT_ARGS --no-main-window --disable-cli-modules --disable-loadable-modules --disable-scripted-loadable-modules
+  TESTNAME_PREFIX nomainwindow_
+  )
+
+set(testname MRMLSceneImportAndExport)
+slicer_add_python_test(
+  SCRIPT ${testname}.py
+  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  TESTNAME_PREFIX mainwindow_
+  )
+
+set(testname MRMLCreateNodeByClassWithSetReferenceCountToOne)
+slicer_add_python_test(
+  SCRIPT ${testname}.py
+  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT_ARGS --no-main-window --disable-cli-modules --disable-loadable-modules --disable-scripted-loadable-modules
+  TESTNAME_PREFIX nomainwindow_
+  )
+set_tests_properties(py_nomainwindow_${testname} PROPERTIES WILL_FAIL TRUE)
+
+slicer_add_python_unittest(
+  SCRIPT ${Slicer_SOURCE_DIR}/Base/Python/tests/test_saferef.py
+  SLICER_ARGS --no-main-window --disable-cli-modules --disable-loadable-modules --disable-scripted-loadable-modules
+  TESTNAME_PREFIX nomainwindow_
+  )
+
+slicer_add_python_unittest(
+  SCRIPT ${Slicer_SOURCE_DIR}/Base/Python/slicer/tests/test_slicer_util_save.py
+  SLICER_ARGS --no-main-window --disable-cli-modules --disable-scripted-loadable-modules DATA{${INPUT}/MR-head.nrrd}
+  TESTNAME_PREFIX nomainwindow_
+  )
+
+## Test reading MGH file format types.
+slicer_add_python_unittest(
+  SCRIPT ${Slicer_SOURCE_DIR}/Base/Python/slicer/tests/test_slicer_mgh.py
+  SLICER_ARGS --no-main-window --disable-cli-modules --disable-scripted-loadable-modules
+              DATA{${INPUT}/T1.mgz}
+              DATA{${INPUT}/T1_longname.mgh.gz}
+              DATA{${INPUT}/T1_uncompressed.mgh}
+  TESTNAME_PREFIX nomainwindow_
+  )
+
+#
 # SelfTests
 # see http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.3/Developers/Tutorials/SelfTestModule
 #
 
-macro(VESSELVIEW_ADD_PYTHON_UNITTEST)
-  set(options)
-  set(oneValueArgs TESTNAME_PREFIX SCRIPT)
-  set(multiValueArgs SLICER_ARGS)
-  cmake_parse_arguments(MY "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-  get_filename_component(test_name ${MY_SCRIPT} NAME_WE)
-  get_filename_component(_script_source_dir ${MY_SCRIPT} PATH)
-  if("${_script_source_dir}" STREQUAL "")
-    set(_script_source_dir ${CMAKE_CURRENT_SOURCE_DIR})
-  endif()
-  add_test(
-    NAME py_${MY_TESTNAME_PREFIX}${test_name}
-    COMMAND ${Slicer_LAUNCHER_EXECUTABLE}
-    --no-splash
-    --testing
-    --ignore-slicerrc ${Slicer_ADDITIONAL_LAUNCHER_SETTINGS}
-    --python-code "import slicer.testing;slicer.testing.runUnitTest(['${CMAKE_CURRENT_BINARY_DIR}', '${_script_source_dir}'], '${test_name}')"
-    ${MY_SLICER_ARGS}
-    )
-  set_property(TEST py_${MY_TESTNAME_PREFIX}${test_name} PROPERTY RUN_SERIAL TRUE)
-endmacro()
 
 if(Slicer_USE_PYTHONQT)
 
   # add as unit test for use at build/test time
-  vesselview_add_python_unittest(SCRIPT WelcomeModuleTests.py)
+  slicer_add_python_unittest(SCRIPT WelcomeModuleTests.py)
 
   # add as hidden module for use at run time
   set(KIT_PYTHON_SCRIPTS
