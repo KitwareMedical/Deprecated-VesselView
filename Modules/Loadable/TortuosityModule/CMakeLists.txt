@@ -67,6 +67,7 @@ slicerMacroBuildQtModule(
   TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES}
   RESOURCES ${MODULE_RESOURCES} )
 
-if( BUILD_TESTING )
-  add_subdirectory( Testing )
-endif( BUILD_TESTING )
+# Testing is delegated to Applications/App/Testing/Python
+#if( BUILD_TESTING )
+#  add_subdirectory( Testing )
+#endif( BUILD_TESTING )
