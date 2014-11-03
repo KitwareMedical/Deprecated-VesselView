@@ -188,6 +188,10 @@ if(Slicer_USE_PYTHONQT)
   get_filename_component(DATA_PATH "../Data" ABSOLUTE)
 
   # add as unit test for use at build/test time../
+  # Fail
+  slicer_add_python_unittest(SCRIPT FailTests.py)
+
+  # Tortuosity
   set(TortuosityLogicTests_DATA
     ${DATA_PATH}/StraightTube_test0.tre
     ${DATA_PATH}/StraightTube_test1.tre
@@ -199,12 +203,15 @@ if(Slicer_USE_PYTHONQT)
     )
   slicer_add_python_unittest(SCRIPT TortuosityLogicTests.py
     SLICER_ARGS ${TortuosityLogicTests_DATA})
+
+  # Welcome
   slicer_add_python_unittest(SCRIPT WelcomeModuleTests.py)
 
   # add as hidden module for use at run time
   set(KIT_PYTHON_SCRIPTS
-    WelcomeModuleTests.py
+    FailTests.py
     TortuosityLogicTests.py
+    WelcomeModuleTests.py
     )
 
   set(KIT_PYTHON_RESOURCES
