@@ -1,4 +1,6 @@
+
 set(KIT ${KIT_LIBRARY_NAME})
+include(SlicerMacroSimpleTest)
 
 set(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "DEBUG_LEAKS_ENABLE_EXIT_ERROR();" )
 set(KIT_TEST_SRCS
@@ -16,17 +18,12 @@ set(target_libraries ${KIT})
 add_executable(${KIT}CxxTests ${Tests})
 target_link_libraries(${KIT}CxxTests  ${target_libraries})
 
-#
 # Add Tests
-#
-add_test(NAME qSlicerAppAboutDialogTest1 COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${KIT}CxxTests> qSlicerAppAboutDialogTest1)
-add_test(NAME qSlicerAppMainWindowTest1 COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${KIT}CxxTests> qSlicerAppMainWindowTest1)
-add_test(NAME qSlicerModuleFactoryManagerTest1 COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${KIT}CxxTests> qSlicerModuleFactoryManagerTest1)
+simple_test(qSlicerAppAboutDialogTest1)
+simple_test(qSlicerAppMainWindowTest1)
+simple_test(qSlicerModuleFactoryManagerTest1 )
 
-#
-# Application tests
-#
-
+# Other application tests
 if(Slicer_HAS_CONSOLE_IO_SUPPORT)
   add_test(
     NAME slicer_nomainwindow_DisableModulesCommandLineOptionsTest
