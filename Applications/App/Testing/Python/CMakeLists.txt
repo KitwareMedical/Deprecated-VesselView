@@ -204,12 +204,20 @@ if(Slicer_USE_PYTHONQT)
   slicer_add_python_unittest(SCRIPT TortuosityLogicTests.py
     SLICER_ARGS ${TortuosityLogicTests_DATA})
 
+  # SpatialObjectsModuleTests
+  set(SpatialObjectsModuleTests_DATA
+    ${DATA_PATH}/StraightTube_test0.tre
+    )
+  slicer_add_python_unittest(SCRIPT SpatialObjectsModuleTests.py
+    SLICER_ARGS ${SpatialObjectsModuleTests_DATA})
+
   # Welcome
   slicer_add_python_unittest(SCRIPT WelcomeModuleTests.py)
 
   # add as hidden module for use at run time
   set(KIT_PYTHON_SCRIPTS
     FailTests.py
+    SpatialObjectsModuleTests.py
     TortuosityLogicTests.py
     WelcomeModuleTests.py
     )
