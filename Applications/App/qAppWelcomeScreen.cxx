@@ -96,7 +96,7 @@ void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
   qSlicerAppMainWindow* slicerMainWindow =
     qobject_cast<qSlicerAppMainWindow*>(
       qSlicerApplication::application()->mainWindow());
-  assert(slicerMainWindow);
+  Q_ASSERT(slicerMainWindow);
   slicerMainWindow->moduleSelector()->selectModule(moduleName);
   emit done();
 }
