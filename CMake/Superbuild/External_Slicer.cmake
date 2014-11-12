@@ -130,6 +130,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       # Slicer remote modules
       -DSlicer_BUILD_BRAINSTOOLS:BOOL=OFF
       -DSlicer_BUILD_ChangeTrackerPy:BOOL=OFF
+      -DSlicer_BUILD_CompareVolumes:BOOL=OFF
       -DSlicer_BUILD_EMSegment:BOOL=OFF
       -DSlicer_BUILD_DataStore:BOOL=OFF
       -DSlicer_BUILD_LandmarkRegistration:BOOL=OFF
