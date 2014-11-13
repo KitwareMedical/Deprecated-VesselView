@@ -210,6 +210,7 @@ Rectangle  {
 
             wrapMode: Text.WordWrap
             font.pointSize: 20
+            color: activePalette.text
             verticalAlignment: Text.AlignTop
             horizontalAlignment: Text.AlignHCenter
             z: 1
