@@ -62,7 +62,7 @@ Rectangle  {
             imageSource: "Editor.svg"
             description: "<html>
                          The Editor module allows you to manually segment an image.
-                         It offers lots of different tools to makes this process quick and easy. More thourough documentation can be found
+                         It offers many different tools to makes this process quick and easy. More thourough documentation can be found
                          <a href=\"http://www.slicer.org/slicerWiki/index.php/Documentation/4.3/Modules/Editor\">here</a>.
                          <p>
                          In particular, you may want to use the <a href=\"http://public.kitware.com/Wiki/TubeTK/InteractivePDFSegmenter\">PDF segmenter</a>.
