@@ -85,7 +85,6 @@ Rectangle  {
         anchors.leftMargin: generalMargin
         anchors.top: parent.top
         anchors.topMargin: 0
-        anchors.rightMargin: generalMargin
         width: Math.floor((parent.width - 2*generalMargin) / 3)
         height: elementHeight + generalSpacing
 
@@ -109,19 +108,72 @@ Rectangle  {
         }
     }
 
+    Rectangle {
+        id: moveUpConcealer
+        anchors.left: aboutRectangle.anchors.left
+        anchors.leftMargin: aboutRectangle.anchors.leftMargin
+        anchors.top: aboutRectangle.bottom
+        anchors.topMargin: 0
+        width: aboutRectangle.width + 2
+        height: Math.floor(elementHeight / 4) + 3 * generalSpacing
+
+        // We need to put the rounded button in a concealer rectangle
+        // otherwise we can see the list beneath it at the corners
+        color: activePalette.base
+        gradient: Gradient { // Fake blur with a transparency gradient
+                   GradientStop { position: 0.75; color: activePalette.base }
+                   GradientStop { position: 1.0; color: '#00000000' }
+          }
+
+        z: 1 // So the list is hidden underneath
+
+        Rectangle {
+            id: moveUpButton
+
+            anchors.fill: parent
+            anchors.topMargin: Math.floor(parent.height / 4)
+            anchors.bottomMargin: Math.floor(parent.height / 2)
+
+            color: activePalette.button
+            border.color: activePalette.dark
+            radius: generalMargin
+
+            Text { // This should be an arrow instead of text
+                id: moveUpText
+                anchors.fill: parent
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: 'Up'
+                color: activePalette.text
+            }
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: {
+                    moveUpButton.color = activePalette.highlight
+                    moveUpText.color = activePalette.highlightedText
+                }
+                onExited: {
+                    moveUpButton.color = activePalette.button
+                    moveUpText.color = activePalette.text
+                }
+                onClicked: {
+                    welcomeListView.decrementCurrentIndex()
+                }
+            }
+        }
+    }
+
     ListView {
         id: welcomeListView
         spacing: generalSpacing
-        anchors.left: parent.left
-        anchors.leftMargin: generalMargin
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: generalMargin
-        anchors.rightMargin: generalMargin
-        anchors.top: aboutRectangle.bottom
-        width: Math.floor((parent.width - 2*generalMargin) / 3)
+        anchors.left: aboutRectangle.anchors.left
+        anchors.leftMargin: aboutRectangle.anchors.leftMargin
+        anchors.top: moveUpConcealer.bottom
+        anchors.bottom: moveDownConcealer.top
+        width: aboutRectangle.width
 
         focus: true
-        highlightFollowsCurrentItem: true
 
         model: welcomeScreenModel
         delegate: Rectangle {
@@ -156,12 +208,7 @@ Rectangle  {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    selectedModule = module
-                    selectedLayout = layout
-
-                    descriptionRectangleText.text = description
-                    descriptionRectangleImage.source = imageSource
-                    openButton.visible = true
+                    welcomeListView.currentIndex = index
                 }
                 onDoubleClicked: {
                     welcomeScreen.loadModule(selectedModule, selectedLayout)
@@ -175,6 +222,73 @@ Rectangle  {
                     PropertyChanges {target: elementItem; color: activePalette.highlight;}
                 }
             ]
+        }
+
+        onCurrentItemChanged:
+            {
+            selectedModule = welcomeScreenModel.get(currentIndex).module
+            selectedLayout = welcomeScreenModel.get(currentIndex).layout
+
+            descriptionRectangleText.text = welcomeScreenModel.get(currentIndex).description
+            descriptionRectangleImage.source = welcomeScreenModel.get(currentIndex).imageSource
+            openButton.visible = true
+            }
+        currentIndex: -1
+    }
+
+    Rectangle {
+        id: moveDownConcealer
+        anchors.left: aboutRectangle.anchors.left
+        anchors.leftMargin: aboutRectangle.anchors.leftMargin
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0 // All the way down to hide the list
+        width: aboutRectangle.width + 2
+        height: Math.floor(elementHeight / 4) + 3 * generalSpacing
+
+        // We need to put the rounded button in a concealer rectangle
+        // otherwise we can see the list beneath it at the corners
+        color: activePalette.base
+        gradient: Gradient { // Fake blur with a transparency gradient
+                   GradientStop { position: 0.0; color: '#00000000' }
+                   GradientStop { position: 0.25; color: activePalette.base}
+          }
+        z: 1 // So the list is hidden underneath
+
+        Rectangle {
+            id: moveDownButton
+
+            anchors.fill: parent
+            anchors.topMargin: Math.floor(parent.height / 2)
+            anchors.bottomMargin: Math.floor(parent.height / 4)
+
+            color: activePalette.button
+            border.color: activePalette.dark
+            radius: generalMargin
+
+            Text { // This should be an arrow instead of text
+                id: moveDownText
+                anchors.fill: parent
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: 'Down'
+                color: activePalette.text
+            }
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: {
+                    moveDownButton.color = activePalette.highlight
+                    moveDownText.color = activePalette.highlightedText
+                }
+                onExited: {
+                    moveDownButton.color = activePalette.button
+                    moveDownText.color = activePalette.text
+                }
+                onClicked: {
+                    welcomeListView.incrementCurrentIndex()
+                }
+            }
+
         }
     }
 
