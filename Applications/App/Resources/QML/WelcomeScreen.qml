@@ -73,25 +73,30 @@ Rectangle  {
 
     function elementHeightFunction(height, numberOfElements, spacing)
     {
-        return Math.floor( (height - (numberOfElements-1)*spacing) / numberOfElements )
+        var numberOfFullElements = Math.floor(numberOfElements)
+        var heightWithoutSpaces = height - (numberOfFullElements-1) * spacing
+        return Math.floor(heightWithoutSpaces / numberOfElements)
     }
-    property int elementHeight : elementHeightFunction(welcomeRectangle.height - 2*generalMargin, welcomeListView.count + 1, generalSpacing)
+    property int elementHeight : elementHeightFunction(welcomeRectangle.height - 2*generalMargin, 4.5 + 1 /*+1 for the about rectangle*/, generalSpacing)
 
     Rectangle {
         id: aboutRectangle
         anchors.left: parent.left
         anchors.leftMargin: generalMargin
         anchors.top: parent.top
-        anchors.topMargin: generalMargin
+        anchors.topMargin: 0
         anchors.rightMargin: generalMargin
         width: Math.floor((parent.width - 2*generalMargin) / 3)
         height: elementHeight + generalSpacing
 
         color: activePalette.base
+        border.color: activePalette.base
+        z: 1 // So the image isn't hidden by the list view after it moved
 
         Rectangle {
             id: aboutImageRectangle
             anchors.fill: parent
+            anchors.topMargin: welcomeListView.spacing
             anchors.bottomMargin: welcomeListView.spacing
             color: activePalette.base
 
