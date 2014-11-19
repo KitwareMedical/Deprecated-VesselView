@@ -160,7 +160,14 @@ Rectangle  {
                     moveUpText.color = activePalette.dark
                 }
                 onClicked: {
-                    welcomeListView.decrementCurrentIndex()
+                    if (welcomeListView.currentIndex > 0)
+                    {
+                        welcomeListView.decrementCurrentIndex()
+                    }
+                    else
+                    {
+                        welcomeListView.currentIndex = welcomeListView.count - 1
+                    }
                 }
             }
         }
@@ -287,7 +294,14 @@ Rectangle  {
                     moveDownText.color = activePalette.dark
                 }
                 onClicked: {
-                    welcomeListView.incrementCurrentIndex()
+                    if (welcomeListView.currentIndex < welcomeListView.count - 1)
+                    {
+                        welcomeListView.incrementCurrentIndex()
+                    }
+                    else
+                    {
+                        welcomeListView.currentIndex = 0
+                    }
                 }
             }
 
