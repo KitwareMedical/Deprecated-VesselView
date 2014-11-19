@@ -6,6 +6,7 @@ Rectangle  {
     width: 500
     height: 300
     SystemPalette { id: activePalette; colorGroup: SystemPalette.Active }
+    FontLoader { source: ":/Gutenberg.ttf" }
     color: activePalette.base
 
     property string selectedModule: ""
@@ -143,8 +144,9 @@ Rectangle  {
                 anchors.fill: parent
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                text: 'Up'
-                color: activePalette.text
+                font.family: "FontAwesome"
+                text: "\uf077" //fa-chevron-up
+                color: activePalette.dark
             }
             MouseArea {
                 anchors.fill: parent
@@ -155,7 +157,7 @@ Rectangle  {
                 }
                 onExited: {
                     moveUpButton.color = activePalette.button
-                    moveUpText.color = activePalette.text
+                    moveUpText.color = activePalette.dark
                 }
                 onClicked: {
                     welcomeListView.decrementCurrentIndex()
@@ -269,9 +271,9 @@ Rectangle  {
                 id: moveDownText
                 anchors.fill: parent
                 horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                text: 'Down'
-                color: activePalette.text
+                font.family: "FontAwesome"
+                text: "\uf078" //fa-chevron-down
+                color: activePalette.dark
             }
             MouseArea {
                 anchors.fill: parent
@@ -282,7 +284,7 @@ Rectangle  {
                 }
                 onExited: {
                     moveDownButton.color = activePalette.button
-                    moveDownText.color = activePalette.text
+                    moveDownText.color = activePalette.dark
                 }
                 onClicked: {
                     welcomeListView.incrementCurrentIndex()
