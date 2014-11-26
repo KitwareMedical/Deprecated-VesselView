@@ -45,6 +45,8 @@ class vtkObject;
 class Q_SLICER_APP_EXPORT qSlicerAppMainWindow : public QMainWindow
 {
   Q_OBJECT
+  Q_PROPERTY(QList<qSlicerIO::IOProperties> recentlyLoadedFiles READ recentlyLoadedFiles NOTIFY recentlyLoadedFilesChanged)
+
 public:
   typedef QMainWindow Superclass;
 
@@ -55,6 +57,9 @@ public:
   /// current module.
   /// \sa pythonConsole(), errorLogWidget()
   Q_INVOKABLE qSlicerModuleSelectorToolBar* moduleSelector()const;
+
+  // To get the recently loaded files
+  QList<qSlicerIO::IOProperties> recentlyLoadedFiles() const;
 
 #ifdef Slicer_USE_PYTHONQT
   /// Return a pointer to the python console.
@@ -124,6 +129,9 @@ public slots:
   /// Set the panel dock widget visibility now and whenever a module is opened.
   /// Default is the panel is visible and open everytime a module is selected.
   void setPanelDockWidgetVisible(bool visible);
+
+signals:
+  void recentlyLoadedFilesChanged();
 
 protected slots:
   virtual void onModuleLoaded(const QString& moduleName);

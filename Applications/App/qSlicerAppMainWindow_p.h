@@ -64,8 +64,8 @@ public:
 
   virtual void filterRecentlyLoadedFileProperties();
 
-  static QList<qSlicerIO::IOProperties> readRecentlyLoadedFiles();
-  static void writeRecentlyLoadedFiles(const QList<qSlicerIO::IOProperties>& fileProperties);
+  QList<qSlicerIO::IOProperties> readRecentlyLoadedFiles() const;
+  void writeRecentlyLoadedFiles(const QList<qSlicerIO::IOProperties>& fileProperties);
 
   virtual bool confirmClose();
 

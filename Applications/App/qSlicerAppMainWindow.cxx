@@ -536,7 +536,7 @@ void qSlicerAppMainWindowPrivate::filterRecentlyLoadedFileProperties()
 }
 
 //-----------------------------------------------------------------------------
-QList<qSlicerIO::IOProperties> qSlicerAppMainWindowPrivate::readRecentlyLoadedFiles()
+QList<qSlicerIO::IOProperties> qSlicerAppMainWindowPrivate::readRecentlyLoadedFiles() const
 {
   QList<qSlicerIO::IOProperties> fileProperties;
 
@@ -554,8 +554,11 @@ QList<qSlicerIO::IOProperties> qSlicerAppMainWindowPrivate::readRecentlyLoadedFi
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerAppMainWindowPrivate::writeRecentlyLoadedFiles(const QList<qSlicerIO::IOProperties>& fileProperties)
+void qSlicerAppMainWindowPrivate
+::writeRecentlyLoadedFiles(const QList<qSlicerIO::IOProperties>& fileProperties)
 {
+  Q_Q(qSlicerAppMainWindow);
+
   QSettings settings;
   settings.beginWriteArray("RecentlyLoadedFiles/RecentFiles", fileProperties.size());
   for (int i = 0; i < fileProperties.size(); ++i)
@@ -564,6 +567,7 @@ void qSlicerAppMainWindowPrivate::writeRecentlyLoadedFiles(const QList<qSlicerIO
     settings.setValue("file", fileProperties.at(i));
     }
   settings.endArray();
+  q->emit recentlyLoadedFilesChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -719,6 +723,13 @@ ctkErrorLogWidget* qSlicerAppMainWindow::errorLogWidget()const
 {
   Q_D(const qSlicerAppMainWindow);
   return d->ErrorLogWidget;
+}
+
+//-----------------------------------------------------------------------------
+QList<qSlicerIO::IOProperties> qSlicerAppMainWindow::recentlyLoadedFiles() const
+{
+  Q_D(const qSlicerAppMainWindow);
+  return d->readRecentlyLoadedFiles();
 }
 
 //---------------------------------------------------------------------------
@@ -1222,7 +1233,7 @@ void qSlicerAppMainWindow::onNewFileLoaded(const qSlicerIO::IOProperties& filePr
   d->setupRecentlyLoadedMenu(d->RecentlyLoadedFileProperties);
 
   // Keep the settings up-to-date
-  qSlicerAppMainWindowPrivate::writeRecentlyLoadedFiles(d->RecentlyLoadedFileProperties);
+  d->writeRecentlyLoadedFiles(d->RecentlyLoadedFileProperties);
 }
 
 //---------------------------------------------------------------------------

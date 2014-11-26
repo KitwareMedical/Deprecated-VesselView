@@ -25,6 +25,7 @@ Rectangle  {
             imageSource: "InteractiveSegmentTubesIcon.svg"
             description:  "Interactively segment the vessels of a given image."
             layout: -1
+            fileTypes: "SpatialObjectFile"
         }
         ListElement {
             name: "Workflow"
@@ -32,6 +33,7 @@ Rectangle  {
             imageSource: "Workflow.svg"
             description:  "Workflow that guides you on all the necessary steps required to show the vessels of an image."
             layout: -1
+            fileTypes: "Image"
         }
         ListElement {
             name: "Tortuosity"
@@ -39,6 +41,7 @@ Rectangle  {
             imageSource: "VesselViewLogo.svg"
             description:  "Compute tortuosity metrics on vessels."
             layout: 4 // SlicerLayoutOneUp3DView
+            fileTypes: "SpatialObjectFile"
         }
         ListElement {
             name: "Spatial Objects Display"
@@ -46,6 +49,7 @@ Rectangle  {
             imageSource: "VesselViewLogo.svg"
             description: "Visualize the vessels and all their related metrics."
             layout: 1 // SlicerLayoutDefaultView
+            fileTypes: "SpatialObjectFile"
         }
         ListElement {
             name: "Convert Vessel Files"
@@ -56,6 +60,7 @@ Rectangle  {
                          It allows to convert a TubeX compatible file to a TubeTK file and vice versa.
                          </html>"
             layout: 1 // SlicerLayoutDefaultView
+            fileTypes: "SpatialObjectFile"
         }
         ListElement {
             name: "Editor"
@@ -69,6 +74,7 @@ Rectangle  {
                          In particular, you may want to use the <a href=\"http://public.kitware.com/Wiki/TubeTK/InteractivePDFSegmenter\">PDF segmenter</a>.
                          </html>"
             layout: 6 // SlicerLayoutOneUpRedSliceView
+            fileTypes: "Image"
         }
     }
 
@@ -241,6 +247,8 @@ Rectangle  {
             descriptionRectangleText.text = welcomeScreenModel.get(currentIndex).description
             descriptionRectangleImage.source = welcomeScreenModel.get(currentIndex).imageSource
             openButton.visible = true
+
+            recentlyLoadedFilesModel.fileTypes = welcomeScreenModel.get(currentIndex).fileTypes
             }
         currentIndex: -1
     }
@@ -318,7 +326,9 @@ Rectangle  {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: generalMargin
         anchors.top: parent.top
-        anchors.topMargin: generalMargin
+        anchors.topMargin: 0
+
+        z: 1 // so it's above the recentFilesView
 
         Image {
             id: descriptionRectangleImage
@@ -328,7 +338,7 @@ Rectangle  {
             anchors.leftMargin: 0
             anchors.top: parent.top
             anchors.topMargin: 0
-            height: Math.floor( (parent.height - generalMargin) / 4)
+            height: Math.floor( parent.height / 5)
             fillMode: Image.PreserveAspectFit
             source: ":/Icons/Medium/VesselViewSplashScreen.svg"
         }
@@ -341,7 +351,6 @@ Rectangle  {
             anchors.leftMargin: 0
             anchors.top: descriptionRectangleImage.bottom
             anchors.topMargin: generalMargin
-            height: Math.floor( (parent.height - generalMargin) / 2)
 
             wrapMode: Text.WordWrap
             font.pointSize: 20
@@ -364,6 +373,76 @@ Rectangle  {
             onLinkActivated: Qt.openUrlExternally(link)
         }
 
+        ListView {
+            id: recentFilesView
+            spacing: generalSpacing
+            anchors.top: descriptionRectangleText.bottom
+            anchors.topMargin: generalMargin
+            anchors.bottom: openButton.top
+            anchors.bottomMargin: generalMargin
+            anchors.rightMargin: generalMargin
+            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.leftMargin: generalMargin
+            focus: true
+
+            model: recentlyLoadedFilesModel
+
+            delegate: Rectangle{
+                id: recentFilesDelegateItem
+                anchors.rightMargin: generalMargin
+                anchors.right: parent.right
+                anchors.left: parent.left
+                anchors.leftMargin: generalMargin
+                height: 50
+
+                color: "Red"//activePalette.base
+                radius: generalMargin
+
+                Text {
+                    id: recentFilesDelegateItemTextIcon
+                    anchors.left: parent.left
+                    anchors.leftMargin: generalMargin
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    text: "\uf15b" // fa-file
+                    color: activePalette.text
+                    font.pixelSize: 22
+                    font.family: "FontAwesome"
+                    verticalAlignment: Text.AlignVCenter
+                }
+                Text {
+                    id: recentFilesDelegateItemText
+                    anchors.left: recentFilesDelegateItemTextIcon.right
+                    anchors.leftMargin: generalMargin
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    text: filename
+                    color: activePalette.text
+                    font.pixelSize: 22
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: {
+                        recentFilesDelegateItem.color = activePalette.highlight
+                        recentFilesDelegateItemText.color = activePalette.highlightedText
+                    }
+                    onExited: {
+                        recentFilesDelegateItem.color = activePalette.base
+                        recentFilesDelegateItemText.color = activePalette.text
+                    }
+                    onClicked: {
+                        console.log(modelData)
+                    }
+                }
+            }
+        }
+
+
         Item
             {
             id: openButton
@@ -373,9 +452,9 @@ Rectangle  {
             anchors.rightMargin: 0
             anchors.left: parent.left
             anchors.leftMargin: 0
-            anchors.top: descriptionRectangleText.bottom
-            anchors.topMargin: generalMargin
-            height: Math.floor( (parent.height - generalMargin) / 4)
+            height: Math.floor(parent.height / 10)
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: generalMargin
 
             Text {
                 id: openText
@@ -414,7 +493,7 @@ Rectangle  {
                     welcomeScreen.loadModule(selectedModule, selectedLayout)
                 }
             }
-            }
+        }
     }
 
 }

@@ -17,10 +17,15 @@
 #define __qAppWelcomeScreen_h
 
 // Qt includes
+#include <QAbstractListModel>
 #include <QtDeclarative/QDeclarativeView>
+#include <QObject>
+#include <QList>
+#include <QSortFilterProxyModel>
 
 // App includes
 #include "qSlicerAppExport.h"
+#include "QSlicerIO.h"
 class qAppWelcomeScreenPrivate;
 
 class Q_SLICER_APP_EXPORT qAppWelcomeScreen
@@ -39,11 +44,79 @@ signals:
   /// Fired when the welcome screen is done and the workflow can start.
   void done();
 
+protected slots:
+  void onRecentlyLoadedFilesChanged();
+  void onModelChanged();
+
 protected:
   QScopedPointer<qAppWelcomeScreenPrivate> d_ptr;
 
 private:
   Q_DECLARE_PRIVATE(qAppWelcomeScreen);
+};
+
+class qRecentFilesType
+{
+public:
+  qRecentFilesType();
+  qRecentFilesType(const QString& name, const QString& type);
+
+  QString filename() const;
+  void setFilename(const QString &name);
+
+  QString fileType() const;
+  void setFileType(const QString &type);
+
+  bool operator==(const qRecentFilesType& other);
+
+private:
+  QString m_filename;
+  QString m_fileType;
+};
+
+class qRecentFilesModel : public  QAbstractListModel
+{
+  Q_OBJECT
+
+public:
+  qRecentFilesModel(QObject *parent=0);
+
+  enum RecentFilesRoles
+    {
+    FilenameRole = Qt::UserRole + 1,
+    FileTypeRole,
+    };
+
+  void addRecentFile(const qRecentFilesType& recentFile);
+  void addUniqueRecentFile(const qRecentFilesType& recentFile);
+
+  int rowCount(const QModelIndex & parent = QModelIndex()) const;
+
+  QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+
+  qRecentFilesType recentFile(const QModelIndex & index) const;
+
+private:
+  QList<qRecentFilesType> m_recentFiles;
+};
+
+class qRecentFilesProxyFilter : public QSortFilterProxyModel
+{
+  Q_OBJECT
+  Q_PROPERTY(QStringList fileTypes READ fileTypes WRITE setFileTypes)
+
+public:
+  qRecentFilesProxyFilter(QObject *parent=0);
+
+  QStringList fileTypes() const;
+
+  bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
+
+public slots:
+  void setFileTypes(QStringList& newFileTypes);
+
+private:
+  QStringList m_fileTypes;
 };
 
 #endif
