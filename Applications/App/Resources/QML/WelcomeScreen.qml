@@ -40,7 +40,7 @@ Rectangle  {
             layout: 4 // SlicerLayoutOneUp3DView
         }
         ListElement {
-            name: "Spatial Objects Display"
+            name: "Vessel Display"
             module: "SpatialObjects"
             imageSource: "VesselViewLogo.svg"
             description: "Visualize the vessels and all their related metrics."
