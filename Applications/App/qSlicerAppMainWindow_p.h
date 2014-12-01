@@ -60,12 +60,12 @@ public:
   virtual void readSettings();
   virtual void writeSettings();
 
-  virtual void setupRecentlyLoadedMenu(const QList<qSlicerIO::IOProperties>& fileProperties);
+  virtual void setupRecentlyLoadedMenu();
 
   virtual void filterRecentlyLoadedFileProperties();
 
   QList<qSlicerIO::IOProperties> readRecentlyLoadedFiles() const;
-  void writeRecentlyLoadedFiles(const QList<qSlicerIO::IOProperties>& fileProperties);
+  void writeRecentlyLoadedFiles();
 
   virtual bool confirmClose();
 

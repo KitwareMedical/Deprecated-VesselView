@@ -45,10 +45,13 @@ public:
   virtual void init();
   qSlicerAppMainWindow* mainWindow() const;
 
+  void openFilesBeforeLoad();
+
 protected:
   qAppWelcomeScreen* q_ptr;
   qRecentFilesModel model;
   qRecentFilesProxyFilter filter;
+  QStringList filesToOpenOnLoad;
 };
 
 //-----------------------------------------------------------------------------
@@ -74,7 +77,8 @@ void qAppWelcomeScreenPrivate::init()
   q->connect(
     this->mainWindow(), SIGNAL(recentlyLoadedFilesChanged()),
     q, SLOT(onRecentlyLoadedFilesChanged()));
-
+  this->filter.setSourceModel(&(this->model));
+  this->filter.setDynamicSortFilter(true);
   q->onRecentlyLoadedFilesChanged();
 
   q->connect(
@@ -97,6 +101,25 @@ void qAppWelcomeScreenPrivate::init()
   q->setResizeMode(QDeclarativeView::SizeRootObjectToView);
   q->setMinimumSize(QSize(800, 500));
   q->setSource(QUrl("qrc:/WelcomeScreen.qml"));
+}
+
+//-----------------------------------------------------------------------------
+void qAppWelcomeScreenPrivate::openFilesBeforeLoad()
+{
+  Q_Q(qAppWelcomeScreen);
+
+  qSlicerIOManager* ioManager = qSlicerApplication::application()->ioManager();
+  Q_ASSERT(ioManager);
+
+  QStringList unsuccessfullyLoadedFilenames;
+  foreach (QString filename, this->filesToOpenOnLoad)
+    {
+    if (!ioManager->loadFile(filename))
+      {
+      unsuccessfullyLoadedFilenames << filename;
+      }
+    }
+  q->setFilesToOpenOnLoad(unsuccessfullyLoadedFilenames);
 }
 
 //-----------------------------------------------------------------------------
@@ -127,8 +150,62 @@ qAppWelcomeScreen::~qAppWelcomeScreen()
 }
 
 //-----------------------------------------------------------------------------
+QStringList qAppWelcomeScreen::filesToOpenOnLoad() const
+{
+  Q_D(const qAppWelcomeScreen);
+  return d->filesToOpenOnLoad;
+}
+
+//-----------------------------------------------------------------------------
+void qAppWelcomeScreen::addUniqueFileToOpenOnLoad(const QString& filename)
+{
+  Q_D(qAppWelcomeScreen);
+  if (!d->filesToOpenOnLoad.contains(filename))
+    {
+    this->addFileToOpenOnLoad(filename);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void qAppWelcomeScreen::addFileToOpenOnLoad(const QString& filename)
+{
+  Q_D(qAppWelcomeScreen);
+  d->filesToOpenOnLoad << filename;
+  emit this->filesToOpenOnLoadChanged();
+}
+
+//-----------------------------------------------------------------------------
+void qAppWelcomeScreen::removeOneFileToOpenOnLoad(const QString& filename)
+{
+  Q_D(qAppWelcomeScreen);
+  if (!d->filesToOpenOnLoad.contains(filename))
+    {
+    return;
+    }
+
+  d->filesToOpenOnLoad.removeOne(filename);
+  emit this->filesToOpenOnLoadChanged();
+}
+
+
+//-----------------------------------------------------------------------------
+void qAppWelcomeScreen::setFilesToOpenOnLoad(const QStringList& filenames)
+{
+  Q_D(qAppWelcomeScreen);
+  if (d->filesToOpenOnLoad == filenames)
+    {
+    return;
+    }
+
+  d->filesToOpenOnLoad = filenames;
+  emit this->filesToOpenOnLoadChanged();
+}
+
+//-----------------------------------------------------------------------------
 void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
 {
+  Q_D(qAppWelcomeScreen);
+
   if (layout > 0)
     {
     qSlicerApplication::application()->layoutManager()->setLayout(layout);
@@ -138,6 +215,7 @@ void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
     qobject_cast<qSlicerAppMainWindow*>(
       qSlicerApplication::application()->mainWindow());
   Q_ASSERT(slicerMainWindow);
+  d->openFilesBeforeLoad();
   slicerMainWindow->moduleSelector()->selectModule(moduleName);
   emit done();
 }
@@ -146,8 +224,7 @@ void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
 void qAppWelcomeScreen::onRecentlyLoadedFilesChanged()
 {
   Q_D(qAppWelcomeScreen);
-  d->filter.setDynamicSortFilter(false);
-  d->model.removeRows(0, d->model.rowCount());
+  qDebug()<< d->model.removeRows(0, d->model.rowCount());
 
   foreach(qSlicerIO::IOProperties ioProperty, d->mainWindow()->recentlyLoadedFiles())
     {
@@ -156,8 +233,6 @@ void qAppWelcomeScreen::onRecentlyLoadedFilesChanged()
         ioProperty["fileName"].toString(),
         ioProperty["fileType"].toString()));
     }
-  d->filter.setSourceModel(&(d->model));
-  d->filter.setDynamicSortFilter(true);
 
   this->onModelChanged();
 }
@@ -255,6 +330,22 @@ int qRecentFilesModel::rowCount(const QModelIndex & parent) const
   return this->m_recentFiles.count();
 }
 
+
+//-----------------------------------------------------------------------------
+bool qRecentFilesModel
+::removeRows(int row, int count, const QModelIndex& parent)
+{
+  if (row < 0 || row > this->m_recentFiles.count())
+    {
+    return false;
+    }
+
+  this->beginRemoveRows(parent, row, row + count);
+  this->m_recentFiles.remove(row, count);
+  this->endRemoveRows();
+  return true;
+}
+
 //-----------------------------------------------------------------------------
 QVariant qRecentFilesModel::data(const QModelIndex & index, int role) const
 {
@@ -290,6 +381,13 @@ void qRecentFilesProxyFilter::setFileTypes(QStringList& newFileTypes)
 {
   this->m_fileTypes = newFileTypes;
   this->invalidateFilter();
+}
+
+//-----------------------------------------------------------------------------
+QString qRecentFilesProxyFilter::filename(int row) const
+{
+  QModelIndex index = this->index(row, 0);
+  return this->data(index, qRecentFilesModel::FilenameRole).toString();
 }
 
 //-----------------------------------------------------------------------------

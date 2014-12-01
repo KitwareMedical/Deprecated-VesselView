@@ -10,6 +10,7 @@ Rectangle  {
     color: activePalette.base
 
     property string selectedModule: ""
+    property variant selectedFiles: []
     property int selectedLayout: -1
     property int generalMargin: 5
     property int generalSpacing: 2*generalMargin
@@ -84,7 +85,11 @@ Rectangle  {
         var heightWithoutSpaces = height - (numberOfFullElements-1) * spacing
         return Math.floor(heightWithoutSpaces / numberOfElements)
     }
-    property int elementHeight : elementHeightFunction(welcomeRectangle.height - 2*generalMargin, 4.5 + 1 /*+1 for the about rectangle*/, generalSpacing)
+    property int elementHeight : elementHeightFunction(
+        welcomeRectangle.height - 2*generalMargin,
+        4.5 + 1, //+1 for the about rectangle
+        generalSpacing
+    )
 
     Rectangle {
         id: aboutRectangle
@@ -188,8 +193,6 @@ Rectangle  {
         anchors.bottom: moveDownConcealer.top
         width: aboutRectangle.width
 
-        focus: true
-
         model: welcomeScreenModel
         delegate: Rectangle {
 
@@ -249,6 +252,7 @@ Rectangle  {
             openButton.visible = true
 
             recentlyLoadedFilesModel.fileTypes = welcomeScreenModel.get(currentIndex).fileTypes
+            selectedFiles = []
             }
         currentIndex: -1
     }
@@ -323,10 +327,9 @@ Rectangle  {
         anchors.right: parent.right
         anchors.left: welcomeListView.right
         anchors.leftMargin: generalMargin
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: generalMargin
         anchors.top: parent.top
         anchors.topMargin: 0
+        height: descriptionRectangleText.height + descriptionRectangleImage.height + 3* generalMargin
 
         z: 1 // so it's above the recentFilesView
 
@@ -338,7 +341,7 @@ Rectangle  {
             anchors.leftMargin: 0
             anchors.top: parent.top
             anchors.topMargin: 0
-            height: Math.floor( parent.height / 5)
+            height: Math.floor( welcomeListView.height / 5)
             fillMode: Image.PreserveAspectFit
             source: ":/Icons/Medium/VesselViewSplashScreen.svg"
         }
@@ -357,7 +360,6 @@ Rectangle  {
             color: activePalette.text
             verticalAlignment: Text.AlignTop
             horizontalAlignment: Text.AlignHCenter
-            z: 1
 
             text: "<html>
                    VesselView is a open-source custom graphical interface to the vessel segmentation, registration, and analysis
@@ -372,126 +374,146 @@ Rectangle  {
                   "
             onLinkActivated: Qt.openUrlExternally(link)
         }
+    }
 
-        ListView {
-            id: recentFilesView
-            spacing: generalSpacing
-            anchors.top: descriptionRectangleText.bottom
-            anchors.topMargin: generalMargin
-            anchors.bottom: openButton.top
-            anchors.bottomMargin: generalMargin
+    ListView {
+        id: recentFilesView
+        spacing: generalSpacing
+        anchors.top: descriptionRectangle.bottom
+        anchors.topMargin: generalMargin
+        anchors.bottom: openButton.top
+        anchors.bottomMargin: generalMargin
+        anchors.rightMargin: generalMargin
+        anchors.right: welcomeRectangle.right
+        anchors.left: welcomeListView.right
+        anchors.leftMargin: generalMargin
+
+        model: recentlyLoadedFilesModel
+
+        delegate: Rectangle{
+            id: recentFilesDelegateItem
             anchors.rightMargin: generalMargin
             anchors.right: parent.right
             anchors.left: parent.left
             anchors.leftMargin: generalMargin
-            focus: true
+            height: 50
 
-            model: recentlyLoadedFilesModel
+            color: activePalette.base
+            radius: generalMargin
 
-            delegate: Rectangle{
-                id: recentFilesDelegateItem
-                anchors.rightMargin: generalMargin
-                anchors.right: parent.right
+            Text {
+                id: recentFilesDelegateItemTextIcon
                 anchors.left: parent.left
                 anchors.leftMargin: generalMargin
-                height: 50
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                text: "\uf15b" // fa-file
+                color: activePalette.text
+                font.pixelSize: 22
+                font.family: "FontAwesome"
+                verticalAlignment: Text.AlignVCenter
+            }
+            Text {
+                id: recentFilesDelegateItemText
+                anchors.left: recentFilesDelegateItemTextIcon.right
+                anchors.leftMargin: generalMargin
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                text: filename
+                color: activePalette.text
+                font.pixelSize: 22
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                elide: Text.ElideLeft
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    recentFilesView.currentIndex = index
 
-                color: "Red"//activePalette.base
-                radius: generalMargin
+                    var selected = (recentFilesDelegateItem.color == activePalette.base)
+                    var fileToLoad = recentlyLoadedFilesModel.filename(recentFilesView.currentIndex)
 
-                Text {
-                    id: recentFilesDelegateItemTextIcon
-                    anchors.left: parent.left
-                    anchors.leftMargin: generalMargin
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    text: "\uf15b" // fa-file
-                    color: activePalette.text
-                    font.pixelSize: 22
-                    font.family: "FontAwesome"
-                    verticalAlignment: Text.AlignVCenter
-                }
-                Text {
-                    id: recentFilesDelegateItemText
-                    anchors.left: recentFilesDelegateItemTextIcon.right
-                    anchors.leftMargin: generalMargin
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    text: filename
-                    color: activePalette.text
-                    font.pixelSize: 22
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onEntered: {
+                    if (selected)
+                    {
                         recentFilesDelegateItem.color = activePalette.highlight
+                        recentFilesDelegateItemTextIcon.color = activePalette.highlightedText
                         recentFilesDelegateItemText.color = activePalette.highlightedText
+
+                        welcomeScreen.addUniqueFileToOpenOnLoad(fileToLoad)
                     }
-                    onExited: {
+                    else
+                    {
                         recentFilesDelegateItem.color = activePalette.base
+                        recentFilesDelegateItemTextIcon.color = activePalette.text
                         recentFilesDelegateItemText.color = activePalette.text
+
+                        welcomeScreen.removeOneFileToOpenOnLoad(fileToLoad)
                     }
-                    onClicked: {
-                        console.log(modelData)
-                    }
+                }
+                onDoubleClicked: {
+                    recentFilesView.currentIndex = index
+                    var fileToLoad = recentlyLoadedFilesModel.filename(recentFilesView.currentIndex)
+                    welcomeScreen.addUniqueFileToOpenOnLoad(fileToLoad)
+                    welcomeScreen.loadModule(selectedModule, selectedLayout)
                 }
             }
         }
 
+        currentIndex: -1
+    }
 
-        Item
-            {
-            id: openButton
-            visible: false
 
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            height: Math.floor(parent.height / 10)
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: generalMargin
+    Rectangle {
+        id: openButton
+        visible: false
 
-            Text {
-                id: openText
-                text: "Open in VesselView"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                anchors.fill: parent
+        anchors.right: welcomeRectangle.right
+        anchors.rightMargin: 0
+        anchors.left: welcomeListView.right
+        anchors.leftMargin: 0
+        height: Math.floor(parent.height / 10)
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0
 
-                font.pointSize: 22
-                color: activePalette.text
-                z: 1
+        color: activePalette.base
+
+        Text {
+            id: openText
+            text: "Open in VesselView"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            anchors.fill: parent
+
+            font.pointSize: 22
+            color: activePalette.text
+            z: 1
+        }
+        Rectangle {
+            id: openRectangle
+            color: activePalette.button
+            anchors.fill: openText
+            anchors.bottomMargin: Math.floor( (openText.height - openText.paintedHeight) / 2) - generalMargin
+            anchors.topMargin: anchors.bottomMargin
+            anchors.rightMargin: Math.floor( (openText.width - openText.paintedWidth) / 2) - generalMargin
+            anchors.leftMargin: anchors.rightMargin
+            border.color: activePalette.dark
+            radius: generalMargin
+        }
+        MouseArea {
+            anchors.fill: openRectangle
+            hoverEnabled: true
+            onEntered: {
+                openRectangle.color = activePalette.highlight
+                openText.color = activePalette.highlightedText
             }
-            Rectangle {
-                id: openRectangle
-                color: activePalette.button
-                anchors.fill: openText
-                anchors.bottomMargin: Math.floor( (openText.height - openText.paintedHeight) / 2) - generalMargin
-                anchors.topMargin: anchors.bottomMargin
-                anchors.rightMargin: Math.floor( (openText.width - openText.paintedWidth) / 2) - generalMargin
-                anchors.leftMargin: anchors.rightMargin
-                border.color: activePalette.dark
-                radius: generalMargin
+            onExited: {
+                openRectangle.color = activePalette.button
+                openText.color = activePalette.text
             }
-            MouseArea {
-                anchors.fill: openRectangle
-                hoverEnabled: true
-                onEntered: {
-                    openRectangle.color = activePalette.highlight
-                    openText.color = activePalette.highlightedText
-                }
-                onExited: {
-                    openRectangle.color = activePalette.button
-                    openText.color = activePalette.text
-                }
-                onClicked: {
-                    welcomeScreen.loadModule(selectedModule, selectedLayout)
-                }
+            onClicked: {
+                welcomeScreen.loadModule(selectedModule, selectedLayout)
             }
         }
     }

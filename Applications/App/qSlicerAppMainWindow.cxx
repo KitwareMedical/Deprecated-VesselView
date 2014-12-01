@@ -472,7 +472,7 @@ void qSlicerAppMainWindowPrivate::readSettings()
     this->RecentlyLoadedFileProperties.enqueue(fileProperty);
     }
   this->filterRecentlyLoadedFileProperties();
-  this->setupRecentlyLoadedMenu(this->RecentlyLoadedFileProperties);
+  this->setupRecentlyLoadedMenu();
 }
 
 //-----------------------------------------------------------------------------
@@ -489,18 +489,19 @@ void qSlicerAppMainWindowPrivate::writeSettings()
     settings.setValue("layout", this->LayoutManager->layout());
     }
   settings.endGroup();
-  Self::writeRecentlyLoadedFiles(this->RecentlyLoadedFileProperties);
+  Self::writeRecentlyLoadedFiles();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerAppMainWindowPrivate::setupRecentlyLoadedMenu(const QList<qSlicerIO::IOProperties>& fileProperties)
+void qSlicerAppMainWindowPrivate::setupRecentlyLoadedMenu()
 {
   Q_Q(qSlicerAppMainWindow);
 
-  this->RecentlyLoadedMenu->setEnabled(fileProperties.size() > 0);
+  this->RecentlyLoadedMenu->setEnabled(
+    this->RecentlyLoadedFileProperties.size() > 0);
   this->RecentlyLoadedMenu->clear();
 
-  QListIterator<qSlicerIO::IOProperties> iterator(fileProperties);
+  QListIterator<qSlicerIO::IOProperties> iterator(this->RecentlyLoadedFileProperties);
   iterator.toBack();
   while (iterator.hasPrevious())
     {
@@ -554,19 +555,22 @@ QList<qSlicerIO::IOProperties> qSlicerAppMainWindowPrivate::readRecentlyLoadedFi
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerAppMainWindowPrivate
-::writeRecentlyLoadedFiles(const QList<qSlicerIO::IOProperties>& fileProperties)
+void qSlicerAppMainWindowPrivate::writeRecentlyLoadedFiles()
 {
   Q_Q(qSlicerAppMainWindow);
 
   QSettings settings;
-  settings.beginWriteArray("RecentlyLoadedFiles/RecentFiles", fileProperties.size());
-  for (int i = 0; i < fileProperties.size(); ++i)
+  settings.remove("RecentlyLoadedFiles/RecentFiles");
+
+  settings.beginWriteArray(
+    "RecentlyLoadedFiles/RecentFiles", this->RecentlyLoadedFileProperties.size());
+  for (int i = 0; i < this->RecentlyLoadedFileProperties.size(); ++i)
     {
     settings.setArrayIndex(i);
-    settings.setValue("file", fileProperties.at(i));
+    settings.setValue("file", this->RecentlyLoadedFileProperties.at(i));
     }
   settings.endArray();
+
   q->emit recentlyLoadedFilesChanged();
 }
 
@@ -729,7 +733,7 @@ ctkErrorLogWidget* qSlicerAppMainWindow::errorLogWidget()const
 QList<qSlicerIO::IOProperties> qSlicerAppMainWindow::recentlyLoadedFiles() const
 {
   Q_D(const qSlicerAppMainWindow);
-  return d->readRecentlyLoadedFiles();
+  return d->RecentlyLoadedFileProperties;
 }
 
 //---------------------------------------------------------------------------
@@ -997,7 +1001,8 @@ void qSlicerAppMainWindow::onFileRecentLoadedActionTriggered()
   if (loadRecentFileAction->property("clearMenu").isValid())
     {
     d->RecentlyLoadedFileProperties.clear();
-    d->setupRecentlyLoadedMenu(d->RecentlyLoadedFileProperties);
+    d->setupRecentlyLoadedMenu();
+    d->writeRecentlyLoadedFiles();
     return;
     }
 
@@ -1230,10 +1235,10 @@ void qSlicerAppMainWindow::onNewFileLoaded(const qSlicerIO::IOProperties& filePr
 
   d->filterRecentlyLoadedFileProperties();
 
-  d->setupRecentlyLoadedMenu(d->RecentlyLoadedFileProperties);
+  d->setupRecentlyLoadedMenu();
 
   // Keep the settings up-to-date
-  d->writeRecentlyLoadedFiles(d->RecentlyLoadedFileProperties);
+  d->writeRecentlyLoadedFiles();
 }
 
 //---------------------------------------------------------------------------
