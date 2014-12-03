@@ -323,17 +323,33 @@ Rectangle  {
         }
     }
 
-    ListView {
-        id: recentFilesView
-        spacing: generalSpacing
+    Text {
+        id: recentFilesTextBox
         anchors.top: descriptionRectangle.bottom
-        anchors.topMargin: generalMargin
-        anchors.bottom: openButton.top
-        anchors.bottomMargin: generalMargin
+        anchors.topMargin: 4*generalMargin
+        height: recentFilesTextBox.paintedHeight
         anchors.rightMargin: generalMargin
         anchors.right: welcomeRectangle.right
         anchors.left: welcomeListView.right
         anchors.leftMargin: generalMargin
+
+        text: "Recent files:"
+        color: activePalette.text
+        font.pixelSize: 22
+
+    }
+
+    ListView {
+        id: recentFilesView
+        spacing: generalSpacing
+        anchors.top: recentFilesTextBox.bottom
+        anchors.topMargin: generalMargin
+        anchors.bottom: openButton.top
+        anchors.bottomMargin: generalMargin
+        anchors.rightMargin: 4*generalMargin
+        anchors.right: welcomeRectangle.right
+        anchors.left: welcomeListView.right
+        anchors.leftMargin: 4*generalMargin
 
         model: recentlyLoadedFilesModel
 
@@ -346,6 +362,7 @@ Rectangle  {
             height: 50
 
             color: activePalette.base
+            border.color: activePalette.dark
             radius: generalMargin
 
             Text {
