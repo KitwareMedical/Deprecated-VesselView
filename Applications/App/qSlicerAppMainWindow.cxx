@@ -467,12 +467,10 @@ void qSlicerAppMainWindowPrivate::readSettings()
   settings.endGroup();
   this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
 
-  foreach(const qSlicerIO::IOProperties& fileProperty, Self::readRecentlyLoadedFiles())
-    {
-    this->RecentlyLoadedFileProperties.enqueue(fileProperty);
-    }
+  this->readRecentlyLoadedFiles();
   this->filterRecentlyLoadedFileProperties();
   this->setupRecentlyLoadedMenu();
+  emit q->recentlyLoadedFilesChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -537,21 +535,17 @@ void qSlicerAppMainWindowPrivate::filterRecentlyLoadedFileProperties()
 }
 
 //-----------------------------------------------------------------------------
-QList<qSlicerIO::IOProperties> qSlicerAppMainWindowPrivate::readRecentlyLoadedFiles() const
+void qSlicerAppMainWindowPrivate::readRecentlyLoadedFiles()
 {
-  QList<qSlicerIO::IOProperties> fileProperties;
-
   QSettings settings;
   int size = settings.beginReadArray("RecentlyLoadedFiles/RecentFiles");
   for(int i = 0; i < size; ++i)
     {
     settings.setArrayIndex(i);
     QVariant file = settings.value("file");
-    fileProperties << file.toMap();
+    this->RecentlyLoadedFileProperties.enqueue(file.toMap());
     }
   settings.endArray();
-
-  return fileProperties;
 }
 
 //-----------------------------------------------------------------------------
@@ -730,7 +724,7 @@ ctkErrorLogWidget* qSlicerAppMainWindow::errorLogWidget()const
 }
 
 //-----------------------------------------------------------------------------
-QList<qSlicerIO::IOProperties> qSlicerAppMainWindow::recentlyLoadedFiles() const
+QQueue<qSlicerIO::IOProperties> qSlicerAppMainWindow::recentlyLoadedFiles() const
 {
   Q_D(const qSlicerAppMainWindow);
   return d->RecentlyLoadedFileProperties;

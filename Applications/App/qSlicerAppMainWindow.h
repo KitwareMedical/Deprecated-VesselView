@@ -22,6 +22,7 @@
 // Qt includes
 #include <QMainWindow>
 #include <QVariantMap>
+#include <QQueue>
 
 // CTK includes
 #include <ctkErrorLogModel.h>
@@ -45,7 +46,7 @@ class vtkObject;
 class Q_SLICER_APP_EXPORT qSlicerAppMainWindow : public QMainWindow
 {
   Q_OBJECT
-  Q_PROPERTY(QList<qSlicerIO::IOProperties> recentlyLoadedFiles READ recentlyLoadedFiles NOTIFY recentlyLoadedFilesChanged)
+  Q_PROPERTY(QQueue<qSlicerIO::IOProperties> recentlyLoadedFiles READ recentlyLoadedFiles NOTIFY recentlyLoadedFilesChanged)
 
 public:
   typedef QMainWindow Superclass;
@@ -59,7 +60,7 @@ public:
   Q_INVOKABLE qSlicerModuleSelectorToolBar* moduleSelector()const;
 
   // To get the recently loaded files
-  QList<qSlicerIO::IOProperties> recentlyLoadedFiles() const;
+  QQueue<qSlicerIO::IOProperties> recentlyLoadedFiles() const;
 
 #ifdef Slicer_USE_PYTHONQT
   /// Return a pointer to the python console.

@@ -22,7 +22,6 @@
 #define __qSlicerAppMainWindow_p_h
 
 // Qt includes
-#include <QQueue>
 class QToolButton;
 
 // Slicer includes
@@ -64,7 +63,7 @@ public:
 
   virtual void filterRecentlyLoadedFileProperties();
 
-  QList<qSlicerIO::IOProperties> readRecentlyLoadedFiles() const;
+  void readRecentlyLoadedFiles();
   void writeRecentlyLoadedFiles();
 
   virtual bool confirmClose();
