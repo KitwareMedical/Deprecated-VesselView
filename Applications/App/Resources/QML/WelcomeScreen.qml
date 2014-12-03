@@ -120,66 +120,39 @@ Rectangle  {
         }
     }
 
-    Rectangle {
-        id: moveUpConcealer
-        anchors.left: aboutRectangle.anchors.left
-        anchors.leftMargin: aboutRectangle.anchors.leftMargin
-        anchors.top: aboutRectangle.bottom
-        anchors.topMargin: 0
-        width: aboutRectangle.width + 2
-        height: Math.floor(elementHeight / 4) + 3 * generalSpacing
+    Button {
+        id: listViewMoveUp
 
-        // We need to put the rounded button in a concealer rectangle
-        // otherwise we can see the list beneath it at the corners
-        color: activePalette.base
-        gradient: Gradient { // Fake blur with a transparency gradient
+        concealerAnchors.left: parent.left
+        concealerAnchors.leftMargin: aboutRectangle.anchors.leftMargin
+        concealerAnchors.top: aboutRectangle.bottom
+        concealerAnchors.topMargin: 0
+        concealerWidth: aboutRectangle.width + 2
+        concealerHeight: Math.floor(elementHeight / 4) + 3 * generalSpacing
+
+        bottomMarginRatio: 0.5
+        topMarginRatio: 0.25
+
+        concealerGradient: Gradient { // Fake blur with a transparency gradient
                    GradientStop { position: 0.75; color: activePalette.base }
                    GradientStop { position: 1.0; color: '#00000000' }
           }
+        concealerZ: 1 // So the list is hidden underneath
 
-        z: 1 // So the list is hidden underneath
+        radius: generalMargin
+        font.family: "FontAwesome"
+        text: "\uf077" //fa-chevron-up
+        textColor: activePalette.dark
 
-        Rectangle {
-            id: moveUpButton
-
-            anchors.fill: parent
-            anchors.topMargin: Math.floor(parent.height / 4)
-            anchors.bottomMargin: Math.floor(parent.height / 2)
-
-            color: activePalette.button
-            border.color: activePalette.dark
-            radius: generalMargin
-
-            Text { // This should be an arrow instead of text
-                id: moveUpText
-                anchors.fill: parent
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.family: "FontAwesome"
-                text: "\uf077" //fa-chevron-up
-                color: activePalette.dark
+        hoverEnabled: true
+        onButtonClicked: {
+            if (welcomeListView.currentIndex > 0)
+            {
+                welcomeListView.decrementCurrentIndex()
             }
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: {
-                    moveUpButton.color = activePalette.highlight
-                    moveUpText.color = activePalette.highlightedText
-                }
-                onExited: {
-                    moveUpButton.color = activePalette.button
-                    moveUpText.color = activePalette.dark
-                }
-                onClicked: {
-                    if (welcomeListView.currentIndex > 0)
-                    {
-                        welcomeListView.decrementCurrentIndex()
-                    }
-                    else
-                    {
-                        welcomeListView.currentIndex = welcomeListView.count - 1
-                    }
-                }
+            else
+            {
+                welcomeListView.currentIndex = welcomeListView.count - 1
             }
         }
     }
@@ -189,8 +162,8 @@ Rectangle  {
         spacing: generalSpacing
         anchors.left: aboutRectangle.anchors.left
         anchors.leftMargin: aboutRectangle.anchors.leftMargin
-        anchors.top: moveUpConcealer.bottom
-        anchors.bottom: moveDownConcealer.top
+        anchors.top: listViewMoveUp.bottom
+        anchors.bottom: listViewMoveDown.top
         width: aboutRectangle.width
 
         model: welcomeScreenModel
@@ -257,66 +230,40 @@ Rectangle  {
         currentIndex: -1
     }
 
-    Rectangle {
-        id: moveDownConcealer
-        anchors.left: aboutRectangle.anchors.left
-        anchors.leftMargin: aboutRectangle.anchors.leftMargin
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0 // All the way down to hide the list
-        width: aboutRectangle.width + 2
-        height: Math.floor(elementHeight / 4) + 3 * generalSpacing
 
-        // We need to put the rounded button in a concealer rectangle
-        // otherwise we can see the list beneath it at the corners
-        color: activePalette.base
-        gradient: Gradient { // Fake blur with a transparency gradient
+    Button {
+        id: listViewMoveDown
+        concealerAnchors.left: aboutRectangle.anchors.left
+        concealerAnchors.leftMargin: aboutRectangle.anchors.leftMargin
+        concealerAnchors.bottom: parent.bottom
+        concealerAnchors.bottomMargin: 0
+        concealerWidth: aboutRectangle.width + 2
+        concealerHeight: listViewMoveUp.height
+
+        bottomMarginRatio: 0.25
+        topMarginRatio: 0.5
+
+        concealerGradient: Gradient { // Fake blur with a transparency gradient
                    GradientStop { position: 0.0; color: '#00000000' }
-                   GradientStop { position: 0.25; color: activePalette.base}
+                   GradientStop { position: 0.25; color: activePalette.base }
           }
-        z: 1 // So the list is hidden underneath
+        concealerZ: 1 // So the list is hidden underneath
 
-        Rectangle {
-            id: moveDownButton
+        radius: generalMargin
+        font.family: "FontAwesome"
+        text: "\uf078" //fa-chevron-down
+        textColor: activePalette.dark
 
-            anchors.fill: parent
-            anchors.topMargin: Math.floor(parent.height / 2)
-            anchors.bottomMargin: Math.floor(parent.height / 4)
-
-            color: activePalette.button
-            border.color: activePalette.dark
-            radius: generalMargin
-
-            Text { // This should be an arrow instead of text
-                id: moveDownText
-                anchors.fill: parent
-                horizontalAlignment: Text.AlignHCenter
-                font.family: "FontAwesome"
-                text: "\uf078" //fa-chevron-down
-                color: activePalette.dark
+        hoverEnabled: true
+        onButtonClicked: {
+            if (welcomeListView.currentIndex < welcomeListView.count - 1)
+            {
+                welcomeListView.incrementCurrentIndex()
             }
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: {
-                    moveDownButton.color = activePalette.highlight
-                    moveDownText.color = activePalette.highlightedText
-                }
-                onExited: {
-                    moveDownButton.color = activePalette.button
-                    moveDownText.color = activePalette.dark
-                }
-                onClicked: {
-                    if (welcomeListView.currentIndex < welcomeListView.count - 1)
-                    {
-                        welcomeListView.incrementCurrentIndex()
-                    }
-                    else
-                    {
-                        welcomeListView.currentIndex = 0
-                    }
-                }
+            else
+            {
+                welcomeListView.currentIndex = 0
             }
-
         }
     }
 
@@ -464,8 +411,7 @@ Rectangle  {
         currentIndex: -1
     }
 
-
-    Rectangle {
+    Button {
         id: openButton
         visible: false
 
@@ -477,45 +423,20 @@ Rectangle  {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
 
-        color: activePalette.base
+        bottomMarginRatio: 0.2
+        leftMarginRatio: 0.3
+        rightMarginRatio: 0.3
+        topMarginRatio: 0.2
 
-        Text {
-            id: openText
-            text: "Open in VesselView"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            anchors.fill: parent
+        text: "Open in VesselView"
+        font.pointSize: 20
+        radius: generalMargin
+        hoverEnabled: true
 
-            font.pointSize: 22
-            color: activePalette.text
-            z: 1
+        onButtonClicked: {
+            welcomeScreen.loadModule(selectedModule, selectedLayout)
         }
-        Rectangle {
-            id: openRectangle
-            color: activePalette.button
-            anchors.fill: openText
-            anchors.bottomMargin: Math.floor( (openText.height - openText.paintedHeight) / 2) - generalMargin
-            anchors.topMargin: anchors.bottomMargin
-            anchors.rightMargin: Math.floor( (openText.width - openText.paintedWidth) / 2) - generalMargin
-            anchors.leftMargin: anchors.rightMargin
-            border.color: activePalette.dark
-            radius: generalMargin
-        }
-        MouseArea {
-            anchors.fill: openRectangle
-            hoverEnabled: true
-            onEntered: {
-                openRectangle.color = activePalette.highlight
-                openText.color = activePalette.highlightedText
-            }
-            onExited: {
-                openRectangle.color = activePalette.button
-                openText.color = activePalette.text
-            }
-            onClicked: {
-                welcomeScreen.loadModule(selectedModule, selectedLayout)
-            }
-        }
+
     }
 
 }

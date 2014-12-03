@@ -224,7 +224,6 @@ void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
 void qAppWelcomeScreen::onRecentlyLoadedFilesChanged()
 {
   Q_D(qAppWelcomeScreen);
-  qDebug()<< d->model.removeRows(0, d->model.rowCount());
 
   foreach(qSlicerIO::IOProperties ioProperty, d->mainWindow()->recentlyLoadedFiles())
     {
