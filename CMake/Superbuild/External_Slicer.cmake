@@ -69,9 +69,10 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   if(NOT DEFINED TubeTK_SOURCE_DIR)
     set(TubeTK_SOURCE_DIR "${${proj}_DIR}/TubeTK")
   endif()
-  list(APPEND ${APPLICATION_NAME}_MODULES
+  set(${APPLICATION_NAME}_MODULES_IN_BUILD_ORDER
     ${TubeTK_SOURCE_DIR}/Applications
     ${TubeTK_SOURCE_DIR}/SlicerModules
+    ${${APPLICATION_NAME}_MODULES}
     )
 
   if(DEFINED ${proj}_SOURCE_DIR)
@@ -134,7 +135,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DSlicer_BUILD_EMSegment:BOOL=OFF
       -DSlicer_BUILD_DataStore:BOOL=OFF
       -DSlicer_BUILD_LandmarkRegistration:BOOL=OFF
-      -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${${APPLICATION_NAME}_MODULES}
+      -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${${APPLICATION_NAME}_MODULES_IN_BUILD_ORDER}
       # Required by External_<APPLICATION_NAME>.cmake
       -DSlicer_DIR:PATH=${${proj}_DIR}
       # Required by TubeTK modules
