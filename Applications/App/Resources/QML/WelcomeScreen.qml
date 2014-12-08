@@ -269,8 +269,13 @@ Rectangle  {
         text: "Recent files:"
         color: activePalette.text
         font.pixelSize: 22
-
     }
+
+    Binding {
+         target: recentFilesTextBox
+         property: "visible"
+         value: recentlyLoadedFilesModel.hasAtLeastOneEntry()
+     }
 
     ListView {
         id: recentFilesView

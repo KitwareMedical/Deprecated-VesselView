@@ -126,6 +126,8 @@ public:
 
   Q_INVOKABLE QString filename(int row) const;
 
+  Q_INVOKABLE virtual bool hasAtLeastOneEntry() const;
+
 public slots:
   void setFileTypes(QStringList& newFileTypes);
 

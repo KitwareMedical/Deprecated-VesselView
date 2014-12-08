@@ -390,6 +390,12 @@ QString qRecentFilesProxyFilter::filename(int row) const
 }
 
 //-----------------------------------------------------------------------------
+bool qRecentFilesProxyFilter::hasAtLeastOneEntry() const
+{
+  return this->hasIndex(0, 0);
+}
+
+//-----------------------------------------------------------------------------
 bool qRecentFilesProxyFilter
 ::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
