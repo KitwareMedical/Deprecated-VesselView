@@ -120,50 +120,18 @@ Rectangle  {
         }
     }
 
-    Button {
-        id: listViewMoveUp
-
-        concealerAnchors.left: parent.left
-        concealerAnchors.leftMargin: aboutRectangle.anchors.leftMargin
-        concealerAnchors.top: aboutRectangle.bottom
-        concealerAnchors.topMargin: 0
-        concealerWidth: aboutRectangle.width + 2
-        concealerHeight: Math.floor(elementHeight / 4) + 3 * generalSpacing
-
-        bottomMarginRatio: 0.5
-        topMarginRatio: 0.25
-
-        concealerGradient: Gradient { // Fake blur with a transparency gradient
-                   GradientStop { position: 0.75; color: activePalette.base }
-                   GradientStop { position: 1.0; color: '#00000000' }
-          }
-        concealerZ: 1 // So the list is hidden underneath
-
-        radius: generalMargin
-        font.family: "FontAwesome"
-        text: "\uf077" //fa-chevron-up
-        textColor: activePalette.dark
-
-        hoverEnabled: true
-        onButtonClicked: {
-            if (welcomeListView.currentIndex > 0)
-            {
-                welcomeListView.decrementCurrentIndex()
-            }
-            else
-            {
-                welcomeListView.currentIndex = welcomeListView.count - 1
-            }
-        }
-    }
-
-    ListView {
+    VerticalListViewWithButtons {
         id: welcomeListView
+
+        buttonRadius: generalMargin
+        buttonHeight: Math.floor(elementHeight / 4) + 3 * generalSpacing
+
         spacing: generalSpacing
+
         anchors.left: aboutRectangle.anchors.left
         anchors.leftMargin: aboutRectangle.anchors.leftMargin
-        anchors.top: listViewMoveUp.bottom
-        anchors.bottom: listViewMoveDown.top
+        anchors.top: aboutRectangle.bottom
+        anchors.bottom: parent.bottom
         width: aboutRectangle.width
 
         model: welcomeScreenModel
@@ -171,7 +139,10 @@ Rectangle  {
 
             id: elementItem
             height: elementHeight
-            width: welcomeListView.width
+            anchors.left: parent.left
+            anchors.leftMargin: generalMargin
+            anchors.right: parent.right
+            anchors.rightMargin: generalMargin
             color: activePalette.button
             border.color: activePalette.dark
             radius: generalMargin
@@ -227,44 +198,6 @@ Rectangle  {
             recentlyLoadedFilesModel.fileTypes = welcomeScreenModel.get(currentIndex).fileTypes
             selectedFiles = []
             }
-        currentIndex: -1
-    }
-
-
-    Button {
-        id: listViewMoveDown
-        concealerAnchors.left: aboutRectangle.anchors.left
-        concealerAnchors.leftMargin: aboutRectangle.anchors.leftMargin
-        concealerAnchors.bottom: parent.bottom
-        concealerAnchors.bottomMargin: 0
-        concealerWidth: aboutRectangle.width + 2
-        concealerHeight: listViewMoveUp.height
-
-        bottomMarginRatio: 0.25
-        topMarginRatio: 0.5
-
-        concealerGradient: Gradient { // Fake blur with a transparency gradient
-                   GradientStop { position: 0.0; color: '#00000000' }
-                   GradientStop { position: 0.25; color: activePalette.base }
-          }
-        concealerZ: 1 // So the list is hidden underneath
-
-        radius: generalMargin
-        font.family: "FontAwesome"
-        text: "\uf078" //fa-chevron-down
-        textColor: activePalette.dark
-
-        hoverEnabled: true
-        onButtonClicked: {
-            if (welcomeListView.currentIndex < welcomeListView.count - 1)
-            {
-                welcomeListView.incrementCurrentIndex()
-            }
-            else
-            {
-                welcomeListView.currentIndex = 0
-            }
-        }
     }
 
     Rectangle {

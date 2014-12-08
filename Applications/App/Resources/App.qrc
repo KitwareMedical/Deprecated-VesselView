@@ -11,6 +11,7 @@
     <file alias="ModuleHome.png">Images/ModuleHome.png</file>
     <file alias="DefaultSettings.ini">Settings/VesselViewDefaultSettings.ini</file>
     <file alias="Button.qml">QML/Button.qml</file>
+    <file alias="VerticalListViewWithButtons.qml">QML/VerticalListViewWithButtons.qml</file>
     <file alias="WelcomeScreen.qml">QML/WelcomeScreen.qml</file>
   </qresource>
 </RCC>
