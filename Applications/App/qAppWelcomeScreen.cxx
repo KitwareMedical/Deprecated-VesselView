@@ -29,6 +29,8 @@
 #include <qSlicerLayoutManager.h>
 
 // SlicerApp includes
+#include "qAppRecentFilesModel.h"
+#include "qAppRecentFilesProxyFilter.h"
 #include "qAppWelcomeScreen.h"
 
 // MRML includes
@@ -49,8 +51,8 @@ public:
 
 protected:
   qAppWelcomeScreen* q_ptr;
-  qRecentFilesModel model;
-  qRecentFilesProxyFilter filter;
+  qAppRecentFilesModel model;
+  qAppRecentFilesProxyFilter filter;
   QStringList filesToOpenOnLoad;
 };
 
@@ -228,7 +230,7 @@ void qAppWelcomeScreen::onRecentlyLoadedFilesChanged()
   foreach(qSlicerIO::IOProperties ioProperty, d->mainWindow()->recentlyLoadedFiles())
     {
     d->model.addUniqueRecentFile(
-      qRecentFilesType(
+      qAppRecentFile(
         ioProperty["fileName"].toString(),
         ioProperty["fileType"].toString()));
     }
@@ -241,166 +243,4 @@ void qAppWelcomeScreen::onModelChanged()
 {
   Q_D(qAppWelcomeScreen);
   this->rootContext()->setContextProperty("recentlyLoadedFilesModel", &(d->filter));
-}
-
-//-----------------------------------------------------------------------------
-qRecentFilesType::qRecentFilesType()
-{
-  m_filename = "";
-  m_fileType = "";
-}
-//-----------------------------------------------------------------------------
-qRecentFilesType::qRecentFilesType(const QString& name, const QString& type)
-{
-  this->setFilename(name);
-  this->setFileType(type);
-}
-
-//-----------------------------------------------------------------------------
-QString qRecentFilesType::filename() const
-{
-  return m_filename;
-}
-
-//-----------------------------------------------------------------------------
-void qRecentFilesType::setFilename(const QString &name)
-{
-  if (name == this->m_filename)
-    {
-    return;
-    }
-
-  this->m_filename = name;
-}
-
-//-----------------------------------------------------------------------------
-QString qRecentFilesType::fileType() const
-{
-  return m_fileType;
-}
-
-//-----------------------------------------------------------------------------
-void qRecentFilesType::setFileType(const QString &type)
-{
-  if (type == this->m_fileType)
-    {
-    return;
-    }
-
-  this->m_fileType = type;
-}
-
-//-----------------------------------------------------------------------------
-bool qRecentFilesType::operator==(const qRecentFilesType& other)
-{
-  return this->filename() == other.filename()
-    && this->fileType() == other.fileType();
-}
-
-//-----------------------------------------------------------------------------
-qRecentFilesModel::qRecentFilesModel(QObject *parent) : QAbstractListModel(parent)
-{
-  QHash<int, QByteArray> roles;
-  roles[FilenameRole] = "filename";
-  roles[FileTypeRole] = "filetype";
-  this->setRoleNames(roles);
-}
-
-//-----------------------------------------------------------------------------
-void qRecentFilesModel::addRecentFile(const qRecentFilesType& recentFile)
-{
-  this->beginInsertRows(QModelIndex(), rowCount(), rowCount());
-  m_recentFiles << recentFile;
-  this->endInsertRows();
-}
-
-//-----------------------------------------------------------------------------
-void qRecentFilesModel::addUniqueRecentFile(const qRecentFilesType& recentFile)
-{
-  if (!this->m_recentFiles.contains(recentFile))
-    {
-    this->addRecentFile(recentFile);
-    }
-}
-
-//-----------------------------------------------------------------------------
-int qRecentFilesModel::rowCount(const QModelIndex & parent) const
-{
-  return this->m_recentFiles.count();
-}
-
-
-//-----------------------------------------------------------------------------
-bool qRecentFilesModel
-::removeRows(int row, int count, const QModelIndex& parent)
-{
-  if (row < 0 || row > this->m_recentFiles.count())
-    {
-    return false;
-    }
-
-  this->beginRemoveRows(parent, row, row + count);
-  this->m_recentFiles.remove(row, count);
-  this->endRemoveRows();
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-QVariant qRecentFilesModel::data(const QModelIndex & index, int role) const
-{
-  if (index.row() < 0 || index.row() > this->m_recentFiles.count())
-    return QVariant();
-
-  const qRecentFilesType& recentFile = m_recentFiles[index.row()];
-  if (role == FilenameRole)
-    {
-    return recentFile.filename();
-    }
-  else if (role == FileTypeRole)
-    {
-    return recentFile.fileType();
-    }
-  return QVariant();
-}
-
-//-----------------------------------------------------------------------------
-qRecentFilesProxyFilter::qRecentFilesProxyFilter(QObject* parent)
-  : QSortFilterProxyModel(parent)
-{
-}
-
-//-----------------------------------------------------------------------------
-QStringList qRecentFilesProxyFilter::fileTypes() const
-{
-  return this->m_fileTypes;
-}
-
-//-----------------------------------------------------------------------------
-void qRecentFilesProxyFilter::setFileTypes(QStringList& newFileTypes)
-{
-  this->m_fileTypes = newFileTypes;
-  this->invalidateFilter();
-}
-
-//-----------------------------------------------------------------------------
-QString qRecentFilesProxyFilter::filename(int row) const
-{
-  QModelIndex index = this->index(row, 0);
-  return this->data(index, qRecentFilesModel::FilenameRole).toString();
-}
-
-//-----------------------------------------------------------------------------
-bool qRecentFilesProxyFilter::hasAtLeastOneEntry() const
-{
-  return this->hasIndex(0, 0);
-}
-
-//-----------------------------------------------------------------------------
-bool qRecentFilesProxyFilter
-::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
-{
-  QModelIndex index = this->sourceModel()->index(sourceRow, 0, sourceParent);
-  QVariant type =
-    this->sourceModel()->data(index, qRecentFilesModel::FileTypeRole);
-  return this->m_fileTypes.contains(type.toString());
 }

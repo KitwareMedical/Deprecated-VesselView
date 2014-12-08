@@ -79,6 +79,13 @@ GutenbergFontAwesomeMacro(DESTINATION_DIR ${FONT_AWESOME_DIR})
 set(SlicerApp_SRCS
   qAppLayoutViewFactory.cxx
   qAppLayoutViewFactory.h
+  qAppRecentFile.cxx
+  qAppRecentFile.h
+  qAppRecentFilesModel.cxx
+  qAppRecentFilesModel.h
+  qAppRecentFilesModel.h
+  qAppRecentFilesProxyFilter.cxx
+  qAppRecentFilesProxyFilter.h
   qAppWelcomeScreen.cxx
   qAppWelcomeScreen.h
   qSlicerAppAboutDialog.cxx
@@ -90,6 +97,8 @@ set(SlicerApp_SRCS
 
 set(SlicerApp_MOC_SRCS
   qAppLayoutViewFactory.h
+  qAppRecentFilesModel.h
+  qAppRecentFilesProxyFilter.h
   qAppWelcomeScreen.h
   qSlicerAppAboutDialog.h
   qSlicerAppMainWindow.h
