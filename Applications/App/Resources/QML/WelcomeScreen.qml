@@ -34,7 +34,7 @@ Rectangle  {
             imageSource: "Workflow.svg"
             description:  "Workflow that guides you on all the necessary steps required to show the vessels of an image."
             layout: -1
-            fileTypes: "Image"
+            fileTypes: "VolumeFile"
         }
         ListElement {
             name: "Tortuosity"
@@ -75,7 +75,7 @@ Rectangle  {
                          In particular, you may want to use the <a href=\"http://public.kitware.com/Wiki/TubeTK/InteractivePDFSegmenter\">PDF segmenter</a>.
                          </html>"
             layout: 6 // SlicerLayoutOneUpRedSliceView
-            fileTypes: "Image"
+            fileTypes: "VolumeFile"
         }
     }
 
