@@ -18,6 +18,7 @@
 
 // Qt includes
 #include <QtDeclarative/QDeclarativeView>
+#include <QObject>
 
 // App includes
 #include "qSlicerAppExport.h"
@@ -27,17 +28,34 @@ class Q_SLICER_APP_EXPORT qAppWelcomeScreen
   : public QDeclarativeView
 {
   Q_OBJECT
+  Q_PROPERTY(QStringList filesToOpenOnLoad
+    READ filesToOpenOnLoad
+    WRITE setFilesToOpenOnLoad
+    NOTIFY filesToOpenOnLoadChanged)
+
 public:
   typedef QDeclarativeView Superclass;
   qAppWelcomeScreen(QWidget* parent = 0);
   virtual ~qAppWelcomeScreen();
 
+  QStringList filesToOpenOnLoad() const;
+  Q_INVOKABLE void addUniqueFileToOpenOnLoad(const QString& filename);
+  Q_INVOKABLE void addFileToOpenOnLoad(const QString& filename);
+  Q_INVOKABLE void removeOneFileToOpenOnLoad(const QString& filename);
+
 public slots:
   void loadModule(const QString& moduleName, int layout = -1);
+  void setFilesToOpenOnLoad(const QStringList& filenames);
 
 signals:
   /// Fired when the welcome screen is done and the workflow can start.
   void done();
+
+  void filesToOpenOnLoadChanged();
+
+protected slots:
+  void onRecentlyLoadedFilesChanged();
+  void onModelChanged();
 
 protected:
   QScopedPointer<qAppWelcomeScreenPrivate> d_ptr;

@@ -42,7 +42,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       set(git_protocol "git")
   endif()
 
-  set(${proj}_INTERNAL_DEPENDENCIES_LIST ${APPLICATION_NAME} TubeTK)
+  set(${proj}_INTERNAL_DEPENDENCIES_LIST ${APPLICATION_NAME} TubeTK Gutenberg)
 
   find_package(Qt4 REQUIRED)
 

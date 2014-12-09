@@ -65,11 +65,27 @@ if(WIN32)
 endif()
 
 # --------------------------------------------------------------------------
+# Gutenberg
+# --------------------------------------------------------------------------
+find_package(Gutenberg REQUIRED)
+
+include(GutenbergFontAwesomeMacro)
+set(FONT_AWESOME_DIR "${CMAKE_CURRENT_BINARY_DIR}/Resources/FontAwesome")
+GutenbergFontAwesomeMacro(DESTINATION_DIR ${FONT_AWESOME_DIR})
+
+# --------------------------------------------------------------------------
 # Sources
 # --------------------------------------------------------------------------
 set(SlicerApp_SRCS
   qAppLayoutViewFactory.cxx
   qAppLayoutViewFactory.h
+  qAppRecentFile.cxx
+  qAppRecentFile.h
+  qAppRecentFilesModel.cxx
+  qAppRecentFilesModel.h
+  qAppRecentFilesModel.h
+  qAppRecentFilesProxyFilter.cxx
+  qAppRecentFilesProxyFilter.h
   qAppWelcomeScreen.cxx
   qAppWelcomeScreen.h
   qSlicerAppAboutDialog.cxx
@@ -81,6 +97,8 @@ set(SlicerApp_SRCS
 
 set(SlicerApp_MOC_SRCS
   qAppLayoutViewFactory.h
+  qAppRecentFilesModel.h
+  qAppRecentFilesProxyFilter.h
   qAppWelcomeScreen.h
   qSlicerAppAboutDialog.h
   qSlicerAppMainWindow.h
@@ -95,6 +113,7 @@ set(SlicerApp_RESOURCES
   Resources/App.qrc
   ${qSlicerBaseQTGUI_SOURCE_DIR}/Resources/qSlicerBaseQTGUI.qrc
   ${${APPLICATION_NAME}_SOURCE_DIR}/Utilities/Qt/Resources.qrc
+  ${GUTENBERG_RESOURCE_FILE}
   )
 
 QT4_WRAP_CPP(SlicerApp_SRCS ${SlicerApp_MOC_SRCS})
@@ -111,6 +130,7 @@ set(SlicerApp_INCLUDE_DIRECTORIES
   ${qSlicerModulesCore_SOURCE_DIR}
   ${qSlicerModulesCore_BINARY_DIR}
   ${ITKFactoryRegistration_INCLUDE_DIRS}
+  ${FONT_AWESOME_DIR}
   )
 include_directories(${SlicerApp_INCLUDE_DIRECTORIES})
 

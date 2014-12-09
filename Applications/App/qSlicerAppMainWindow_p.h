@@ -22,7 +22,6 @@
 #define __qSlicerAppMainWindow_p_h
 
 // Qt includes
-#include <QQueue>
 class QToolButton;
 
 // Slicer includes
@@ -60,12 +59,12 @@ public:
   virtual void readSettings();
   virtual void writeSettings();
 
-  virtual void setupRecentlyLoadedMenu(const QList<qSlicerIO::IOProperties>& fileProperties);
+  virtual void setupRecentlyLoadedMenu();
 
   virtual void filterRecentlyLoadedFileProperties();
 
-  static QList<qSlicerIO::IOProperties> readRecentlyLoadedFiles();
-  static void writeRecentlyLoadedFiles(const QList<qSlicerIO::IOProperties>& fileProperties);
+  void readRecentlyLoadedFiles();
+  void writeRecentlyLoadedFiles();
 
   virtual bool confirmClose();
 
