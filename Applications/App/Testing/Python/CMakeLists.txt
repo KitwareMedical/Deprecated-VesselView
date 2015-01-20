@@ -53,26 +53,22 @@ set(slicer_app_dir ${Slicer_SOURCE_DIR}/Applications/SlicerApp)
 set(slicer_app_python_testing_dir ${slicer_app_dir}/Testing/Python)
 
 slicer_add_python_test(
-  SCRIPT SlicerTestingExitSuccessTest.py
-  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT ${slicer_app_python_testing_dir}/SlicerTestingExitSuccessTest.py
   SCRIPT_ARGS --no-main-window TESTNAME_PREFIX nomainwindow_
   )
 
 slicer_add_python_test(
-  SCRIPT SlicerTestingExitFailureTest.py
-  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT ${slicer_app_python_testing_dir}/SlicerTestingExitFailureTest.py
   SCRIPT_ARGS --no-main-window TESTNAME_PREFIX nomainwindow_
   )
 set_tests_properties(py_nomainwindow_SlicerTestingExitFailureTest PROPERTIES WILL_FAIL TRUE)
 
 slicer_add_python_test(
-  SCRIPT SlicerTestingExitSuccessTest.py
-  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT ${slicer_app_python_testing_dir}/SlicerTestingExitSuccessTest.py
   )
 
 slicer_add_python_test(
-  SCRIPT SlicerTestingExitFailureTest.py
-  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT ${slicer_app_python_testing_dir}/SlicerTestingExitFailureTest.py
   )
 set_tests_properties(py_SlicerTestingExitFailureTest PROPERTIES WILL_FAIL TRUE)
 
@@ -135,22 +131,19 @@ endif()
 set(testname MRMLCreateNodeByClassWithSetReferenceCountMinusOne)
 slicer_add_python_test(
   SCRIPT ${slicer_app_python_testing_dir}/${testname}.py
-  SCRIPT_DIR ${slicer_app_python_testing_dir}
   SCRIPT_ARGS --no-main-window --disable-cli-modules --disable-loadable-modules --disable-scripted-loadable-modules
   TESTNAME_PREFIX nomainwindow_
   )
 
 set(testname MRMLSceneImportAndExport)
 slicer_add_python_test(
-  SCRIPT ${testname}.py
-  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT ${slicer_app_python_testing_dir}/${testname}.py
   TESTNAME_PREFIX mainwindow_
   )
 
 set(testname MRMLCreateNodeByClassWithSetReferenceCountToOne)
 slicer_add_python_test(
-  SCRIPT ${testname}.py
-  SCRIPT_DIR ${slicer_app_python_testing_dir}
+  SCRIPT ${slicer_app_python_testing_dir}/${testname}.py
   SCRIPT_ARGS --no-main-window --disable-cli-modules --disable-loadable-modules --disable-scripted-loadable-modules
   TESTNAME_PREFIX nomainwindow_
   )
