@@ -16,16 +16,18 @@
 #
 #============================================================================
 
-set(MY_QT_VERSION             "4.8.6")
-set(QT_QMAKE_EXECUTABLE       "/usr/bin/qmake")
+set(MY_QT_VERSION                "4.8.6")
+set(QT_QMAKE_EXECUTABLE          "/usr/bin/qmake")
 # set(QT_QMAKE_EXECUTABLE       "/Users/kitware/Support/qt-everywhere-opensource-build-4.8.6-master/bin/qmake")
 #set(QT_QTUITOOLS_INCLUDE_DIR  "/Users/kitware/Support/qt-everywhere-opensource-build-4.8.6-master/include/QtUiTools")
 
 
-set(CTEST_BUILD_CONFIGURATION "Release")
-set(SCRIPT_MODE               "experimental") # "experimental", "continuous", "nightly"
+set(CTEST_BUILD_CONFIGURATION    "Release")
+set(SCRIPT_MODE                  "nightly") # "experimental", "continuous", "nightly"
 
-set(GIT_BRANCH_NAME           "master")
-set(CTEST_USE_LAUNCHERS       ON)
-set(vesselview_dir "/Users/kitware/Dashboards/VesselView/VesselView")
+set(GIT_REPOSITORY_OWNER         "vovythevov")                                         ### TOCHANGE (remove)
+set(GIT_BRANCH_NAME              "macOS-dashboard")                                       ### TOCHANGE to master
+
+set(CTEST_USE_LAUNCHERS          ON)
+set(vesselview_dir               "/Users/kitware/Dashboards/VesselView/VesselView")
 INCLUDE(${vesselview_dir}/Utilities/Dashboards/VesselView-Kitwares-MacBook-Pro-dashboard.cmake)

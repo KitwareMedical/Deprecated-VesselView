@@ -43,6 +43,7 @@ set(CTEST_DASHBOARD_ROOT "/Users/kitware/Dashboards/VesselView")
 set(CTEST_SITE "Kitwares-MacBook-Pro.kitware") # for example: mymachine.kitware, mymachine.dkfz, ...
 set(MY_OPERATING_SYSTEM "Darwin") # Windows, Linux, Darwin...
 
+setOnlyIfNotDefined(GIT_REPOSITORY_OWNER "KitwareMedical")
 setOnlyIfNotDefined(MY_CMAKE_VERSION "3.0.1")
 setOnlyIfNotDefined(CTEST_CMAKE_COMMAND "/Users/kitware/Support/cmake-3.0.1-Darwin64-universal/CMake.app/Contents/bin/cmake") # "C:/Program Files (x86)/CMake ${MY_CMAKE_VERSION}/bin/cmake.exe")       #TODOOOOOOOOOOOOOOO
 
@@ -124,9 +125,9 @@ find_program(CTEST_GIT_COMMAND NAMES git
 #
 # Git repository
 #
-setOnlyIfNotDefined(GIT_REPOSITORY git://github.com/matthieuheitz/${CTEST_PROJECT_NAME}.git)  ### When finished, change "matthieuheitz" to "KitwareMedical"
+setOnlyIfNotDefined(GIT_REPOSITORY git://github.com/${GIT_REPOSITORY_OWNER}/${CTEST_PROJECT_NAME}.git)
 setOnlyIfNotDefined(GIT_BRANCH_NAME master)
-setOnlyIfNotDefined(DRIVER_URL "https://raw.githubusercontent.com/KitwareMedical/VesselView/${GIT_BRANCH_NAME}/Utilities/Dashboards/VesselView-DashboardDriver.cmake")
+setOnlyIfNotDefined(DRIVER_URL "https://raw.githubusercontent.com/KitwareMedical/VesselView/master/Utilities/Dashboards/VesselView-DashboardDriver.cmake")
 
 ##########################################
 # WARNING: DO NOT EDIT BEYOND THIS POINT #
@@ -164,5 +165,5 @@ endmacro()
 # Download and include dashboard driver script
 #
 set(dest ${CTEST_SCRIPT_DIRECTORY}/${CTEST_SCRIPT_NAME}.driver)
-#downloadFile(${DRIVER_URL} ${dest})
+downloadFile(${DRIVER_URL} ${dest})
 include(${dest})
