@@ -18,4 +18,4 @@ cd C:\Work\VesselView\Dashboards\VesselView
 
 :startDashboards
 echo Start dashboards
-call "C:\Program Files (x86)\CMake 2.8.11.2\bin\ctest.exe" -S C:\Work\VesselView\Dashboards\VesselView\Utilities\Dashboards\VesselView-errai-master-nightly.cmake -V -C Release > C:\Work\VesselView\Dashboards\Logs\VesselView-errai-master-nightly.log 2>&1
+call "C:\Program Files (x86)\CMake 3.0.2\bin\ctest.exe" -S C:\Work\VesselView\Dashboards\VesselView\Utilities\Dashboards\VesselView-errai-master-nightly.cmake -V -C Release > C:\Work\VesselView\Dashboards\Logs\VesselView-errai-master-nightly.log 2>&1
