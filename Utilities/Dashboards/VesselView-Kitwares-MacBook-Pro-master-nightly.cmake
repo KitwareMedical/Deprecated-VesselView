@@ -25,8 +25,8 @@ set(QT_QMAKE_EXECUTABLE          "/usr/bin/qmake")
 set(CTEST_BUILD_CONFIGURATION    "Release")
 set(SCRIPT_MODE                  "nightly") # "experimental", "continuous", "nightly"
 
-set(GIT_REPOSITORY_OWNER         "vovythevov")                                         ### TOCHANGE (remove)
-set(GIT_BRANCH_NAME              "macOS-dashboard")                                       ### TOCHANGE to master
+set(GIT_REPOSITORY_OWNER         "KitwareMedical")
+set(GIT_BRANCH_NAME              "master")
 
 set(CTEST_USE_LAUNCHERS          ON)
 set(vesselview_dir               "/Users/kitware/Dashboards/VesselView/VesselView")
