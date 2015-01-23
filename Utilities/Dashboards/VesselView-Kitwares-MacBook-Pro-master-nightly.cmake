@@ -18,16 +18,8 @@
 
 set(MY_QT_VERSION                "4.8.6")
 set(QT_QMAKE_EXECUTABLE          "/usr/bin/qmake")
-# set(QT_QMAKE_EXECUTABLE       "/Users/kitware/Support/qt-everywhere-opensource-build-4.8.6-master/bin/qmake")
-#set(QT_QTUITOOLS_INCLUDE_DIR  "/Users/kitware/Support/qt-everywhere-opensource-build-4.8.6-master/include/QtUiTools")
-
-
 set(CTEST_BUILD_CONFIGURATION    "Release")
 set(SCRIPT_MODE                  "nightly") # "experimental", "continuous", "nightly"
-
-set(GIT_REPOSITORY_OWNER         "KitwareMedical")
-set(GIT_BRANCH_NAME              "master")
-
 set(CTEST_USE_LAUNCHERS          ON)
 set(VESSELVIEW_DIR               "/Users/kitware/Dashboards/VesselView/VesselView")
 INCLUDE(${VESSELVIEW_DIR}/Utilities/Dashboards/VesselView-Kitwares-MacBook-Pro-dashboard.cmake)
