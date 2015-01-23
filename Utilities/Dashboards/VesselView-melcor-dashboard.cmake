@@ -23,7 +23,7 @@
 #
 #============================================================================
 
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 3.0.0)
 
 #-----------------------------------------------------------------------------
 # Macro allowing to set a variable to its default value only if not already defined

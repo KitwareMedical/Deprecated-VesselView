@@ -23,7 +23,7 @@
 #
 #============================================================================
 
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 3.0.0)
 
 #-----------------------------------------------------------------------------
 # Macro allowing to set a variable to its default value only if not already defined
@@ -43,7 +43,7 @@ setOnlyIfNotDefined(VESSELVIEW_DIR "${CTEST_DASHBOARD_ROOT}/${CTEST_PROJECT_NAME
 set(CTEST_SITE "errai.kitware") # for example: mymachine.kitware, mymachine.dkfz, ...
 set(MY_OPERATING_SYSTEM "Windows") # Windows, Linux, Darwin...
 
-setOnlyIfNotDefined(MY_CMAKE_VERSION "2.8.11.2")
+setOnlyIfNotDefined(MY_CMAKE_VERSION "3.0.2")
 setOnlyIfNotDefined(CTEST_CMAKE_COMMAND "C:/Program Files (x86)/CMake ${MY_CMAKE_VERSION}/bin/cmake.exe") # "C:/Program Files (x86)/CMake ${MY_CMAKE_VERSION}/bin/cmake.exe")
 
 # Compiler to use to compile the project.

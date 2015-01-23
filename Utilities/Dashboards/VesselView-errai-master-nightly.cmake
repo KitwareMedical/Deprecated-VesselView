@@ -23,6 +23,7 @@ set(GIT_BRANCH_NAME "master")
 set(CTEST_USE_LAUNCHERS ON)
 set(CTEST_BINARY_DIRECTORY "C:/Work/D/Vvmn")
 set(WITH_PACKAGES ON)
+set(MY_CMAKE_VERSION "3.0.2")
 
 set(VESSELVIEW_DIR "C:/Work/VesselView/Dashboards/VesselView")
 include(${VESSELVIEW_DIR}/Utilities/Dashboards/VesselView-errai-dashboard.cmake)
