@@ -14,7 +14,7 @@ if [ $# -eq 0 ] || [ "$1" != "NoUpdate" ]; then
   # Update Dashboard repository
   cd ${DashboardDir}/VesselView
   git fetch origin
-  git reset --hard origin/45-MacDashboard
+  git reset --hard origin/master
 
   echo "Bootstrapping"
   # Run new nightly script without updating again
