@@ -24,4 +24,5 @@ set(CTEST_USE_LAUNCHERS ON)
 set(CTEST_BINARY_DIRECTORY "C:/Work/D/Vvmn")
 set(WITH_PACKAGES ON)
 
-include(${CTEST_SCRIPT_DIRECTORY}/VesselView-errai-dashboard.cmake)
+set(VESSELVIEW_DIR "C:/Work/VesselView/Dashboards/VesselView")
+include(${VESSELVIEW_DIR}/Utilities/Dashboards/VesselView-errai-dashboard.cmake)

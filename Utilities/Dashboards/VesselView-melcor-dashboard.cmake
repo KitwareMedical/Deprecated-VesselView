@@ -39,6 +39,7 @@ endmacro()
 set(CTEST_PROJECT_NAME "VesselView")
 
 set(CTEST_DASHBOARD_ROOT "/home/kitware/Dashboards/VesselView")
+setOnlyIfNotDefined(VESSELVIEW_DIR "${CTEST_DASHBOARD_ROOT}/${CTEST_PROJECT_NAME}")
 set(CTEST_SITE "melcor.kitware") # for example: mymachine.kitware, mymachine.dkfz, ...
 set(MY_OPERATING_SYSTEM "Linux") # Windows, Linux, Darwin...
 
@@ -97,12 +98,11 @@ setOnlyIfNotDefined(SCRIPT_MODE "nightly")
 # Project specific properties
 #
 # Path where to save the downloaded (with git) the source of the project.
-setOnlyIfNotDefined(CTEST_SOURCE_DIRECTORY "${CTEST_DASHBOARD_ROOT}/${CTEST_PROJECT_NAME}-${GIT_BRANCH_NAME}-${SCRIPT_MODE}")
+setOnlyIfNotDefined(CTEST_SOURCE_DIRECTORY "${CTEST_DASHBOARD_ROOT}/${CTEST_PROJECT_NAME}-${SCRIPT_MODE}")
 # Path where to build the project
 # Must be short (e.g. "c:\Work\D\B-nightly") on Windows
-setOnlyIfNotDefined(CTEST_BINARY_DIRECTORY "${CTEST_DASHBOARD_ROOT}/${CTEST_PROJECT_NAME}-${GIT_BRANCH_NAME}-${SCRIPT_MODE}-${CTEST_BUILD_CONFIGURATION}-${MY_BITNESS}bits-Qt${MY_QT_VERSION}-CMake${MY_CMAKE_VERSION}")
-# Path where to save the build logs. Don't forget to create a "Logs" directory.
-setOnlyIfNotDefined(CTEST_LOG_FILE "${CTEST_DASHBOARD_ROOT}/Logs/${CTEST_PROJECT_NAME}-${GIT_BRANCH_NAME}-${SCRIPT_MODE}-${CTEST_BUILD_CONFIGURATION}-${MY_BITNESS}bits.log")
+setOnlyIfNotDefined(CTEST_BINARY_DIRECTORY "${CTEST_DASHBOARD_ROOT}/${CTEST_PROJECT_NAME}-${SCRIPT_MODE}-${CTEST_BUILD_CONFIGURATION}-${MY_BITNESS}bits-Qt${MY_QT_VERSION}-CMake${MY_CMAKE_VERSION}")# Path where to save the build logs. Don't forget to create a "Logs" directory.
+setOnlyIfNotDefined(CTEST_LOG_FILE "${CTEST_DASHBOARD_ROOT}/Logs/${CTEST_PROJECT_NAME}-${SCRIPT_MODE}-${CTEST_BUILD_CONFIGURATION}-${MY_BITNESS}bits.log")
 # File to upload to CDash as notes. The first 3 lines of the script contain
 # machine information that is read by CDash.
 setOnlyIfNotDefined(CTEST_NOTES_FILES "${CTEST_SCRIPT_DIRECTORY}/${CTEST_SCRIPT_NAME}")
@@ -116,14 +116,13 @@ set(ENV{DISPLAY} ":0")
 find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
 find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
 find_program(CTEST_GIT_COMMAND NAMES git
-  PATHS "C:/Program Files (x86)/Git/bin")
+  PATHS "/usr/bin/git")
 
 #
 # Git repository
 #
-setOnlyIfNotDefined(GIT_REPOSITORY git://github.com/KitwareMedical/${CTEST_PROJECT_NAME}.git)
-setOnlyIfNotDefined(GIT_BRANCH_NAME master)
-setOnlyIfNotDefined(DRIVER_URL "https://raw.githubusercontent.com/KitwareMedical/VesselView/${GIT_BRANCH_NAME}/Utilities/Dashboards/VesselView-DashboardDriver.cmake")
+setOnlyIfNotDefined(GIT_REPOSITORY_OWNER KitwareMedical)
+setOnlyIfNotDefined(GIT_REPOSITORY git://github.com/${GIT_REPOSITORY_OWNER}/${CTEST_PROJECT_NAME}.git)
 
 ##########################################
 # WARNING: DO NOT EDIT BEYOND THIS POINT #
@@ -132,7 +131,7 @@ setOnlyIfNotDefined(DRIVER_URL "https://raw.githubusercontent.com/KitwareMedical
 #
 # Project specific properties
 #
-set(CTEST_BUILD_NAME "VesselView-${MY_OPERATING_SYSTEM}-${MY_COMPILER}-${MY_BITNESS}-QT${MY_QT_VERSION}-CMake${MY_CMAKE_VERSION}-${CTEST_BUILD_CONFIGURATION}-${GIT_BRANCH_NAME}")
+set(CTEST_BUILD_NAME "VesselView-${MY_OPERATING_SYSTEM}-${MY_COMPILER}-${MY_BITNESS}-QT${MY_QT_VERSION}-CMake${MY_CMAKE_VERSION}-${CTEST_BUILD_CONFIGURATION}")
 
 #
 # Display build info
@@ -144,22 +143,6 @@ message("script mode: ${SCRIPT_MODE}")
 message("coverage: ${WITH_COVERAGE}, memcheck: ${WITH_MEMCHECK}")
 
 #
-# Convenient macro allowing to download a file
+# Include dashboard driver script
 #
-
-macro(downloadFile url dest)
-  message("URL:  ${url}    ->   ${dest}")
-  file(DOWNLOAD ${url} ${dest} STATUS status)
-  list(GET status 0 error_code)
-  list(GET status 1 error_msg)
-  if(error_code)
-    message(FATAL_ERROR "error: Failed to download ${url} - ${error_msg}")
-  endif()
-endmacro()
-
-#
-# Download and include dashboard driver script
-#
-set(dest ${CTEST_SCRIPT_DIRECTORY}/${CTEST_SCRIPT_NAME}.driver)
-downloadFile(${DRIVER_URL} ${dest})
-include(${dest})
+include("${VESSELVIEW_DIR}/Utilities/Dashboards/VesselView-DashboardDriver.cmake")

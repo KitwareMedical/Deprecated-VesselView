@@ -29,5 +29,5 @@ set(GIT_REPOSITORY_OWNER         "KitwareMedical")
 set(GIT_BRANCH_NAME              "master")
 
 set(CTEST_USE_LAUNCHERS          ON)
-set(vesselview_dir               "/Users/kitware/Dashboards/VesselView/VesselView")
-INCLUDE(${vesselview_dir}/Utilities/Dashboards/VesselView-Kitwares-MacBook-Pro-dashboard.cmake)
+set(VESSELVIEW_DIR               "/Users/kitware/Dashboards/VesselView/VesselView")
+INCLUDE(${VESSELVIEW_DIR}/Utilities/Dashboards/VesselView-Kitwares-MacBook-Pro-dashboard.cmake)
