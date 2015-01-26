@@ -79,7 +79,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   else()
     set(${proj}_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
     list(APPEND ${proj}_EP_ARGS
-      GIT_REPOSITORY "${git_protocol}://github.com/vovythevov/Slicer.git"
+      GIT_REPOSITORY "${git_protocol}://github.com/KitwareMedical/Slicer.git"
       GIT_TAG "39c94165ea7decc109cd7e77674304765c4149d9"
       )
   endif()
