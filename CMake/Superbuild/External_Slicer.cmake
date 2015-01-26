@@ -46,13 +46,11 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 
   find_package(Qt4 REQUIRED)
 
-  set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
-
   # Retrieve modules
   get_property(${APPLICATION_NAME}_MODULES GLOBAL PROPERTY ${APPLICATION_NAME}_MODULES)
 
   # Set slicer build directory
-  set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
+  set(${proj}_DIR ${CMAKE_BINARY_DIR}/S-build)
 
   set(Slicer_QTLOADABLEMODULES_DISABLED
     SlicerWelcome
