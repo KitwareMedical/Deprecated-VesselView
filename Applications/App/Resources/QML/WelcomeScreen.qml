@@ -21,7 +21,7 @@ Rectangle  {
         id: welcomeScreenModel
 
         ListElement {
-            name: "Interactive Segment Tubes"
+            name: "Interactive Vessel Segmentation"
             module: "InteractiveSegmentTubes"
             imageSource: "InteractiveSegmentTubesIcon.svg"
             description:  "Interactively segment the vessels of a given image."
@@ -29,15 +29,15 @@ Rectangle  {
             fileTypes: "SpatialObjectFile"
         }
         ListElement {
-            name: "Workflow"
+            name: "Automatic Vessel Segmentation"
             module: "Workflow"
             imageSource: "Workflow.svg"
-            description:  "Workflow that guides you on all the necessary steps required to show the vessels of an image."
+            description:  "A workflow that guides you on all the necessary steps required to show the vessels of an image."
             layout: -1
             fileTypes: "VolumeFile"
         }
         ListElement {
-            name: "Tortuosity"
+            name: "Compute Vessel Tortuosity"
             module: "Tortuosity"
             imageSource: "VesselViewLogo.svg"
             description:  "Compute tortuosity metrics on vessels."
@@ -64,11 +64,11 @@ Rectangle  {
             fileTypes: "SpatialObjectFile"
         }
         ListElement {
-            name: "Editor"
+            name: "Interactive Organ segmentation"
             module: "Editor"
             imageSource: "Editor.svg"
             description: "<html>
-                         The Editor module allows you to manually segment an image.
+                         This module allows you to manually segment an image.
                          It offers many different tools to makes this process quick and easy. More thourough documentation can be found
                          <a href=\"http://www.slicer.org/slicerWiki/index.php/Documentation/4.3/Modules/Editor\">here</a>.
                          <p>
