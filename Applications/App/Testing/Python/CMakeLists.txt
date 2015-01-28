@@ -184,6 +184,9 @@ if(Slicer_USE_PYTHONQT)
   # Fail
   slicer_add_python_unittest(SCRIPT FailTests.py)
 
+  # Recent files
+  slicer_add_python_unittest(SCRIPT SlicerTestRecentFilesTests.py)
+
   # Tortuosity
   set(TortuosityLogicTests_DATA
     ${DATA_PATH}/StraightTube_test0.tre
@@ -210,6 +213,7 @@ if(Slicer_USE_PYTHONQT)
   # add as hidden module for use at run time
   set(KIT_PYTHON_SCRIPTS
     FailTests.py
+    SlicerTestRecentFilesTests.py
     SpatialObjectsModuleTests.py
     TortuosityLogicTests.py
     WelcomeModuleTests.py
