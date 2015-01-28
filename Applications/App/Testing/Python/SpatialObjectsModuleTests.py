@@ -112,6 +112,46 @@ class SpatialObjectsModuleTestsTest(unittest.TestCase):
       self.assertTrue(glyphDisplayNode.GetVisibility() == False, 'Glyph visibility check')
 
     self.delayDisplay('Passed !')
+
+  def test_DeleteAndSelectNode(self):
+    self.delayDisplay('Running test_DeleteAndSelectNode')
+
+    # First a spatial object node
+    spatialObjectNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLSpatialObjectsNode')
+    spatialObjectNodes.UnRegister(slicer.mrmlScene)
+    self.assertGreater(spatialObjectNodes.GetNumberOfItems(), 0, 'No spatial object found')
+
+    # Get the path to the files so we can re-load it later
+    pathsToReload = slicer.util.mainWindow().recentlyLoadedPaths()
+
+    # Find the view widget and delete the node
+    gui = slicer.util.getModuleGui(slicer.modules.spatialobjects)
+    self.assertTrue(gui != None)
+    treeView = self.findWidget(gui, 'SpatialObjectsTreeView')
+    self.assertTrue(treeView != None)
+    for i in range(spatialObjectNodes.GetNumberOfItems()):
+      spatialObjectNode = spatialObjectNodes.GetItemAsObject(i)
+
+      self.delayDisplay('Selecting & deleting %s' % spatialObjectNode.GetName())
+      treeView.setCurrentNode(spatialObjectNode)
+      treeView.deleteCurrentNode()
+
+    # Reload all nodes
+    for path in pathsToReload:
+      self.delayDisplay('Loading back %s' % path)
+      self.assertTrue(slicer.util.loadNodeFromFile(path, 'SpatialObjectFile'))
+
+    # Scroll through the nodes
+    spatialObjectNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLSpatialObjectsNode')
+    spatialObjectNodes.UnRegister(slicer.mrmlScene)
+    self.assertGreater(spatialObjectNodes.GetNumberOfItems(), 0, 'No spatial object found')
+
+    for i in range(spatialObjectNodes.GetNumberOfItems()):
+      spatialObjectNode = spatialObjectNodes.GetItemAsObject(i)
+      self.delayDisplay('Selecting %s' % spatialObjectNode.GetName())
+      treeView.setCurrentNode(spatialObjectNode)
+
+    self.delayDisplay('Passed !')
 #
 # qWSpatialObjectsModuleTestsWidget
 #
