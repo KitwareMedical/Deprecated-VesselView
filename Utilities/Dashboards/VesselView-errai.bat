@@ -14,7 +14,7 @@ popd
 :updateScripts
 cd C:\Work\VesselView\Dashboards\VesselView
 "C:\Program Files (x86)\Git\bin\git" fetch origin
-"C:\Program Files (x86)\Git\bin\git" reset --hard master
+"C:\Program Files (x86)\Git\bin\git" reset --hard origin/master
 
 :startDashboards
 echo Start dashboards
