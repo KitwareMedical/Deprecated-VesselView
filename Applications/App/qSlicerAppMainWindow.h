@@ -61,6 +61,7 @@ public:
 
   // To get the recently loaded files
   QQueue<qSlicerIO::IOProperties> recentlyLoadedFiles() const;
+  Q_INVOKABLE QStringList recentlyLoadedPaths() const;
 
 #ifdef Slicer_USE_PYTHONQT
   /// Return a pointer to the python console.

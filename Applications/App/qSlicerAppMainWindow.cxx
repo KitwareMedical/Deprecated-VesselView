@@ -730,6 +730,22 @@ QQueue<qSlicerIO::IOProperties> qSlicerAppMainWindow::recentlyLoadedFiles() cons
   return d->RecentlyLoadedFileProperties;
 }
 
+//-----------------------------------------------------------------------------
+QStringList qSlicerAppMainWindow::recentlyLoadedPaths() const
+{
+  Q_D(const qSlicerAppMainWindow);
+  QStringList paths;
+  foreach (qSlicerIO::IOProperties fileProperty, d->RecentlyLoadedFileProperties)
+    {
+    QString fileName = fileProperty.value("fileName").toString();
+    if (!fileName.isEmpty())
+      {
+      paths << fileName;
+      }
+    }
+  return paths;
+}
+
 //---------------------------------------------------------------------------
 void qSlicerAppMainWindow::on_FileAddDataAction_triggered()
 {
@@ -1222,8 +1238,6 @@ void qSlicerAppMainWindow::on_EditApplicationSettingsAction_triggered()
 void qSlicerAppMainWindow::onNewFileLoaded(const qSlicerIO::IOProperties& fileProperties)
 {
   Q_D(qSlicerAppMainWindow);
-
-  d->RecentlyLoadedFileProperties.removeAll(fileProperties);
 
   d->RecentlyLoadedFileProperties.enqueue(fileProperties);
 
