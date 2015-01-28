@@ -70,7 +70,7 @@ endif()
 find_package(Gutenberg REQUIRED)
 
 include(GutenbergFontAwesomeMacro)
-set(FONT_AWESOME_DIR "${CMAKE_CURRENT_BINARY_DIR}/Resources/FontAwesome")
+set(FONT_AWESOME_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 GutenbergFontAwesomeMacro(
   ZIP_FILE "${${APPLICATION_NAME}_SOURCE_DIR}/Utilities/Logos/FontAwesome.zip"
   DESTINATION_DIR ${FONT_AWESOME_DIR}
