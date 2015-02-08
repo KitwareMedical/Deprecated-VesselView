@@ -44,6 +44,11 @@ class WelcomeWidget(ScriptedLoadableModuleWidget):
     slicer.util.mainWindow().moduleSelector().connect('moduleSelected(QString)', self.onModuleSelected)
     self.onModuleSelected()
 
+    # Collapse the data probe button by default
+    dataProbeCollapsibleButton = slicer.util.findChildren(text='Data Probe')
+    if dataProbeCollapsibleButton is not None:
+        dataProbeCollapsibleButton[0].collapsed = True
+
   def selectWelcomeModule(self):
     slicer.util.selectModule('Welcome')
 
