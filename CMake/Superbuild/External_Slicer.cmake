@@ -80,7 +80,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     set(${proj}_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
     list(APPEND ${proj}_EP_ARGS
       GIT_REPOSITORY "${git_protocol}://github.com/KitwareMedical/Slicer.git"
-      GIT_TAG "39c94165ea7decc109cd7e77674304765c4149d9"
+      GIT_TAG "1af12e7e8f9ca38fb771a5e92d2029f366a89f32"
       )
   endif()
 
