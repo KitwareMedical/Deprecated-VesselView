@@ -140,14 +140,8 @@ int SlicerAppMain(int argc, char* argv[])
   // VesselView code:
   // HACKISH: Developer mode that doesn't show welcome module and all
   bool developerMode = false;
-  foreach(QString arg, app.arguments())
-    {
-    if (arg == "-d" || arg == "--developer")
-      {
-      developerMode = true;
-      break;
-      }
-    }
+  developerMode = qSlicerApplication::application()->commandOptions()->enableDeveloperFeatures();
+
   if (developerMode)
     {
     // Wipes some states (otherwise you can't select modules, layout...)
