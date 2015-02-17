@@ -482,3 +482,8 @@ if(${APPLICATION_NAME}_BUILD_TESTING)
   enable_testing()
   add_subdirectory(Testing)
 endif()
+
+# --------------------------------------------------------------------------
+
+# Qt Plugins
+add_subdirectory(StylePlugins)
