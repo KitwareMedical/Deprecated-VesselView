@@ -242,7 +242,7 @@ Rectangle  {
             horizontalAlignment: Text.AlignHCenter
 
             text: "<html>
-                   VesselView is a open-source custom graphical interface to the vessel segmentation, registration, and analysis
+                   VesselView is an open-source custom graphical interface to the vessel segmentation, registration, and analysis
                    methods of Kitware’s <a href=\"http://www.tubetk.org/\">TubeTK</a> software toolkit.
                    <p>
                    Based on <a href=\"http://www.slicer.org/\">3D Slicer</a>, VesselView is free for academic and commercial use.

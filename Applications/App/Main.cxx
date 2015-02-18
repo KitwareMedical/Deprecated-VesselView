@@ -111,7 +111,6 @@ int SlicerAppMain(int argc, char* argv[])
 
   //vtkObject::SetGlobalWarningDisplay(false);
   QApplication::setDesktopSettingsAware(false);
-  QApplication::setStyle("Dark Slicer"); // to be changed
 
   QSettings settings(
     QSettings::IniFormat,
