@@ -66,6 +66,10 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     interactionNode = slicer.app.applicationLogic().GetInteractionNode()
     self.addObserver(interactionNode, 'ModifiedEvent', self.updateWidgetFromMRML)
 
+    comboBox = self.get('LayoutComboBox')
+    comboBox.setCurrentIndex(comboBox.findData(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView))
+    comboBox.connect('currentIndexChanged(int)', self.updateMRMLFromWidget)
+
     # Connect widget signals to logic here:
     self.get('OutputNodeComboBox').connect('nodeAddedByUser(vtkMRMLNode*)', self.logic.addDisplayNodes)
     self.logic.setGUICallback(self.onSegmentTubesUpdated)
@@ -167,6 +171,10 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     else:
       interactionNode.SetCurrentInteractionMode(interactionNode.ViewTransform)
 
+    comboBox = self.get('LayoutComboBox')
+    layout = comboBox.itemData(comboBox.currentIndex)
+    slicer.app.layoutManager().setLayout(layout)
+
   def updateWidgetFromMRML( self, *unused ):
     seedNode = self.get('SeedPointNodeComboBox').currentNode()
     seedDisplayNode = None
@@ -178,6 +186,9 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
 
     interactionNode = slicer.app.applicationLogic().GetInteractionNode()
     self.get('DropSeedsPushButton').setChecked(interactionNode.GetCurrentInteractionMode() == interactionNode.Place)
+
+    comboBox = self.get('LayoutComboBox')
+    comboBox.setCurrentIndex(comboBox.findData(slicer.app.layoutManager().layout))
 
   def createOutputIfNeeded( self, node, suffix, combobox ):
     if node == None:
@@ -216,6 +227,14 @@ class InteractiveSegmentTubesWidget(AbstractInteractiveSegmentTubes):
     self.get('ParameterFileComboBox').insertSeparator(
       self.get('ParameterFileComboBox').count)
     self.get('ParameterFileComboBox').addItem('Load from file...', None)
+
+    comboBox = self.get('LayoutComboBox')
+    comboBox.addItem('Quad View', slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
+    comboBox.addItem('Red Slice', slicer.vtkMRMLLayoutNode.SlicerLayoutOneUpRedSliceView)
+    comboBox.addItem('Yellow Slice', slicer.vtkMRMLLayoutNode.SlicerLayoutOneUpYellowSliceView)
+    comboBox.addItem('Green Slice', slicer.vtkMRMLLayoutNode.SlicerLayoutOneUpGreenSliceView)
+    comboBox.addItem('3D View', slicer.vtkMRMLLayoutNode.SlicerLayoutOneUp3DView)
+    comboBox.addItem('MIP', slicer.vtkMRMLLayoutNode.SlicerLayoutOneUpRedSliceView)
 
   def onParamertClicked( self, index ):
     data = self.get('ParameterFileComboBox').itemData(index)
