@@ -50,7 +50,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   get_property(${APPLICATION_NAME}_MODULES GLOBAL PROPERTY ${APPLICATION_NAME}_MODULES)
 
   # Set slicer build directory
-  set(${proj}_DIR ${CMAKE_BINARY_DIR}/S-build)
+  set(${proj}_DIR ${CMAKE_BINARY_DIR}/S-bld)
 
   set(Slicer_QTLOADABLEMODULES_DISABLED
     SlicerWelcome
@@ -120,7 +120,6 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DSlicer_USE_OpenIGTLink:BOOL=OFF
       -DSlicer_USE_QtTesting:BOOL=OFF
       -DSlicer_USE_PYTHONQT:BOOL=ON
-      -DSlicer_USE_PYTHONQT_WITH_OPENSSL:BOOL=OFF
       -DSlicer_USE_PYTHONQT_WITH_TCL:BOOL=OFF
       -DSlicer_USE_SimpleITK:BOOL=OFF
       -DSlicer_USE_NUMPY:BOOL=ON
@@ -140,6 +139,8 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DSlicer_DIR:PATH=${${proj}_DIR}
       # Required by TubeTK modules
       -DSlicer_SOURCE_DIR:PATH=${Slicer_SOURCE_DIR}
+      # Use VTKv6
+      -DVTK_VERSION_MAJOR:STRING=6
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )

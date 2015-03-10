@@ -55,10 +55,11 @@
 
 // VTK includes
 //#include <vtkObject.h>
+#include <vtksys/SystemTools.hxx>
 
 #if defined (_WIN32) && !defined (Slicer_BUILD_WIN32_CONSOLE)
 # include <windows.h>
-# include <vtksys/SystemTools.hxx>
+# include <vtksys/Encoding.hxx>
 #endif
 
 namespace
@@ -92,7 +93,28 @@ int SlicerAppMain(int argc, char* argv[])
 {
   itk::itkFactoryRegistration();
 
-  QCoreApplication::setApplicationName(Slicer_MAIN_PROJECT_APPLICATION_NAME);
+#if QT_VERSION >= 0x040803
+#ifdef Q_OS_MACX
+  if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_8)
+    {
+     // Fix Mac OS X 10.9 (mavericks) font issue
+     // https://bugreports.qt-project.org/browse/QTBUG-32789
+     QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
+     }
+#endif
+#endif
+
+  // Allow a custom application name so that the settings
+  // can be distinct for differently named applications
+  QString applicationName("VesselView");
+  if (argv[0])
+    {
+    std::string name = vtksys::SystemTools::GetFilenameWithoutExtension(argv[0]);
+    applicationName = QString::fromLocal8Bit(name.c_str());
+    applicationName.remove(QString("App-real"));
+    }
+  QCoreApplication::setApplicationName(applicationName);
+
   QCoreApplication::setApplicationVersion(qSlicerApp_VERSION_FULL);
 
 #if QT_VERSION >= 0x040803
@@ -199,14 +221,14 @@ int SlicerAppMain(int argc, char* argv[])
   // Register and instantiate modules
   splashMessage(splashScreen, "Registering modules...");
   moduleFactoryManager->registerModules();
-  if (app.commandOptions()->verbose())
+  if (app.commandOptions()->verboseModuleDiscovery())
     {
     qDebug() << "Number of registered modules:"
              << moduleFactoryManager->registeredModuleNames().count();
     }
   splashMessage(splashScreen, "Instantiating modules...");
   moduleFactoryManager->instantiateModules();
-  if (app.commandOptions()->verbose())
+  if (app.commandOptions()->verboseModuleDiscovery())
     {
     qDebug() << "Number of instantiated modules:"
              << moduleFactoryManager->instantiatedModuleNames().count();
@@ -229,7 +251,7 @@ int SlicerAppMain(int argc, char* argv[])
     splashMessage(splashScreen, "Loading module \"" + name + "\"...");
     moduleFactoryManager->loadModule(name);
     }
-  if (app.commandOptions()->verbose())
+  if (app.commandOptions()->verboseModuleDiscovery())
     {
     qDebug() << "Number of loaded modules:" << moduleManager->modulesNames().count();
     }
@@ -268,20 +290,21 @@ int __stdcall WinMain(HINSTANCE hInstance,
   Q_UNUSED(hPrevInstance);
   Q_UNUSED(nShowCmd);
 
+  // CommandLineToArgvW has no narrow-character version, so we get the arguments in wide strings
+  // and then convert to regular string.
   int argc;
-  char **argv;
-  vtksys::SystemTools::ConvertWindowsCommandLineToUnixArguments(
-    lpCmdLine, &argc, &argv);
+  LPWSTR* argvStringW = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-  int ret = SlicerAppMain(argc, argv);
-
-  for (int i = 0; i < argc; i++)
+  std::vector< const char* > argv(argc); // usual const char** array used in main() functions
+  std::vector< std::string > argvString(argc); // this stores the strings that the argv pointers point to
+  for(int i=0; i<argc; i++)
     {
-    delete [] argv[i];
+    argvString[i] = vtksys::Encoding::ToNarrow(argvStringW[i]);
+    argv[i] = argvString[i].c_str();
     }
-  delete [] argv;
+  LocalFree(argvStringW);
 
-  return ret;
+  return SlicerAppMain(argc, const_cast< char** >(&argv[0]));
 }
 #else
 int main(int argc, char *argv[])
