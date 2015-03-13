@@ -27,10 +27,10 @@
 
 class QStyle;
 
-#include "VesselViewAppStylePluginsExport.h"
+#include "qVesselViewAppStylePluginsExport.h"
 
 
-class VESSEL_VIEW_STYLE_PLUGINS_EXPORT qVesselViewStylePlugin : public QStylePlugin
+class Q_VESSELVIEW_STYLE_PLUGINS_EXPORT qVesselViewStylePlugin : public QStylePlugin
 {
 public:
   /// Superclass typedef

@@ -23,9 +23,9 @@
 
 // Slicer includes
 #include "qSlicerStyle.h"
-#include "qSlicerBaseQTGUIExport.h"
+#include "qVesselViewAppStylePluginsExport.h"
 
-class Q_SLICER_BASE_QTGUI_EXPORT qVesselViewStyle : public qSlicerStyle
+class Q_VESSELVIEW_STYLE_PLUGINS_EXPORT qVesselViewStyle : public qSlicerStyle
 {
   Q_OBJECT
 public:

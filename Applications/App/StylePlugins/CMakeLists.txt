@@ -1,4 +1,4 @@
-set(KIT ${PROJECT_NAME}StylePlugins)
+set(KIT q${PROJECT_NAME}StylePlugins)
 project(${KIT})
 
 #
@@ -6,7 +6,7 @@ project(${KIT})
 #
 
 # The header '${KIT}Export.h' will be automatically configured.
-set(${KIT}_EXPORT "VESSEL_VIEW_STYLE_PLUGINS_EXPORT")
+set(${KIT}_EXPORT "Q_VESSELVIEW_STYLE_PLUGINS_EXPORT")
 
 # Source files
 set(${KIT}_SRCS

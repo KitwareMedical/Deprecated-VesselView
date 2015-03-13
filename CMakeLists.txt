@@ -96,6 +96,19 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 #-----------------------------------------------------------------------------
+option(${APPLICATION_NAME}_USE_PYTHONQT_WITH_OPENSSL "Enable PythonQt SSL support." OFF)
+set(Slicer_USE_PYTHONQT_WITH_OPENSSL ${${APPLICATION_NAME}_USE_PYTHONQT_WITH_OPENSSL})
+mark_as_superbuild(VARS Slicer_USE_PYTHONQT_WITH_OPENSSL:BOOL PROJECTS Slicer)
+
+#-----------------------------------------------------------------------------
+if(WIN32)
+  option(Slicer_BUILD_WIN32_CONSOLE "Build ${PROJECT_NAME} executable as a console app on windows (allows debug output)" ON)
+else()
+  set(Slicer_BUILD_WIN32_CONSOLE OFF)
+endif()
+mark_as_superbuild(VARS Slicer_BUILD_WIN32_CONSOLE:BOOL PROJECTS Slicer)
+
+#-----------------------------------------------------------------------------
 # Superbuild Option - Enabled by default
 #
 option(${kit}_SUPERBUILD "Build ${kit} and the projects it depends on via SuperBuild.cmake." ON)
