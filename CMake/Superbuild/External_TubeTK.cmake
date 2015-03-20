@@ -45,7 +45,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     GIT_REPOSITORY "https://github.com/KitwareMedical/TubeTK.git"
-    GIT_TAG "8ad2415c93eb083e663cd3261e43d6cb882ff88a"
+    GIT_TAG "c3fff00f5299f5f9c9df3ff7dce4852c97118499"
     CMAKE_CACHE_ARGS
       -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
       -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
@@ -55,8 +55,6 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DTubeTK_USE_SUPERBUILD:BOOL=ON
       # Slicer_SOURCE_DIR is used when generating UseTubeTK.cmake
       -DSlicer_SOURCE_DIR:PATH=${Slicer_SOURCE_DIR}
-      # Slicer is not available yet (no SlicerConfig.cmake generated)
-      -DTubeTK_USE_Slicer:BOOL=OFF
       -DUSE_SYSTEM_SlicerExecutionModel:BOOL=ON
       -DSlicerExecutionModel_DIR:PATH=${CMAKE_BINARY_DIR}/SlicerExecutionModel-build
       -DUSE_SYSTEM_ITK:BOOL=ON
@@ -75,10 +73,10 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       # Build only TubeTK lib, not the modules. They will be built by Slicer.
       -DTubeTK_BUILD_ALL_MODULES:BOOL=OFF
       -DTubeTK_BUILD_APPLICATIONS:BOOL=OFF
-      -DTubeTK_BUILD_SLICER_EXTENSION:BOOL=OFF
+      -DTubeTK_BUILD_USING_SLICER:BOOL=OFF
+      -DTubeTK_BUILD_WITHIN_SLICER:BOOL=ON
       -DTubeTK_USE_LIBSVM:BOOL=OFF
       -DTubeTK_USE_PYTHON:BOOL=OFF
-      -DTubeTK_RUN_MODULES_IN_SLICER:BOOL=ON
     INSTALL_COMMAND ""
     DEPENDS
       ${${proj}_DEPENDENCIES}
