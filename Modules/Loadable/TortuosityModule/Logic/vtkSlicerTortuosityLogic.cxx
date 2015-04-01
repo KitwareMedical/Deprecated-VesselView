@@ -231,6 +231,7 @@ bool vtkSlicerTortuosityLogic
 
   // Rewrite number of points array everytime
   vtkIntArray* nop = this->GetOrCreateArray<vtkIntArray>(node, "NumberOfPoints");
+  nop->Initialize();
 
   // 2 - Fill the metric arrays
   typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
