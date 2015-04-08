@@ -26,6 +26,9 @@ set( MODULE_TITLE "Tortuosity" )
 
 string( TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER )
 
+find_package( TubeTK REQUIRED )
+include( ${TubeTK_USE_FILE} )
+
 add_subdirectory( Logic )
 add_subdirectory( Widgets )
 

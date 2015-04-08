@@ -29,6 +29,9 @@ limitations under the License.
 #include <QDebug>
 #include <QFileDialog>
 
+// TubeTK includes
+#include "tubeTubeMath.h"
+
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
 #include "vtkSlicerTortuosityLogic.h"
@@ -79,6 +82,20 @@ void qSlicerTortuosityModuleWidgetPrivate::init()
   QObject::connect(
     this->SaveCSVPushButton, SIGNAL(toggled(bool)),
     q, SLOT(saveCurrentSpatialObjectAsCSV(bool)));
+
+  QObject::connect(
+    this->SmoothingMethodComboBox, SIGNAL(currentIndexChanged(int)),
+    q, SLOT(smoothingMethodChanged(int)));
+
+  this->SmoothingMethodComboBox->addItem("Average on Index",
+                                         tube::SMOOTH_TUBE_USING_INDEX_AVERAGE);
+  this->SmoothingMethodComboBox->addItem("Gaussian on Index",
+                                         tube::SMOOTH_TUBE_USING_INDEX_GAUSSIAN);
+  this->SmoothingMethodComboBox->addItem("Gaussian on Distance",
+                                         tube::SMOOTH_TUBE_USING_DISTANCE_GAUSSIAN);
+  this->SmoothingMethodComboBox->setCurrentIndex(
+    this->SmoothingMethodComboBox->findData(tube::SMOOTH_TUBE_USING_INDEX_GAUSSIAN));
+
 }
 
 //-----------------------------------------------------------------------------
@@ -136,8 +153,21 @@ void qSlicerTortuosityModuleWidget
 void qSlicerTortuosityModuleWidget::runMetrics(int flag)
 {
   Q_D(qSlicerTortuosityModuleWidget);
+
+  // Smoothing Scale
+  double smoothingScale = d->SmoothingScaleSliderWidget->value();
+
+  // Smoothing Method
+  tube::SmoothTubeFunctionEnum smoothMethod =
+    static_cast<tube::SmoothTubeFunctionEnum>(d->SmoothingMethodComboBox->itemData(
+    d->SmoothingMethodComboBox->currentIndex()).toInt());
+
+  //Subsampling Factor
+  int subsampling = d->SubsamplingSliderWidget->value();
+
   d->RunPushButton->setEnabled(false);
-  if (!d->logic()->RunMetrics(d->currentSpatialObject, flag))
+  if (!d->logic()->RunMetrics(d->currentSpatialObject, flag,
+                              smoothMethod, smoothingScale, subsampling))
     {
     qCritical("Error while running metrics !");
     }
@@ -196,4 +226,49 @@ void qSlicerTortuosityModuleWidget::saveCurrentSpatialObjectAsCSV(bool save)
 
   d->SaveCSVPushButton->setChecked(false);
   d->SaveCSVPushButton->setEnabled(true);
+}
+
+void qSlicerTortuosityModuleWidget::smoothingMethodChanged(int index)
+{
+  Q_D(qSlicerTortuosityModuleWidget);
+
+  switch (index)
+    {
+    case tube::SMOOTH_TUBE_USING_INDEX_AVERAGE:
+      d->SmoothingScaleSliderWidget->setDecimals(0);
+      d->SmoothingScaleSliderWidget->setSingleStep(1);
+      d->SmoothingScaleSliderWidget->setMinimum(0);
+      d->SmoothingScaleSliderWidget->setMaximum(100);
+      d->SmoothingScaleSliderWidget->setValue(2);
+      d->SmoothingScaleSliderWidget->setToolTip("Half the window size");
+      d->SmoothingMethodLabel->setToolTip("Half the window size");
+      break;
+    case tube::SMOOTH_TUBE_USING_INDEX_GAUSSIAN:
+      d->SmoothingScaleSliderWidget->setDecimals(2);
+      d->SmoothingScaleSliderWidget->setSingleStep(0.1);
+      d->SmoothingScaleSliderWidget->setMinimum(0);
+      d->SmoothingScaleSliderWidget->setMaximum(50);
+      d->SmoothingScaleSliderWidget->setValue(1.0);
+      d->SmoothingScaleSliderWidget->setToolTip("Standard deviation");
+      d->SmoothingMethodLabel->setToolTip("Standard deviation");
+      break;
+    case tube::SMOOTH_TUBE_USING_DISTANCE_GAUSSIAN:
+      d->SmoothingScaleSliderWidget->setDecimals(2);
+      d->SmoothingScaleSliderWidget->setSingleStep(0.01);
+      d->SmoothingScaleSliderWidget->setMinimum(0);
+      d->SmoothingScaleSliderWidget->setMaximum(50);
+      d->SmoothingScaleSliderWidget->setValue(0.1);
+      d->SmoothingScaleSliderWidget->setToolTip("Standard deviation");
+      d->SmoothingMethodLabel->setToolTip("Standard deviation");
+      break;
+    default:
+      d->SmoothingScaleSliderWidget->setDecimals(0);
+      d->SmoothingScaleSliderWidget->setSingleStep(0);
+      d->SmoothingScaleSliderWidget->setMinimum(0);
+      d->SmoothingScaleSliderWidget->setMaximum(0);
+      d->SmoothingScaleSliderWidget->setValue(0);
+      d->SmoothingScaleSliderWidget->setToolTip("Unknown Smoothing Method");
+      d->SmoothingMethodLabel->setToolTip("Unknown Smoothing Method");
+      break;
+    }
 }

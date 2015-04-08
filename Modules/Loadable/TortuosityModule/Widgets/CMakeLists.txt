@@ -34,6 +34,7 @@ set( ${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicerTortuosityModuleMRML_BINARY_DIR}
   ${vtkSlicerSpatialObjectsModuleMRML_SOURCE_DIR}
   ${vtkSlicerSpatialObjectsModuleMRML_BINARY_DIR}
+  ${TubeTK_SOURCE_DIR}/Base/Numerics
   )
 
 set( ${KIT}_SRCS
@@ -54,6 +55,7 @@ set( ${KIT}_RESOURCES )
 set( ${KIT}_TARGET_LIBRARIES
   vtkSlicerTortuosityModuleLogic
   ${MRML_LIBRARIES}
+  TubeTKNumerics
   )
 
 SlicerMacroBuildModuleWidgets(

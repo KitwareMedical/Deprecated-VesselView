@@ -30,6 +30,9 @@ limitations under the License.
 // Spatial object includes
 #include "vtkMRMLSpatialObjectsNode.h"
 
+// TubeTK includes
+#include "tubeTubeMath.h"
+
 // VTK includes
 #include "vtkObjectFactory.h"
 #include "vtkDelimitedTextWriter.h"
@@ -210,7 +213,9 @@ bool vtkSlicerTortuosityLogic
 
 //------------------------------------------------------------------------------
 bool vtkSlicerTortuosityLogic
-::RunMetrics(vtkMRMLSpatialObjectsNode* node, int flag)
+::RunMetrics(vtkMRMLSpatialObjectsNode* node, int flag,
+             tube::SmoothTubeFunctionEnum smoothingMethod, double smoothingScale,
+             int subsampling)
 {
   if (!node)
     {
@@ -262,13 +267,21 @@ bool vtkSlicerTortuosityLogic
       continue;
       }
 
+    VesselTubeType::Pointer smoothedTube = VesselTubeType::New();
+    VesselTubeType::Pointer subsampledTube = VesselTubeType::New();
+
+    // Smooth the vessel
+    smoothedTube = tube::SmoothTube<VesselTubeType>(currTube, smoothingScale, (tube::SmoothTubeFunctionEnum)smoothingMethod );
+    // Subsample the vessel
+    subsampledTube = tube::SubsampleTube<VesselTubeType>(smoothedTube, subsampling);
+
     // Update filter
     FilterType::Pointer filter = FilterType::New();
     filter->SetMeasureFlag(flag);
-    filter->SetInput(currTube);
+    filter->SetInput(subsampledTube);
     filter->Update();
 
-    if (filter->GetOutput()->GetId() != currTube->GetId())
+    if (filter->GetOutput()->GetId() != subsampledTube->GetId())
       {
       std::cerr<<"Error while running filter on tube."<<std::endl;
       return false;
