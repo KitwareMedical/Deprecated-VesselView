@@ -72,7 +72,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DCTK_DIR:PATH=${CTK_DIR}
       # Build only TubeTK lib, not the modules. They will be built by Slicer.
       -DTubeTK_BUILD_ALL_MODULES:BOOL=OFF
-      -DTubeTK_BUILD_APPLICATIONS:BOOL=OFF
+      -DTubeTK_BUILD_APPLICATIONS:BOOL=ON
       -DTubeTK_BUILD_USING_SLICER:BOOL=OFF
       -DTubeTK_BUILD_WITHIN_SLICER:BOOL=ON
       -DTubeTK_USE_LIBSVM:BOOL=OFF
