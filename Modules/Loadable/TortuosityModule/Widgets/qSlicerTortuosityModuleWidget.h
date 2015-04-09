@@ -49,12 +49,12 @@ public:
   virtual ~qSlicerTortuosityModuleWidget();
 
 public slots:
+  void runMetrics(int flag);
   void setCurrentSpatialObjectsNode(vtkMRMLNode* node);
   void setCurrentSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
 
-  void runMetrics(int flag);
-
 protected slots:
+  void loadColorsFromCSV();
   void runSelectedMetrics(bool run);
   void saveCurrentSpatialObjectAsCSV(bool save);
   void smoothingMethodChanged(int index);

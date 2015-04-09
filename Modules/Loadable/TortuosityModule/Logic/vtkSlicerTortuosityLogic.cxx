@@ -36,6 +36,7 @@ limitations under the License.
 // VTK includes
 #include "vtkObjectFactory.h"
 #include "vtkDelimitedTextWriter.h"
+#include "vtkDelimitedTextReader.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
@@ -402,4 +403,118 @@ bool vtkSlicerTortuosityLogic
 #endif
 
   return writer->Write();
+}
+
+//------------------------------------------------------------------------------
+bool vtkSlicerTortuosityLogic::LoadColorsFromCSV(
+  vtkMRMLSpatialObjectsNode *node, const char* filename)
+{
+  if (!node || !filename)
+    {
+    return false;
+    }
+
+  typedef vtkMRMLSpatialObjectsNode::TubeNetType  TubeNetType;
+  typedef itk::VesselTubeSpatialObject<3>         VesselTubeType;
+
+  // Load the table from file
+  vtkNew<vtkDelimitedTextReader> reader;
+  reader->SetFileName(filename);
+  reader->SetFieldDelimiterCharacters(",");
+  reader->SetHaveHeaders(true);
+  reader->SetDetectNumericColumns(true);
+  reader->Update();
+  vtkTable* colorTable = reader->GetOutput();
+  if (!colorTable)
+    {
+    std::cerr<<"Error in reading CSV file"<<std::endl;
+    return false;
+    }
+
+  // Check if table is valid
+  if (colorTable->GetNumberOfColumns() != 2)
+    {
+    std::cerr<<"Expected 2 columns in CSV file."
+      <<std::endl<<"Cannot proceed."<<std::endl;
+    return false;
+    }
+
+  // Get the tube list of the spatial object
+  TubeNetType* spatialObject = node->GetSpatialObject();
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  // Create a new data array in the node
+  double defaultValue = 0.0;
+  vtkDoubleArray* customColorScaleArray =
+    this->GetOrCreateArray<vtkDoubleArray>(node, "CustomColorScale");
+
+  // Set the size of the array
+  vtkDoubleArray* ids = this->GetArray<vtkDoubleArray>(node, "TubeIDs");
+  assert(ids);
+  if (customColorScaleArray->GetNumberOfTuples() != ids->GetNumberOfTuples())
+    {
+    customColorScaleArray->SetNumberOfTuples(ids->GetNumberOfTuples());
+    }
+
+  // Initialize the array with the default value
+  customColorScaleArray->FillComponent(0, defaultValue);
+
+  // Iterate through tubeList
+  size_t totalNumberOfPoints = 0;
+  TubeNetType::ChildrenListType::iterator tubeIt;
+  for (tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+    {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube)
+      {
+      continue;
+      }
+    if (currTube->GetNumberOfPoints() < 2)
+      {
+      std::cerr<<"Error, vessel #"<<currTube->GetId()
+        <<" has less than 2 points !"<<std::endl
+        <<"Skipping the vessel."<<std::endl;
+      continue;
+      }
+
+    // Get the current tube ID
+    int tubeId = currTube->GetId();
+    vtkDebugMacro(<<"Tube ID "<<tubeId);
+
+    // Look for the ID in the table and get the corresponding value
+    double valueToAssign = 0.0; //Default value for not specified tubes
+    int tubeIndex = -1;
+    for (size_t i = 0; i < colorTable->GetNumberOfRows(); i++)
+      {
+      if (colorTable->GetValue(i, 0).ToInt() == tubeId)
+        {
+        tubeIndex = i;
+        valueToAssign = colorTable->GetValue(tubeIndex, 1).ToDouble();
+        vtkDebugMacro(<<" found in CSV : value = "<<valueToAssign);
+        break;
+        }
+      }
+    if (tubeIndex == -1)
+      {
+      vtkDebugMacro(<<" not found in the CSV file");
+      totalNumberOfPoints += currTube->GetPoints().size();
+      continue;
+      }
+
+    // Fill the array of that tube
+    size_t numberOfPoints = currTube->GetPoints().size();
+    for (size_t j = totalNumberOfPoints; j < totalNumberOfPoints + numberOfPoints; j++)
+      {
+      customColorScaleArray->SetValue(j, valueToAssign);
+      }
+    totalNumberOfPoints += numberOfPoints;
+    }
+
+    // Notify the array of the changes
+    customColorScaleArray->Modified();
+
+  return true;
 }

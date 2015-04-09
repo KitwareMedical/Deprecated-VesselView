@@ -84,6 +84,10 @@ void qSlicerTortuosityModuleWidgetPrivate::init()
     q, SLOT(saveCurrentSpatialObjectAsCSV(bool)));
 
   QObject::connect(
+    this->LoadColorsFromCSVPushButton, SIGNAL(clicked()),
+    q, SLOT(loadColorsFromCSV()));
+
+  QObject::connect(
     this->SmoothingMethodComboBox, SIGNAL(currentIndexChanged(int)),
     q, SLOT(smoothingMethodChanged(int)));
 
@@ -147,6 +151,7 @@ void qSlicerTortuosityModuleWidget
 
   d->RunPushButton->setEnabled(node != 0);
   d->SaveCSVPushButton->setEnabled(node != 0);
+  d->LoadColorsFromCSVPushButton->setEnabled(node != 0);
 }
 
 //------------------------------------------------------------------------------
@@ -173,6 +178,28 @@ void qSlicerTortuosityModuleWidget::runMetrics(int flag)
     }
   d->RunPushButton->setChecked(false);
   d->RunPushButton->setEnabled(true);
+}
+
+//------------------------------------------------------------------------------
+void qSlicerTortuosityModuleWidget::loadColorsFromCSV()
+{
+  Q_D(qSlicerTortuosityModuleWidget);
+
+  if (!d->currentSpatialObject)
+    {
+    return;
+    }
+
+  d->LoadColorsFromCSVPushButton->setEnabled(false);
+
+  QString filename = QFileDialog::getOpenFileName(
+    this, "Load colors as csv...", "", "Comma Separated Value (*.csv)");
+  if (!d->logic()->LoadColorsFromCSV(d->currentSpatialObject, filename.toLatin1()))
+    {
+    qCritical("Error while loading colors !");
+    }
+
+  d->LoadColorsFromCSVPushButton->setEnabled(true);
 }
 
 //------------------------------------------------------------------------------
