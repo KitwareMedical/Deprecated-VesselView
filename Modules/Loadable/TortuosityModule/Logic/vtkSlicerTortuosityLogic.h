@@ -118,6 +118,14 @@ public:
   bool SaveAsCSV(
     vtkMRMLSpatialObjectsNode* node, const char* filename, int flag = All);
 
+  // Load a CSV file with two columns : ID and Value, and assign the values
+  // to the passed node tubes with corresponding IDs, as a point data.
+  // If there is more (ID, value) pairs in the file than tubes in the passed
+  // node, they will be ignored. If there is less, they will be all assigned,
+  // and the tubes that are missing a value will be assigned a default value.
+  bool LoadColorsFromCSV(vtkMRMLSpatialObjectsNode* node, const char *filename);
+
+
 protected:
   vtkSlicerTortuosityLogic( void );
   ~vtkSlicerTortuosityLogic( void );

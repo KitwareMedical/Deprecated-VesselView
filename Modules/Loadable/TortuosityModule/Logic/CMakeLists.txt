@@ -47,6 +47,7 @@ set( ${KIT}_TARGET_LIBRARIES
   ${MRML_LIBRARIES}
   TubeTKNumerics
   vtkSlicerSpatialObjectsModuleMRML
+  vtkIOInfovis
   )
 
 SlicerMacroBuildModuleLogic(
