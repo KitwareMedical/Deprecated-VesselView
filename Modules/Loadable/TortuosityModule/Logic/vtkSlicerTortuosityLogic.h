@@ -57,8 +57,12 @@ public:
     InflectionCountMetric = 0x02,
     InflectionPoints = 0x04,
     SumOfAnglesMetric = 0x08,
+    AllOtherMetrics = 0x10,
     All = 0xFF,
     };
+
+  std::vector<std::string>* otherMetricList;
+  std::vector<std::string>* otherPrintableMetricList;
 
   // Return whether the flag asks for an unique measure or not.
   bool UniqueMeasure(int flag);
@@ -75,6 +79,9 @@ public:
     vtkMRMLSpatialObjectsNode* node, int flag = InflectionPoints);
   vtkDoubleArray* GetSumOfAnglesMetricArray(
     vtkMRMLSpatialObjectsNode* node, int flag = SumOfAnglesMetric);
+
+  // Return an array of all the array of the other metrics
+  std::vector<vtkDoubleArray*> GetAllOtherMetricArrays(vtkMRMLSpatialObjectsNode* node);
 
   // Get the metric array on the given node. If no array corresponding to
   // the flag (or name), an empty array will be created.
@@ -146,6 +153,8 @@ protected:
 
 private:
   std::map<int, std::string> FlagToArrayNames;
+
+  std::vector< vtkSmartPointer<vtkIntArray> > histogramArrays;
 
 }; // End class vtkSlicerTortuosityLogic
 

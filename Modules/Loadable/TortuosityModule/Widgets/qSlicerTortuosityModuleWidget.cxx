@@ -130,6 +130,28 @@ void qSlicerTortuosityModuleWidget::setup()
 }
 
 //------------------------------------------------------------------------------
+int qSlicerTortuosityModuleWidget::getFlagFromCheckBoxes()
+{
+  Q_D(qSlicerTortuosityModuleWidget);
+  int flag = d->DistanceMetricCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::DistanceMetric : 0;
+
+  flag |= d->InflectionCountMetricCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::InflectionCountMetric : 0;
+
+  flag |= d->InflectionPointsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::InflectionPoints : 0;
+
+  flag |= d->SumOfAnglesMetricCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::SumOfAnglesMetric : 0;
+
+  flag |= d->AllOtherMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::AllOtherMetrics : 0;
+
+  return flag;
+}
+
+//------------------------------------------------------------------------------
 void qSlicerTortuosityModuleWidget
 ::setCurrentSpatialObjectsNode(vtkMRMLNode* node)
 {
@@ -153,6 +175,7 @@ void qSlicerTortuosityModuleWidget
   d->SaveCSVPushButton->setEnabled(node != 0);
   d->LoadColorsFromCSVPushButton->setEnabled(node != 0);
 }
+
 
 //------------------------------------------------------------------------------
 void qSlicerTortuosityModuleWidget::runMetrics(int flag)
@@ -210,21 +233,9 @@ void qSlicerTortuosityModuleWidget::runSelectedMetrics(bool run)
     {
     return;
     }
-
-  int flag = d->DistanceMetricCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::DistanceMetric : 0;
-
-  flag |= d->InflectionCountMetricCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::InflectionCountMetric : 0;
-  
-  flag |= d->InflectionPointsCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::InflectionPoints : 0;
-
-  flag |= d->SumOfAnglesMetricCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::SumOfAnglesMetric : 0;
-
-  this->runMetrics(flag);
+  this->runMetrics(getFlagFromCheckBoxes());
 }
+
 
 //------------------------------------------------------------------------------
 void qSlicerTortuosityModuleWidget::saveCurrentSpatialObjectAsCSV(bool save)
@@ -241,15 +252,20 @@ void qSlicerTortuosityModuleWidget::saveCurrentSpatialObjectAsCSV(bool save)
   QString filename =
     QFileDialog::getSaveFileName(
       this, "Save tortuosity as csv...", "", "Comma Separated Value (*.csv)");
-  int flag = vtkSlicerTortuosityLogic::DistanceMetric
-    | vtkSlicerTortuosityLogic::InflectionCountMetric
-    | vtkSlicerTortuosityLogic::SumOfAnglesMetric;
+
+  int flag = getFlagFromCheckBoxes();
+  // Don't put InflectionPoints in CSV, because it's pointwise and not vesselwise
+  flag = flag & ~vtkSlicerTortuosityLogic::InflectionPoints;
+
+//  std::cout<<"Flag = "<<flag<<std::endl;
   if (!d->logic()->SaveAsCSV(d->currentSpatialObject, filename.toLatin1(), flag))
     {
     QString msg = "Failed to write CSV at %1. Make sure you have run the "
       "tortuosity metrics at least once.";
     qCritical(msg.arg(filename).toLatin1());
     }
+
+  std::cout<<"Saving as CSV done."<<std::endl;
 
   d->SaveCSVPushButton->setChecked(false);
   d->SaveCSVPushButton->setEnabled(true);
@@ -275,7 +291,7 @@ void qSlicerTortuosityModuleWidget::smoothingMethodChanged(int index)
       d->SmoothingScaleSliderWidget->setSingleStep(0.1);
       d->SmoothingScaleSliderWidget->setMinimum(0);
       d->SmoothingScaleSliderWidget->setMaximum(50);
-      d->SmoothingScaleSliderWidget->setValue(1.0);
+      d->SmoothingScaleSliderWidget->setValue(5);
       d->SmoothingScaleSliderWidget->setToolTip("Standard deviation");
       d->SmoothingMethodLabel->setToolTip("Standard deviation");
       break;

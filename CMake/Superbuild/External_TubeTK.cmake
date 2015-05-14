@@ -45,7 +45,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     GIT_REPOSITORY "https://github.com/KitwareMedical/TubeTK.git"
-    GIT_TAG "6fc02d86917e6a0dcf549d99efe3ebd8e30c1e7b"
+    GIT_TAG "133a62dddabd36d46394c98fc5624df665897231"
     CMAKE_CACHE_ARGS
       -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
       -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}

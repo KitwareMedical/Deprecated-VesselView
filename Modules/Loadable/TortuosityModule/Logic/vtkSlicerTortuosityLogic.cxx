@@ -26,6 +26,7 @@ limitations under the License.
 // ITK includes
 #include "itkVesselTubeSpatialObject.h"
 #include "itktubeTortuositySpatialObjectFilter.h"
+#include "itkVector.h"
 
 // Spatial object includes
 #include "vtkMRMLSpatialObjectsNode.h"
@@ -56,6 +57,23 @@ vtkSlicerTortuosityLogic::vtkSlicerTortuosityLogic( void )
   this->FlagToArrayNames[InflectionCountMetric] = "InflectionCountMetric";
   this->FlagToArrayNames[InflectionPoints] = "InflectionPoints";
   this->FlagToArrayNames[SumOfAnglesMetric] = "SumOfAnglesMetric";
+  this->FlagToArrayNames[AllOtherMetrics] = "AllOtherMetrics";
+
+  std::string otherMetricArray[] = {  "TotalCurvature",
+                                      "TotalSquaredCurvatureMetric",
+                                      "PathLengthMetric",
+                                      "ChordLengthMetric",
+                                      "Percentile95Metric",
+                                      "InflectionCount1Metric",
+                                      "InflectionCount2Metric",
+                                      "CurvatureScalarMetric"};
+  otherMetricList = new std::vector<std::string>(
+        otherMetricArray, otherMetricArray + 8);
+  // For printing, only keep the metrics that are tube specific and not
+  // those who are point specific.
+  otherPrintableMetricList = new std::vector<std::string>(
+        otherMetricArray, otherMetricArray + 7);
+
 }
 
 //------------------------------------------------------------------------------
@@ -107,6 +125,37 @@ vtkDoubleArray* vtkSlicerTortuosityLogic
 {
   return this->GetOrCreateArray(
     node, flag & vtkSlicerTortuosityLogic::SumOfAnglesMetric);
+}
+
+//------------------------------------------------------------------------------
+std::vector<vtkDoubleArray*> vtkSlicerTortuosityLogic
+::GetAllOtherMetricArrays(vtkMRMLSpatialObjectsNode* node)
+{
+  std::vector<vtkDoubleArray*> metricArraysArray;
+
+  for(int i=0 ; i<otherMetricList->size() ; i++)
+    {
+//    std::cout<<"Creating "<<otherMetricList->at(i)<<" Array"<<std::endl;
+    vtkDoubleArray* metricArray =
+        this->GetOrCreateArray<vtkDoubleArray>(node, otherMetricList->at(i).c_str());
+    if (!metricArray)
+      {
+      std::cerr<<"The array "<<otherMetricList->at(i)<<" couldn't be created or fetched"<<std::endl;
+      }
+
+    metricArray->Initialize();
+
+    // If it's new, make it the correct size
+    vtkDoubleArray* ids = this->GetArray<vtkDoubleArray>(node, "TubeIDs");
+    assert(ids);
+    if (metricArray->GetSize() != ids->GetSize());
+      {
+      metricArray->SetNumberOfValues(ids->GetSize());
+      }
+
+    metricArraysArray.push_back(metricArray);
+    }
+  return metricArraysArray;
 }
 
 //------------------------------------------------------------------------------
@@ -223,23 +272,7 @@ bool vtkSlicerTortuosityLogic
     return false;
     }
 
-  // 1 - Get the metric arrays
-  vtkDoubleArray* dm = this->GetDistanceMetricArray(node, flag);
-  vtkDoubleArray* icm = this->GetInflectionCountMetricArray(node, flag);
-  vtkDoubleArray* ip = this->GetInflectionPointsArray(node, flag);
-  vtkDoubleArray* soam = this->GetSumOfAnglesMetricArray(node, flag);
-
-  if (!dm && !icm && !ip && !soam)
-    {
-    std::cerr<<"Tortuosity flag mode unknown."<<std::endl;
-    return false;
-    }
-
-  // Rewrite number of points array everytime
-  vtkIntArray* nop = this->GetOrCreateArray<vtkIntArray>(node, "NumberOfPoints");
-  nop->Initialize();
-
-  // 2 - Fill the metric arrays
+  // typdefs
   typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
   typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
   typedef itk::tube::TortuositySpatialObjectFilter<VesselTubeType>  FilterType;
@@ -250,7 +283,71 @@ bool vtkSlicerTortuosityLogic
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
 
-  size_t totalNumberOfPointsAdded = 0;
+  // 1 - Get the metric arrays
+  vtkDoubleArray* dm = this->GetDistanceMetricArray(node, flag);
+  vtkDoubleArray* icm = this->GetInflectionCountMetricArray(node, flag);
+  vtkDoubleArray* ip = this->GetInflectionPointsArray(node, flag);
+  vtkDoubleArray* soam = this->GetSumOfAnglesMetricArray(node, flag);
+
+  // Histogram parameters
+  int numberOfBins = 20;
+  double histMin = 0.0;
+  double histMax = 1.0;
+  double histStep = (histMax - histMin)/numberOfBins;
+
+
+  std::vector<vtkDoubleArray*> others;
+  if( flag & vtkSlicerTortuosityLogic::AllOtherMetrics )
+    {
+    others = this->GetAllOtherMetricArrays(node);
+    if(others.empty())
+      {
+      std::cerr<<"Other metrics cannot be computed"<<std::endl;
+      }
+
+    // Create the data arrays for the histogram
+    for(int i = 0 ; i < numberOfBins ; i++)
+      {
+      vtkSmartPointer<vtkIntArray> histArray;
+      std::ostringstream oss;
+      oss << "Hist-Bin#"
+          << i << ": "
+          << i*histStep <<" - "
+          << (i+1)*histStep;
+      std::string arrayName =oss.str();
+
+      if(histogramArrays.size() < numberOfBins)
+        {
+        histArray = vtkSmartPointer<vtkIntArray>::New();
+        histArray->SetName(arrayName.c_str());
+        histArray->SetNumberOfValues(tubeList->size());
+        histogramArrays.push_back(histArray);
+        }
+      else
+        {
+        histArray = histogramArrays[i];
+        histArray->Initialize();
+        histArray->SetName(arrayName.c_str());
+        histArray->SetNumberOfValues(tubeList->size());
+        }
+      }
+    }
+
+  if (!dm && !icm && !ip && !soam && others.empty())
+    {
+    std::cerr<<"Tortuosity flag mode unknown."<<std::endl;
+    return false;
+    }
+
+  // Rewrite number of points array everytime
+  vtkIntArray* nop = this->GetOrCreateArray<vtkIntArray>(node, "NumberOfPoints");
+  nop->Initialize();
+
+
+  // 2 - Fill the metric arrays
+
+  int tubeNumber = 0;
+  int totalNumberOfPointsAdded = 0;
   for(TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin();
         tubeIt != tubeList->end(); ++tubeIt)
     {
@@ -269,31 +366,40 @@ bool vtkSlicerTortuosityLogic
       continue;
       }
 
-    VesselTubeType::Pointer smoothedTube = VesselTubeType::New();
-    VesselTubeType::Pointer subsampledTube = VesselTubeType::New();
-
-    // Smooth the vessel
-    smoothedTube = tube::SmoothTube<VesselTubeType>(currTube, smoothingScale, (tube::SmoothTubeFunctionEnum)smoothingMethod );
-    // Subsample the vessel
-    subsampledTube = tube::SubsampleTube<VesselTubeType>(smoothedTube, subsampling);
+    if(subsampling != 1)
+      {
+      std::cout<<"WARNING: the subsampling has not been implemented yet."
+               <<"The entered subsampling value will have no effect "
+               <<"on the computation."<<std::endl;
+      }
 
     // Update filter
+
     FilterType::Pointer filter = FilterType::New();
     filter->SetMeasureFlag(flag);
-    filter->SetInput(subsampledTube);
+    filter->SetSmoothingMethod(smoothingMethod);
+    filter->SetSmoothingScale(smoothingScale);
+    filter->SetNumberOfBins(numberOfBins);
+    filter->SetHistMin(histMin);
+    filter->SetHistMax(histMax);
+    filter->SetInput(currTube);
     filter->Update();
 
-    if (filter->GetOutput()->GetId() != subsampledTube->GetId())
+    if (filter->GetOutput()->GetId() != currTube->GetId())
       {
       std::cerr<<"Error while running filter on tube."<<std::endl;
       return false;
       }
 
     // Fill the arrays
-    size_t numberOfPoints = currTube->GetPoints().size();
-    for(size_t filterIndex = 0, tubeIndex = totalNumberOfPointsAdded;
+    // tubeIndex: index of points in the whole tube data set (same across all tubes)
+    // filterIndex: index of points in a specific tube (reset to 0 when changing tube)
+    int numberOfPoints = currTube->GetPoints().size();
+//    std::cout<<"currTube size: "<<numberOfPoints<<std::endl;
+    for(int filterIndex = 0, tubeIndex = totalNumberOfPointsAdded;
       filterIndex < numberOfPoints; ++filterIndex, ++tubeIndex)
       {
+//      std::cout<<"filterIndex = "<<filterIndex<<std::endl;
       if (dm)
         {
         dm->SetValue(tubeIndex, filter->GetDistanceMetric());
@@ -310,13 +416,80 @@ bool vtkSlicerTortuosityLogic
         {
         ip->SetValue(tubeIndex, filter->GetInflectionPointValue(filterIndex));
         }
-
+      if(!others.empty())
+        {
+        if(others[0]!= NULL)
+          {
+          others[0]->SetValue(tubeIndex, filter->GetTotalCurvatureMetric());
+          }
+        if(others[1]!= NULL)
+          {
+          others[1]->SetValue(tubeIndex, filter->GetTotalSquaredCurvatureMetric());
+          }
+        if(others[2]!= NULL)
+          {
+          others[2]->SetValue(tubeIndex, filter->GetPathLengthMetric());
+          }
+        if(others[3]!= NULL)
+          {
+          others[3]->SetValue(tubeIndex, filter->GetChordLengthMetric());
+          }
+        if(others[4]!= NULL)
+          {
+          others[4]->SetValue(tubeIndex, filter->GetPercentile95Metric());
+          }
+        if(others[5]!= NULL)
+          {
+          others[5]->SetValue(tubeIndex, filter->GetInflectionCount1Metric());
+          }
+        if(others[6]!= NULL)
+          {
+          others[6]->SetValue(tubeIndex, filter->GetInflectionCount2Metric());
+          }
+        if(others[7]!= NULL)
+          {
+          others[7]->SetValue(tubeIndex, filter->GetCurvatureScalarMetric(filterIndex));
+          }
+        }
       nop->InsertNextValue(numberOfPoints);
       }
+    if(!others.empty())
+      {
+//      std::cout<<"vessel #"<<currTube->GetId()<<" curvature (every 100 points):"<<std::endl;
+//      for(int i=0 ; i < numberOfPoints ; i=i+100)
+//        {
+//        std::cout<<others[7]->GetValue(i)<<" ";
+//        }
+//      std::cout<<std::endl;
 
+      // Get the histogram features
+      for(int i = 0 ; i < numberOfBins ; i++)
+        {
+//        std::cout<<"Tube#"<<tubeNumber<<" : Bin#"<<i<<" Value = "<<filter->GetHistogramMetric(i)<<std::endl;
+        histogramArrays[i]->SetValue(tubeNumber, filter->GetHistogramMetric(i));
+        }
+
+      }
+
+    tubeNumber++;
     totalNumberOfPointsAdded += numberOfPoints;
     }
 
+  // Update the arrays to recompute the range
+  dm->Modified();
+  icm->Modified();
+  ip->Modified();
+  soam->Modified();
+  for(int i = 0 ; i < others.size() ; i++)
+    {
+    others[i]->Modified();
+    }
+  for(int i = 0 ; i < numberOfBins ; i++)
+    {
+    histogramArrays[i]->Modified();
+    }
+
+  std::cout<<"Metric computation done."<<std::endl;
   return true;
 }
 
@@ -324,13 +497,27 @@ bool vtkSlicerTortuosityLogic
 std::vector<std::string> vtkSlicerTortuosityLogic::GetNamesFromFlag(int flag)
 {
   std::vector<std::string> names;
+  names.push_back("TubeIDs");
+  names.push_back("NumberOfPoints");
   for (int compareFlag = vtkSlicerTortuosityLogic::DistanceMetric;
-    compareFlag <= vtkSlicerTortuosityLogic::SumOfAnglesMetric;
+    compareFlag < vtkSlicerTortuosityLogic::All;
     compareFlag = compareFlag << 1)
     {
     if (flag & compareFlag)
       {
-      names.push_back(this->FlagToArrayNames[compareFlag]);
+      if(compareFlag != vtkSlicerTortuosityLogic::AllOtherMetrics)
+        {
+        names.push_back(this->FlagToArrayNames[compareFlag]);
+        }
+      else
+        {
+        // Add the other metrics
+        for (std::vector<std::string>::iterator it = otherPrintableMetricList->begin();
+          it != otherPrintableMetricList->end(); ++it)
+          {
+          names.push_back(*it);
+          }
+        }
       }
     }
   return names;
@@ -345,19 +532,27 @@ bool vtkSlicerTortuosityLogic
     return false;
     }
 
+//  std::cout<<"Flag = "<<flag<<std::endl;
   // Get the metric arrays
-  std::vector<vtkDoubleArray*> metricArrays;
+  std::vector<vtkDataArray*> metricArrays;
   std::vector<std::string> names = this->GetNamesFromFlag(flag);
   for (std::vector<std::string>::iterator it = names.begin();
     it != names.end(); ++it)
     {
-    vtkDoubleArray* metricArray =
-      this->GetArray<vtkDoubleArray>(node, it->c_str());
+//    std::cout<<"names["<<it-names.begin()<<"] = "<<it->c_str()<<std::endl;
+    vtkDataArray* metricArray =
+      this->GetArray<vtkDataArray>(node, it->c_str());
     if (metricArray)
       {
       metricArrays.push_back(metricArray);
       }
     }
+
+    for (std::vector<vtkDataArray*>::iterator it = metricArrays.begin();
+      it != metricArrays.end(); ++it)
+      {
+//      std::cout<<"metricArrays["<<it-metricArrays.begin()<<"] = "<<(*it)->GetName()<<std::endl;
+      }
 
   // Make sure we have everything we need for export
   if (metricArrays.size() <= 0)
@@ -378,7 +573,7 @@ bool vtkSlicerTortuosityLogic
   // Create  the table. Each column has only one value per vessel
   // instead of one value per each point of the vessel.
   vtkNew<vtkTable> table;
-  for(std::vector<vtkDoubleArray*>::iterator it = metricArrays.begin();
+  for(std::vector<vtkDataArray*>::iterator it = metricArrays.begin();
     it != metricArrays.end(); ++it)
     {
     vtkNew<vtkDoubleArray> newArray;
@@ -386,10 +581,21 @@ bool vtkSlicerTortuosityLogic
 
     for (int j = 0; j < numberOfPointsArray->GetNumberOfTuples(); j += numberOfPointsArray->GetValue(j))
       {
-      newArray->InsertNextValue((*it)->GetValue(j));
+      newArray->InsertNextTuple((*it)->GetTuple(j));
       }
 
     table->AddColumn(newArray.GetPointer());
+    }
+
+
+  // Add the histogram features to the table
+  if(flag & vtkSlicerTortuosityLogic::AllOtherMetrics)
+    {
+    for(std::vector< vtkSmartPointer<vtkIntArray> >::iterator it = histogramArrays.begin();
+      it != histogramArrays.end(); ++it)
+      {
+      table->AddColumn((*it));
+      }
     }
 
   // Write out the table to file

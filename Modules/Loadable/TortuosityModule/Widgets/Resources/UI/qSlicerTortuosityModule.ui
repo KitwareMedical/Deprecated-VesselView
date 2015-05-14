@@ -131,6 +131,23 @@
         </property>
        </widget>
       </item>
+	  <item row="5" column="0">
+       <widget class="QLabel" name="AllOtherMetricsLabel">
+        <property name="text">
+         <string>All other metrics</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="AllOtherMetricsCheckBox">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -227,7 +244,7 @@
          <double>200.000000000000000</double>
         </property>
         <property name="value">
-         <double>2.000000000000000</double>
+         <double>1.000000000000000</double>
         </property>
         <property name="tickInterval">
          <double>2.000000000000000</double>
