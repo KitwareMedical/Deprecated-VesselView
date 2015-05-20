@@ -66,13 +66,15 @@ vtkSlicerTortuosityLogic::vtkSlicerTortuosityLogic( void )
                                       "Percentile95Metric",
                                       "InflectionCount1Metric",
                                       "InflectionCount2Metric",
+                                      "AverageRadiusMetric",
+                                      "Tau4Metric",
                                       "CurvatureScalarMetric"};
   otherMetricList = new std::vector<std::string>(
-        otherMetricArray, otherMetricArray + 8);
+        otherMetricArray, otherMetricArray + 10);
   // For printing, only keep the metrics that are tube specific and not
   // those who are point specific.
   otherPrintableMetricList = new std::vector<std::string>(
-        otherMetricArray, otherMetricArray + 7);
+        otherMetricArray, otherMetricArray + 9);
 
 }
 
@@ -448,7 +450,15 @@ bool vtkSlicerTortuosityLogic
           }
         if(others[7]!= NULL)
           {
-          others[7]->SetValue(tubeIndex, filter->GetCurvatureScalarMetric(filterIndex));
+          others[7]->SetValue(tubeIndex, filter->GetAverageRadiusMetric());
+          }
+        if(others[8]!= NULL)
+          {
+          others[8]->SetValue(tubeIndex, filter->GetTotalCurvatureMetric() / filter->GetPathLengthMetric());
+          }
+        if(others[9]!= NULL)
+          {
+          others[9]->SetValue(tubeIndex, filter->GetCurvatureScalarMetric(filterIndex));
           }
         }
       nop->InsertNextValue(numberOfPoints);
