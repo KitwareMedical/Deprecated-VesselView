@@ -48,6 +48,8 @@ public:
   qSlicerTortuosityModuleWidget(QWidget *parent=0);
   virtual ~qSlicerTortuosityModuleWidget();
 
+  int getFlagFromCheckBoxes();
+
 public slots:
   void runMetrics(int flag);
   void setCurrentSpatialObjectsNode(vtkMRMLNode* node);

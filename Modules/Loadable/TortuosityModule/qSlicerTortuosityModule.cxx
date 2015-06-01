@@ -58,8 +58,9 @@ qSlicerTortuosityModule::~qSlicerTortuosityModule()
 //------------------------------------------------------------------------------
 QString qSlicerTortuosityModule::helpText() const
 {
-  QString help = QString("Run tortuosity metrics on spatial objects.");
-
+  QString help = QString("Run tortuosity metrics on spatial objects.\n Documentation"
+                         " about these metrics can be found in the TubeTK source code,"
+                         " in Base/Filtering/itkTubeTortuositySpatialObjectFilter.h");
   return help;
 }
 
