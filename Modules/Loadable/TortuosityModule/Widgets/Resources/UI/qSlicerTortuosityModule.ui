@@ -57,14 +57,14 @@
    <item>
     <widget class="ctkCollapsibleButton" name="ParametersCollapsibleButton">
      <property name="text">
-      <string>CollapsibleButton</string>
+      <string>Metrics</string>
      </property>
      <property name="contentsFrameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="1">
-       <widget class="QCheckBox" name="DistanceMetricCheckBox">
+       <widget class="QCheckBox" name="BasicMetricsCheckBox">
         <property name="text">
          <string/>
         </property>
@@ -74,14 +74,14 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="InflectionCountMetric">
+       <widget class="QLabel" name="OldMetricsLabel">
         <property name="text">
-         <string>Inflection count metric</string>
+         <string>Old Metrics</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QCheckBox" name="InflectionCountMetricCheckBox">
+       <widget class="QCheckBox" name="OldMetricsCheckBox">
         <property name="text">
          <string/>
         </property>
@@ -91,21 +91,21 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="DistanceMetricLabel">
+       <widget class="QLabel" name="BasicMetricsLabel">
         <property name="text">
-         <string>Distance metric</string>
+         <string>Basic Metrics</string>
         </property>
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QLabel" name="SumOfAnglesMetricLabel">
+       <widget class="QLabel" name="HistogramMetricsLabel">
         <property name="text">
-         <string>Sum of angles metric</string>
+         <string>Histogram Metrics</string>
         </property>
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QCheckBox" name="SumOfAnglesMetricCheckBox">
+       <widget class="QCheckBox" name="HistogramMetricsCheckBox">
         <property name="text">
          <string/>
         </property>
@@ -115,14 +115,14 @@
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QLabel" name="InflectionPointsLabel">
+       <widget class="QLabel" name="CurvatureMetricsLabel">
         <property name="text">
-         <string>Inflection points</string>
+         <string>Curvature Metrics</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QCheckBox" name="InflectionPointsCheckBox">
+       <widget class="QCheckBox" name="CurvatureMetricsCheckBox">
         <property name="text">
          <string/>
         </property>
@@ -195,7 +195,7 @@
          <double>200.000000000000000</double>
         </property>
         <property name="value">
-         <double>2.000000000000000</double>
+         <double>5.000000000000000</double>
         </property>
         <property name="tickInterval">
          <double>2.000000000000000</double>
@@ -227,7 +227,7 @@
          <double>200.000000000000000</double>
         </property>
         <property name="value">
-         <double>2.000000000000000</double>
+         <double>1.000000000000000</double>
         </property>
         <property name="tickInterval">
          <double>2.000000000000000</double>

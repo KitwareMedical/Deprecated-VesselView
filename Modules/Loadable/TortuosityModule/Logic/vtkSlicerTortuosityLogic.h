@@ -33,6 +33,14 @@ limitations under the License.
 #include <vtkSlicerModuleLogic.h>
 #include <vtkSlicerTortuosityModuleLogicExport.h>
 
+// ITK includes
+#include "itkVesselTubeSpatialObject.h"
+#include "itktubeTortuositySpatialObjectFilter.h"
+#include "itkVector.h"
+
+// Spatial object includes
+#include "vtkMRMLSpatialObjectsNode.h"
+
 // TubeTK includes
 #include "tubeTubeMath.h"
 
@@ -50,45 +58,50 @@ public:
   vtkTypeMacro(vtkSlicerTortuosityLogic,vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Different kind of metrics that can be run on a spatial object node.
-  enum MeasureTypes
+  // typdefs
+  typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
+  typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
+  typedef itk::tube::TortuositySpatialObjectFilter<VesselTubeType>  FilterType;
+
+  // Different groups of metrics that can be run on a spatial object node.
+  // See FilterType::MeasureType for more info on the metrics.
+  // Tau4 is an additional metric that isn't computed by the filter.
+  // - Old metrics:
+  //                DistanceMetric
+  //                InflectionCountMetric
+  //                InflectionPointsMetric
+  //                SumOfAnglesMetric
+  // - Basic Metrics
+  //                AverageRadiusMetric
+  //                ChordLengthMetric
+  //                PathLengthMetric
+  // - Curvature Metrics
+  //                CurvatureScalarMetric
+  //                InflectionCount1Metric
+  //                InflectionCount2Metric
+  //                Percentile95Metric
+  //                Tau4Metric
+  //                TotalCurvatureMetric
+  //                TotalSquared CurvatureMetric
+  // - Histogram Metrics
+  //                CurvatureHistogramMetrics
+  // - All Metrics
+  //                All of the above
+  enum MetricGroupsFlag
     {
-    DistanceMetric = 0x01,
-    InflectionCountMetric = 0x02,
-    InflectionPoints = 0x04,
-    SumOfAnglesMetric = 0x08,
-    All = 0xFF,
+    BasicMetricsGroup      = 0x01,
+    OldMetricsGroup        = 0x02,
+    CurvatureMetricsGroup  = 0x04,
+    HistogramMetricsGroup  = 0x08,
+    AllMetricsGroup        = 0xFF
     };
 
-  // Return whether the flag asks for an unique measure or not.
-  bool UniqueMeasure(int flag);
+  // Return an array of pointers to the arrays to compute using the flag
+  std::vector<vtkDoubleArray*> GetMetricArraysToCompute(vtkMRMLSpatialObjectsNode* node, int flag);
 
-  // Return the array corresponding to the metric array. If a flag is
-  // passed, the array is valid only if the flag uniquely corresponds
-  // to a metric.
-  // \sa GetArray()
-  vtkDoubleArray* GetDistanceMetricArray(
-    vtkMRMLSpatialObjectsNode* node, int flag = DistanceMetric);
-  vtkDoubleArray* GetInflectionCountMetricArray(
-    vtkMRMLSpatialObjectsNode* node, int flag = InflectionCountMetric);
-  vtkDoubleArray* GetInflectionPointsArray(
-    vtkMRMLSpatialObjectsNode* node, int flag = InflectionPoints);
-  vtkDoubleArray* GetSumOfAnglesMetricArray(
-    vtkMRMLSpatialObjectsNode* node, int flag = SumOfAnglesMetric);
-
-  // Get the metric array on the given node. If no array corresponding to
-  // the flag (or name), an empty array will be created.
-  vtkDoubleArray* GetOrCreateArray(vtkMRMLSpatialObjectsNode* node, int flag);
-
-  // Run the metric on the given spatial object node.
-  // Running any metric will create a field data array on the node if none
-  // already exists. A field data array called NumberOfPoints will also be
-  // created automatically to help when exporting.
-  // \sa RunMetrics()
-  bool RunDistanceMetric(vtkMRMLSpatialObjectsNode* node);
-  bool RunInflectionCountMetric(vtkMRMLSpatialObjectsNode* node);
-  bool RunInflectionPoints(vtkMRMLSpatialObjectsNode* node);
-  bool RunSumOfAnglesMetric(vtkMRMLSpatialObjectsNode* node);
+  // Get the metric double array on the given node and name. If no array corresponds to
+  // the name, an empty array will be created.
+  vtkDoubleArray* GetOrCreateDoubleArray(vtkMRMLSpatialObjectsNode* node, const char* name);
 
   // Run the metric specified by the flag on the given spatial object node.
   // Before running the metrics, smoothing and subsampling is applied to the tube
@@ -107,7 +120,8 @@ public:
   //    1 = no subsampling
   //    2 = divide number of points by 2
   //    etc...
-  bool RunMetrics(vtkMRMLSpatialObjectsNode* node, int flag,
+  bool RunMetrics(vtkMRMLSpatialObjectsNode* node,
+                  int groupFlag,
                   tube::SmoothTubeFunctionEnum smoothingMethod = tube::SMOOTH_TUBE_USING_INDEX_GAUSSIAN,
                   double smoothingScale = 0.0,
                   int subsampling = 1 );
@@ -115,8 +129,9 @@ public:
   // Save the given metrics to CSV. Only value will be saved per vessel.
   // The export MUST find the "NumberOfPoints" array generated during the
   // metric run on the node's polydata point data.
-  bool SaveAsCSV(
-    vtkMRMLSpatialObjectsNode* node, const char* filename, int flag = All);
+  bool SaveAsCSV(vtkMRMLSpatialObjectsNode* node,
+                 const char* filename,
+                 int groupFlag = AllMetricsGroup);
 
   // Load a CSV file with two columns : ID and Value, and assign the values
   // to the passed node tubes with corresponding IDs, as a point data.
@@ -133,7 +148,11 @@ protected:
   void operator=(const vtkSlicerTortuosityLogic&);
 
   // Get names from the given flag
-  std::vector<std::string> GetNamesFromFlag(int flag);
+  std::vector<std::string> GetPrintableNamesFromMetricFlag(int metricFlag);
+
+  // Convert the group flag (vtkSlicerTortuosityLogic::MetricGroupsFlag) into a
+  // metric flag (FilterType::MeasureType)
+  int GetMetricFlagFromGroupFlag(int groupFlag);
 
   // Get the array of the type T with the given name on the node's polydata
   // pointdata.
@@ -145,7 +164,10 @@ protected:
     T* GetOrCreateArray(vtkMRMLSpatialObjectsNode* node, const char* name);
 
 private:
-  std::map<int, std::string> FlagToArrayNames;
+  std::map<int, std::string> MetricFlagToArrayNames;
+  std::map<int, int> GroupFlagToMetricFlag;
+
+  std::vector< vtkSmartPointer<vtkIntArray> > m_HistogramArrays;
 
 }; // End class vtkSlicerTortuosityLogic
 

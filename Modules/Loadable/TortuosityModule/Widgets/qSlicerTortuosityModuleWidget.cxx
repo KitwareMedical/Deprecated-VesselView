@@ -51,6 +51,7 @@ public:
     qSlicerTortuosityModuleWidget& object);
   void init();
   vtkSlicerTortuosityLogic* logic() const;
+  int getFlagFromCheckBoxes();
 
   vtkMRMLSpatialObjectsNode* currentSpatialObject;
 };
@@ -63,6 +64,26 @@ qSlicerTortuosityModuleWidgetPrivate
 {
   this->currentSpatialObject = 0;
 }
+
+//------------------------------------------------------------------------------
+int qSlicerTortuosityModuleWidgetPrivate::getFlagFromCheckBoxes()
+{
+  Q_Q(qSlicerTortuosityModuleWidget);
+  int flag = this->BasicMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::BasicMetricsGroup : 0;
+
+  flag |= this->OldMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::OldMetricsGroup : 0;
+
+  flag |= this->CurvatureMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::CurvatureMetricsGroup : 0;
+
+  flag |= this->HistogramMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::HistogramMetricsGroup : 0;
+
+  return flag;
+}
+
 
 //------------------------------------------------------------------------------
 void qSlicerTortuosityModuleWidgetPrivate::init()
@@ -100,6 +121,23 @@ void qSlicerTortuosityModuleWidgetPrivate::init()
   this->SmoothingMethodComboBox->setCurrentIndex(
     this->SmoothingMethodComboBox->findData(tube::SMOOTH_TUBE_USING_INDEX_GAUSSIAN));
 
+
+  this->BasicMetricsLabel->setToolTip("AverageRadiusMetric, "
+                                         "ChordLengthMetric, "
+                                         "PathLengthMetric");
+  this->OldMetricsLabel->setToolTip("DistanceMetric, "
+                                       "InflectionCountMetric, "
+                                       "InflectionPointsMetric, "
+                                       "SumOfAnglesMetric");
+  this->CurvatureMetricsLabel->setToolTip("CurvatureScalarMetric, "
+                                             "InflectionCount1Metric, "
+                                             "InflectionCount2Metric, "
+                                             "Percentile95Metric, "
+                                             "Tau4Metric, "
+                                             "TotalCurvatureMetric, "
+                                             "TotalSquared, "
+                                             "CurvatureMetric");
+  this->HistogramMetricsLabel->setToolTip("CurvatureHistogramMetrics");
 }
 
 //-----------------------------------------------------------------------------
@@ -210,20 +248,7 @@ void qSlicerTortuosityModuleWidget::runSelectedMetrics(bool run)
     {
     return;
     }
-
-  int flag = d->DistanceMetricCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::DistanceMetric : 0;
-
-  flag |= d->InflectionCountMetricCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::InflectionCountMetric : 0;
-  
-  flag |= d->InflectionPointsCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::InflectionPoints : 0;
-
-  flag |= d->SumOfAnglesMetricCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::SumOfAnglesMetric : 0;
-
-  this->runMetrics(flag);
+  this->runMetrics(d->getFlagFromCheckBoxes());
 }
 
 //------------------------------------------------------------------------------
@@ -241,14 +266,13 @@ void qSlicerTortuosityModuleWidget::saveCurrentSpatialObjectAsCSV(bool save)
   QString filename =
     QFileDialog::getSaveFileName(
       this, "Save tortuosity as csv...", "", "Comma Separated Value (*.csv)");
-  int flag = vtkSlicerTortuosityLogic::DistanceMetric
-    | vtkSlicerTortuosityLogic::InflectionCountMetric
-    | vtkSlicerTortuosityLogic::SumOfAnglesMetric;
+
+  int flag = d->getFlagFromCheckBoxes();
+
   if (!d->logic()->SaveAsCSV(d->currentSpatialObject, filename.toLatin1(), flag))
     {
-    QString msg = "Failed to write CSV at %1. Make sure you have run the "
-      "tortuosity metrics at least once.";
-    qCritical(msg.arg(filename).toLatin1());
+    qCritical("Failed to write CSV at '%s'. Make sure you have run the "
+              "tortuosity metrics at least once. ", qPrintable(filename));
     }
 
   d->SaveCSVPushButton->setChecked(false);
@@ -266,27 +290,27 @@ void qSlicerTortuosityModuleWidget::smoothingMethodChanged(int index)
       d->SmoothingScaleSliderWidget->setSingleStep(1);
       d->SmoothingScaleSliderWidget->setMinimum(0);
       d->SmoothingScaleSliderWidget->setMaximum(100);
-      d->SmoothingScaleSliderWidget->setValue(2);
+      d->SmoothingScaleSliderWidget->setValue(3);
       d->SmoothingScaleSliderWidget->setToolTip("Half the window size");
-      d->SmoothingMethodLabel->setToolTip("Half the window size");
+      d->SmoothingScaleLabel->setToolTip("Half the window size");
       break;
     case tube::SMOOTH_TUBE_USING_INDEX_GAUSSIAN:
       d->SmoothingScaleSliderWidget->setDecimals(2);
       d->SmoothingScaleSliderWidget->setSingleStep(0.1);
       d->SmoothingScaleSliderWidget->setMinimum(0);
       d->SmoothingScaleSliderWidget->setMaximum(50);
-      d->SmoothingScaleSliderWidget->setValue(1.0);
+      d->SmoothingScaleSliderWidget->setValue(5);
       d->SmoothingScaleSliderWidget->setToolTip("Standard deviation");
-      d->SmoothingMethodLabel->setToolTip("Standard deviation");
+      d->SmoothingScaleLabel->setToolTip("Standard deviation");
       break;
     case tube::SMOOTH_TUBE_USING_DISTANCE_GAUSSIAN:
       d->SmoothingScaleSliderWidget->setDecimals(2);
       d->SmoothingScaleSliderWidget->setSingleStep(0.01);
       d->SmoothingScaleSliderWidget->setMinimum(0);
       d->SmoothingScaleSliderWidget->setMaximum(50);
-      d->SmoothingScaleSliderWidget->setValue(0.1);
+      d->SmoothingScaleSliderWidget->setValue(0.5);
       d->SmoothingScaleSliderWidget->setToolTip("Standard deviation");
-      d->SmoothingMethodLabel->setToolTip("Standard deviation");
+      d->SmoothingScaleLabel->setToolTip("Standard deviation");
       break;
     default:
       d->SmoothingScaleSliderWidget->setDecimals(0);
@@ -295,7 +319,7 @@ void qSlicerTortuosityModuleWidget::smoothingMethodChanged(int index)
       d->SmoothingScaleSliderWidget->setMaximum(0);
       d->SmoothingScaleSliderWidget->setValue(0);
       d->SmoothingScaleSliderWidget->setToolTip("Unknown Smoothing Method");
-      d->SmoothingMethodLabel->setToolTip("Unknown Smoothing Method");
+      d->SmoothingScaleLabel->setToolTip("Unknown Smoothing Method");
       break;
     }
 }
