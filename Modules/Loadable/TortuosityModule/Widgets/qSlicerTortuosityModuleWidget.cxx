@@ -51,6 +51,7 @@ public:
     qSlicerTortuosityModuleWidget& object);
   void init();
   vtkSlicerTortuosityLogic* logic() const;
+  int getFlagFromCheckBoxes();
 
   vtkMRMLSpatialObjectsNode* currentSpatialObject;
 };
@@ -63,6 +64,26 @@ qSlicerTortuosityModuleWidgetPrivate
 {
   this->currentSpatialObject = 0;
 }
+
+//------------------------------------------------------------------------------
+int qSlicerTortuosityModuleWidgetPrivate::getFlagFromCheckBoxes()
+{
+  Q_Q(qSlicerTortuosityModuleWidget);
+  int flag = this->BasicMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::BasicMetricsGroup : 0;
+
+  flag |= this->OldMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::OldMetricsGroup : 0;
+
+  flag |= this->CurvatureMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::CurvatureMetricsGroup : 0;
+
+  flag |= this->HistogramMetricsCheckBox->isChecked() ?
+    vtkSlicerTortuosityLogic::HistogramMetricsGroup : 0;
+
+  return flag;
+}
+
 
 //------------------------------------------------------------------------------
 void qSlicerTortuosityModuleWidgetPrivate::init()
@@ -147,25 +168,6 @@ void qSlicerTortuosityModuleWidget::setup()
 }
 
 //------------------------------------------------------------------------------
-int qSlicerTortuosityModuleWidget::getFlagFromCheckBoxes()
-{
-  Q_D(qSlicerTortuosityModuleWidget);
-  int flag = d->BasicMetricsCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::BasicMetricsGroup : 0;
-
-  flag |= d->OldMetricsCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::OldMetricsGroup : 0;
-
-  flag |= d->CurvatureMetricsCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::CurvatureMetricsGroup : 0;
-
-  flag |= d->HistogramMetricsCheckBox->isChecked() ?
-    vtkSlicerTortuosityLogic::HistogramMetricsGroup : 0;
-
-  return flag;
-}
-
-//------------------------------------------------------------------------------
 void qSlicerTortuosityModuleWidget
 ::setCurrentSpatialObjectsNode(vtkMRMLNode* node)
 {
@@ -246,7 +248,7 @@ void qSlicerTortuosityModuleWidget::runSelectedMetrics(bool run)
     {
     return;
     }
-  this->runMetrics(getFlagFromCheckBoxes());
+  this->runMetrics(d->getFlagFromCheckBoxes());
 }
 
 //------------------------------------------------------------------------------
@@ -265,13 +267,12 @@ void qSlicerTortuosityModuleWidget::saveCurrentSpatialObjectAsCSV(bool save)
     QFileDialog::getSaveFileName(
       this, "Save tortuosity as csv...", "", "Comma Separated Value (*.csv)");
 
-  int flag = getFlagFromCheckBoxes();
+  int flag = d->getFlagFromCheckBoxes();
 
   if (!d->logic()->SaveAsCSV(d->currentSpatialObject, filename.toLatin1(), flag))
     {
-    QString msg = "Failed to write CSV at %1. Make sure you have run the "
-      "tortuosity metrics at least once.";
-    qCritical(msg.arg(filename).toLatin1());
+    qCritical("Failed to write CSV at '%s'. Make sure you have run the "
+              "tortuosity metrics at least once. ", qPrintable(filename));
     }
 
   d->SaveCSVPushButton->setChecked(false);

@@ -225,10 +225,8 @@ int vtkSlicerTortuosityLogic
     if( (groupFlag & compareFlag) > 0 )
       {
       metricFlag |= GroupFlagToMetricFlag[compareFlag];
-//      std::cout<<"metricFlag = "<<std::hex<<metricFlag<<std::endl;
       }
     }
-//  std::cout<<std::dec;
   return metricFlag;
 }
 
@@ -476,7 +474,6 @@ std::vector<std::string> vtkSlicerTortuosityLogic::GetPrintableNamesFromMetricFl
   std::vector<std::string> names;
   names.push_back("TubeIDs");
   names.push_back("NumberOfPoints");
-  std::cout<<std::dec;
   for (long int compareFlag = 0x01 ;
     compareFlag <= FilterType::BITMASK_ALL_METRICS ;
     compareFlag = compareFlag << 1)
