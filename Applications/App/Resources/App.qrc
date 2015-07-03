@@ -1,12 +1,18 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
-    <file alias="VesselViewLogo.svg">Icons/Medium/VesselViewLogo.svg</file>
-    <file alias="Icons/Medium/kitware_full_logo.svg">Icons/Medium/kitware_full_logo.svg</file>
+    <file alias="Icons/Medium/AutomaticVesselSegmentation.svg">Icons/Medium/AutomaticVesselSegmentation.svg</file>
+    <file alias="Icons/Medium/ComputeVesselTortuosity.svg">Icons/Medium/ComputeVesselTortuosity.svg</file>
+    <file alias="Icons/Medium/ConvertVessels.svg">Icons/Medium/ConvertVessels.svg</file>
+    <file alias="Icons/Medium/InteractiveOrganSegmentation.svg">Icons/Medium/InteractiveOrganSegmentation.svg</file>
+    <file alias="Icons/Medium/InteractiveVesselSegmentation.svg">Icons/Medium/InteractiveVesselSegmentation.svg</file>
+    <file alias="Icons/Medium/KitwareLogo.svg">Icons/Medium/KitwareLogo.svg</file>
+    <file alias="Icons/Medium/VesselDisplay.svg">Icons/Medium/VesselDisplay.svg</file>
+    <file alias="Icons/Medium/VesselViewLogo.svg">Icons/Medium/VesselViewLogo.svg</file>
+
     <file alias="Icons/Medium/VesselViewSplashScreen.svg">Icons/Medium/VesselViewSplashScreen.svg</file>
-    <file alias="Workflow.svg">Icons/Medium/VesselViewLogo.svg</file>
-    <file alias="InteractiveSegmentTubesIcon.svg">Icons/Medium/InteractiveSegmentTubesIcon.svg</file>
-    <file alias="Editor.svg">Icons/Medium/Editor.svg</file>
     <file alias="SplashScreen.png">Images/SplashScreen.png</file>
+    <file alias="WelcomeAbout.png">Images/WelcomeAbout.png</file>
+    <file alias="TubeTKTube.png">Images/TubeTKTube.png</file>
     <file alias="Logo.png">Images/Logo.png</file>
     <file alias="ModuleHome.png">Images/ModuleHome.png</file>
     <file alias="DefaultSettings.ini">Settings/VesselViewDefaultSettings.ini</file>
