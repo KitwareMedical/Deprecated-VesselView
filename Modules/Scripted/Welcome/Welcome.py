@@ -35,13 +35,39 @@ class WelcomeWidget(ScriptedLoadableModuleWidget):
   def setup(self):
     # Add a button to return to the welcome module in the status bar
     statusBar = slicer.util.mainWindow().statusBar()
+
     self.ReturnToWelcome = qt.QPushButton(statusBar)
     self.ReturnToWelcome.objectName = 'ReturnToWelcomeScreenButton'
     self.ReturnToWelcome.text = 'Return to Welcome screen'
     self.ReturnToWelcome.connect('clicked()', self.selectWelcomeModule)
-    statusBar.addPermanentWidget(self.ReturnToWelcome, 1)
+    statusBar.addPermanentWidget(self.ReturnToWelcome, 1 )
 
-    slicer.util.mainWindow().moduleSelector().connect('moduleSelected(QString)', self.onModuleSelected)
+    self.LoadData = qt.QPushButton(statusBar)
+    self.LoadData.objectName = 'LoadData'
+    self.LoadData.text = 'Load Data'
+    self.LoadData.connect('clicked()', self.selectLoadData)
+    statusBar.addPermanentWidget(self.LoadData, 1 )
+
+    self.SaveData = qt.QPushButton(statusBar)
+    self.SaveData.objectName = 'SaveData'
+    self.SaveData.text = 'Save Data'
+    self.SaveData.connect('clicked()', self.selectSaveData)
+    statusBar.addPermanentWidget(self.SaveData, 1 )
+
+    self.SaveScreenshot = qt.QPushButton(statusBar)
+    self.SaveScreenshot.objectName = 'SaveScreenshot'
+    self.SaveScreenshot.text = 'Save Screenshot'
+    self.SaveScreenshot.connect('clicked()', self.selectSaveScreenshot)
+    statusBar.addPermanentWidget(self.SaveScreenshot, 1 )
+
+    self.Quit = qt.QPushButton(statusBar)
+    self.Quit.objectName = 'Quit'
+    self.Quit.text = 'Quit'
+    self.Quit.connect('clicked()', self.selectQuit)
+    statusBar.addPermanentWidget(self.Quit, 1 )
+
+    slicer.util.mainWindow().moduleSelector().connect('moduleSelected(QString)',
+      self.onModuleSelected)
     self.onModuleSelected()
 
     # Collapse the data probe button by default
@@ -51,6 +77,18 @@ class WelcomeWidget(ScriptedLoadableModuleWidget):
 
   def selectWelcomeModule(self):
     slicer.util.selectModule('Welcome')
+
+  def selectLoadData(self):
+    slicer.util.openAddDataDialog()
+
+  def selectSaveData(self):
+    slicer.util.openSaveDataDialog()
+
+  def selectSaveScreenshot(self):
+    slicer.util.openSaveDataDialog()
+
+  def selectQuit(self):
+    slicer.util.quit()
 
   def hideWidget(self, parent, name):
     w = self.findWidget(parent, name)
@@ -64,11 +102,16 @@ class WelcomeWidget(ScriptedLoadableModuleWidget):
     mainWindow = slicer.util.mainWindow()
     mainWindow.setPanelDockWidgetVisible(not moduleIsWelcome)
     self.ReturnToWelcome.setVisible(not moduleIsWelcome)
+    self.LoadData.setVisible(not moduleIsWelcome)
+    self.SaveData.setVisible(not moduleIsWelcome)
+    self.SaveScreenshot.setVisible(not moduleIsWelcome)
+    self.Quit.setVisible(not moduleIsWelcome)
 
     if not moduleIsWelcome:
       return
 
-    slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutUserView)
+    slicer.app.layoutManager().setLayout(
+      slicer.vtkMRMLLayoutNode.SlicerLayoutUserView)
     mainWindow.moduleSelector().hide()
     self.hideWidget(mainWindow, 'CaptureToolBar')
     self.hideWidget(mainWindow, 'DialogToolBar')
