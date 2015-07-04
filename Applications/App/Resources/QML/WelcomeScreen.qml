@@ -70,7 +70,7 @@ Rectangle  {
  basic and advanced visualization formats.
  </div>
  </html>"
-            layout: 1
+            layout: -1
             fileTypes: "SpatialObjectFile"
         }
         ListElement {
@@ -95,7 +95,7 @@ Rectangle  {
  </ul>
  </div>
  </html>"
-            layout: -1
+            layout: 3
             fileTypes: "SpatialObjectFile"
         }
         ListElement {
@@ -121,7 +121,7 @@ Rectangle  {
  </ul>
  </div>
  </html>"
-            layout: -1
+            layout: 3
             fileTypes: "VolumeFile"
         }
         ListElement {
@@ -148,7 +148,7 @@ Rectangle  {
  </ul>
  </div>
  </html>"
-            layout: 4 // SlicerLayoutOneUp3DView
+            layout: 24 // ConventionalQuantitative
             fileTypes: "SpatialObjectFile"
         }
         ListElement {
@@ -170,7 +170,7 @@ Rectangle  {
  </ul>
  </div>
  </html>"
-            layout: 1 // SlicerLayoutDefaultView
+            layout: 4 // SlicerLayoutDefaultView
             fileTypes: "SpatialObjectFile"
         }
         ListElement {
@@ -189,7 +189,7 @@ Rectangle  {
  interactive and automated vessel segmentation algorithms in VesselView.
  </div>
  </html>"
-            layout: 6 // SlicerLayoutOneUpRedSliceView
+            layout: 3 
             fileTypes: "VolumeFile"
         }
     }
@@ -490,33 +490,40 @@ Rectangle  {
         currentIndex: -1
     }
 
-    Button {
+    Rectangle {
         id: openButton
         visible: false
 
         anchors.right: welcomeRectangle.right
-        anchors.rightMargin: 0
         anchors.left: welcomeListView.right
-        anchors.leftMargin: 0
-        height: Math.floor(parent.height / 10)
+
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
+        anchors.bottomMargin: Math.floor(parent.height / 20)
+        height: Math.floor(parent.height / 20)
 
-        bottomMarginRatio: 0.2
-        leftMarginRatio: 0.3
-        rightMarginRatio: 0.3
-        topMarginRatio: 0.2
-
-        radius: generalMargin
-        hoverEnabled: true
-
-        text: "Open"
-        font.pointSize: 20
-
-        onButtonClicked: {
-            welcomeScreen.loadModule(selectedModule, selectedLayout)
+        Rectangle {
+            id: openButtonButton
+            anchors.fill: openButton
+            anchors.leftMargin: Math.floor( ( parent.width - 200 ) / 2 )
+            anchors.rightMargin: Math.floor( ( parent.width - 200 ) / 2 )
+            radius: generalMargin
+            color: "olivedrab"
+            Text {
+                id: openButtonText
+                anchors.fill: openButtonButton
+                text: "Open"
+                font.pointSize: 20
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+            }
+            MouseArea {
+                anchors.fill: openButtonButton
+                onClicked: {
+                  openButtonButton.color = activePalette.dark
+                  welcomeScreen.loadModule(selectedModule, selectedLayout)
+                }
+            }
         }
-
     }
 
 }

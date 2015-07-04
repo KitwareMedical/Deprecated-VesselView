@@ -20,6 +20,7 @@
 #include <QMessageBox>
 #include <QPointer>
 #include <QSettings>
+#include <QFileInfo>
 
 // Slicer includes
 #include <qSlicerApplication.h>
@@ -211,6 +212,34 @@ void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
   if (layout > 0)
     {
     qSlicerApplication::application()->layoutManager()->setLayout(layout);
+    }
+  else
+    {
+    if( d->filesToOpenOnLoad.size() == 0 )
+      {
+      qSlicerApplication::application()->layoutManager()->setLayout(3);
+      }
+    else
+      {
+      bool objectFile = false;
+      bool imageFile = false;
+      foreach( QString filename, d->filesToOpenOnLoad )
+        {
+        QFileInfo fileInfo( filename );
+        if( fileInfo.suffix() == "tre" )
+          {
+          objectFile = true;
+          }
+        else
+          {
+          imageFile = true;
+          }
+        }
+      if( objectFile && !imageFile )
+        {
+        qSlicerApplication::application()->layoutManager()->setLayout(4);
+        }
+      }
     }
 
   qSlicerAppMainWindow* slicerMainWindow =
