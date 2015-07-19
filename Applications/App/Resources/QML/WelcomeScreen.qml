@@ -313,7 +313,7 @@ Rectangle  {
             states: [
                 State {
                     name: "selected"
-                    when: (module==selectedModule)
+                    when: (module == selectedModule)
                     PropertyChanges {target: elementItem; color: activePalette.dark;}
                 }
             ]
@@ -518,8 +518,17 @@ Rectangle  {
             }
             MouseArea {
                 anchors.fill: openButtonButton
+                onPressed: {
+                  parent.color = activePalette.dark
+                }
+                onExited: {
+                  parent.color = "olivedrab"
+                }
+                onReleased: {
+                  parent.color = "olivedrab"
+                }
                 onClicked: {
-                  openButtonButton.color = activePalette.dark
+                  parent.color = "olivedrab"
                   welcomeScreen.loadModule(selectedModule, selectedLayout)
                 }
             }
