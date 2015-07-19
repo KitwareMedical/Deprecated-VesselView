@@ -500,6 +500,7 @@ Rectangle  {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Math.floor(parent.height / 20)
         height: Math.floor(parent.height / 20)
+        color: activePalette.base
 
         Rectangle {
             id: openButtonButton
