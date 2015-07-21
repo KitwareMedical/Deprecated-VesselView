@@ -117,20 +117,6 @@ int SlicerAppMain(int argc, char* argv[])
 
   QCoreApplication::setApplicationVersion(qSlicerApp_VERSION_FULL);
 
-#if QT_VERSION >= 0x040803
-#ifdef Q_OS_MACX
-  if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_8)
-    {
-    QString defaultPath = QString(":/DefaultSettings.ini");
-    QSettings defaultSettings(defaultPath, QSettings::IniFormat);
-
-    // Fix Mac OS X 10.9 (mavericks) font issue
-    // https://bugreports.qt-project.org/browse/QTBUG-32789
-    QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
-    }
-#endif
-#endif
-
   //vtkObject::SetGlobalWarningDisplay(false);
   QApplication::setDesktopSettingsAware(false);
 
