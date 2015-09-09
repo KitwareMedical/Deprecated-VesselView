@@ -412,6 +412,9 @@ Rectangle  {
         anchors.rightMargin: Math.floor( parent.width * 0.125 )
         anchors.left: welcomeListView.right
         anchors.leftMargin: Math.floor( parent.width * 0.125 )
+        clip:true
+        snapMode: ListView.SnapToItem
+        boundsBehavior: Flickable.StopAtBounds
 
         model: recentlyLoadedFilesModel
 

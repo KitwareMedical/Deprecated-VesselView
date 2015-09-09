@@ -91,7 +91,9 @@ Item
         anchors.rightMargin: verticalListWithButtons.anchors.rightMargin
         anchors.top: verticalListMoveUp.bottom
         anchors.topMargin: 0
-
+        clip:true
+        snapMode: ListView.SnapToItem
+        boundsBehavior: Flickable.StopAtBounds
         onCurrentItemChanged: verticalListWithButtons.currentItemChanged()
         currentIndex: -1
     }
