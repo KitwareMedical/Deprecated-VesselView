@@ -46,6 +46,7 @@ public:
 public slots:
   void loadModule(const QString& moduleName, int layout = -1);
   void setFilesToOpenOnLoad(const QStringList& filenames);
+  void loadNewData();
 
 signals:
   /// Fired when the welcome screen is done and the workflow can start.
