@@ -74,6 +74,71 @@ Rectangle  {
             fileTypes: "SpatialObjectFile"
         }
         ListElement {
+            name: "Vessel Segmentation"
+            module: "SimpleRegionGrowingSegmentation"
+            imageSource: ":/Icons/Medium/InteractiveVesselSegmentation.svg"
+            description:  ""
+            layout: 3
+            fileTypes: "SpatialObjectFile"
+        }
+        ListElement {
+            name: "Compute Vessel Tortuosity"
+            module: "Tortuosity"
+            imageSource: ":/Icons/Medium/ComputeVesselTortuosity.svg"
+            description:  "
+ <html>
+ <center>
+ <em>Compute tortuosity metrics on vessels.</em> 
+ </center>
+ <br><br><br>
+ <div text-align=\"left\">
+ Work initiated by Dr. Bullitt has shown that morphological features of vessels
+ within and around tumors can be used to assess malignancy and treatment
+ efficacy.   Others have associated vessel morphological features with diabetic
+ retinopathy, retinopathy of prematurity, and a variety of arterial diseases.
+ <br><br>
+ VesselView contains a variety of novel tortuosity metrics including:
+ <ul>
+   <li> Fourier-based methods </li>
+   <li> Normalized inflection count </li>
+   <li> Mean curvature </li>
+ </ul>
+ </div>
+ </html>"
+            layout: 24 // ConventionalQuantitative
+            fileTypes: "SpatialObjectFile"
+        }
+        ListElement {
+            name: "Interactive Organ segmentation"
+            module: "Editor"
+            imageSource: ":/Icons/Medium/InteractiveOrganSegmentation.svg"
+            description: "
+ <html>
+ <center>
+ <em>Semi-automated methods for segmenting organs and regions of interest in images.</em> 
+ </center>
+ <br><br><br>
+ <div text-align=\"left\">
+ Provides methods from TubeTK and 3D Slicer for creating and editing masks that
+ represent organs and/or regions of interest that can be used to constrain 
+ interactive and automated vessel segmentation algorithms in VesselView.
+ </div>
+ </html>"
+            layout: 3 
+            fileTypes: "VolumeFile"
+        }
+        ListElement {
+            name: "Utilities"
+            module: "Welcome"
+            imageSource: ":/Icons/Medium/ConvertVessels.svg"
+            description: ""
+            layout: 4 // SlicerLayoutDefaultView
+            fileTypes: "SpatialObjectFile"
+        }
+    }
+    ListModel{
+        id: vesselSegmentationModel
+        ListElement {
             name: "Interactive Vessel Segmentation"
             module: "InteractiveSegmentTubes"
             imageSource: ":/Icons/Medium/InteractiveVesselSegmentation.svg"
@@ -124,33 +189,9 @@ Rectangle  {
             layout: 3
             fileTypes: "VolumeFile"
         }
-        ListElement {
-            name: "Compute Vessel Tortuosity"
-            module: "Tortuosity"
-            imageSource: ":/Icons/Medium/ComputeVesselTortuosity.svg"
-            description:  "
- <html>
- <center>
- <em>Compute tortuosity metrics on vessels.</em> 
- </center>
- <br><br><br>
- <div text-align=\"left\">
- Work initiated by Dr. Bullitt has shown that morphological features of vessels
- within and around tumors can be used to assess malignancy and treatment
- efficacy.   Others have associated vessel morphological features with diabetic
- retinopathy, retinopathy of prematurity, and a variety of arterial diseases.
- <br><br>
- VesselView contains a variety of novel tortuosity metrics including:
- <ul>
-   <li> Fourier-based methods </li>
-   <li> Normalized inflection count </li>
-   <li> Mean curvature </li>
- </ul>
- </div>
- </html>"
-            layout: 24 // ConventionalQuantitative
-            fileTypes: "SpatialObjectFile"
-        }
+    }
+    ListModel{
+        id: utilitiesModel
         ListElement {
             name: "Convert Vessel Files"
             module: "ConvertTRE"
@@ -174,22 +215,33 @@ Rectangle  {
             fileTypes: "SpatialObjectFile"
         }
         ListElement {
-            name: "Interactive Organ segmentation"
-            module: "Editor"
-            imageSource: ":/Icons/Medium/InteractiveOrganSegmentation.svg"
-            description: "
+            name: "Crop Image"
+            module: "CropImage"
+            imageSource: ""
+            description:  "
  <html>
  <center>
- <em>Semi-automated methods for segmenting organs and regions of interest in images.</em> 
+ <em>Crop Image</em>
  </center>
  <br><br><br>
- <div text-align=\"left\">
- Provides methods from TubeTK and 3D Slicer for creating and editing masks that
- represent organs and/or regions of interest that can be used to constrain 
- interactive and automated vessel segmentation algorithms in VesselView.
- </div>
+
  </html>"
-            layout: 3 
+            layout: 3
+            fileTypes: "ImageFile"
+        }
+        ListElement {
+            name: "Crop Volume"
+            module: "CropVolume"
+            imageSource: ""
+            description:  "
+ <html>
+ <center>
+ <em>Crop Volume</em>
+ </center>
+ <br><br><br>
+
+ </html>"
+            layout: 3
             fileTypes: "VolumeFile"
         }
     }
@@ -245,6 +297,7 @@ Rectangle  {
                     descriptionRectangleText.text = aboutText
                     descriptionRectangleImage.source = aboutSource
                     openButton.visible = false
+                    horizontalListWithButtons.visible = false;
                     recentlyLoadedFilesModel.fileTypes = ""
                     selectedFiles = []
                 }
@@ -313,7 +366,7 @@ Rectangle  {
             states: [
                 State {
                     name: "selected"
-                    when: (module == selectedModule)
+                    when: welcomeListView.currentIndex == index//(module == selectedModule)
                     PropertyChanges {target: elementItem; color: activePalette.dark;}
                 }
             ]
@@ -326,14 +379,209 @@ Rectangle  {
     
                 descriptionRectangleText.text =
                   welcomeScreenModel.get(currentIndex).description
+                descriptionRectangleImage.visible = true;
                 descriptionRectangleImage.source =
                   welcomeScreenModel.get(currentIndex).imageSource
                 openButton.visible = true
+                horizontalListWithButtons.visible = false
                 recentlyLoadedFilesModel.fileTypes =
                   welcomeScreenModel.get(currentIndex).fileTypes
                 selectedFiles = []
+                if(currentIndex == 1)
+                {
+                    horizontalListWithButtons.visible = true
+                    vesselSegmentationListView.visible = true
+                    utilitiesListView.visible = false
+                    vesselSegmentationListView.currentIndex = -1
+                    descriptionRectangleImage.visible = false;
+                }
+                if(currentIndex == 4)
+                {
+                    horizontalListWithButtons.visible = true
+                    utilitiesListView.visible = true
+                    vesselSegmentationListView.visible = false
+                    utilitiesListView.currentIndex = -1
+                    descriptionRectangleImage.visible = false;
+                }
             }
         }
+    }
+
+    Rectangle{
+        id: horizontalListWithButtons
+        visible: false
+        anchors.left: aboutRectangle.right
+        anchors.right: parent.right
+        anchors.rightMargin: generalMargin
+        anchors.leftMargin: generalMargin
+        anchors.top: parent.top
+        anchors.topMargin: generalMargin
+        color: activePalette.base
+        height: aboutRectangle.height
+
+        ListView {
+               id: vesselSegmentationListView
+               visible : false
+               spacing: generalSpacing
+               anchors.fill:parent
+               currentIndex: -1
+               clip:true
+               snapMode: ListView.SnapToItem
+               boundsBehavior: Flickable.StopAtBounds
+               focus:true
+
+               orientation: ListView.Horizontal
+               model:  vesselSegmentationModel
+
+               delegate: Rectangle {
+                   id: elementItem1
+                   height: elementHeight
+                   width: aboutRectangle.width
+                   anchors.top: parent.top
+                   anchors.topMargin: generalMargin
+                   anchors.bottom: parent.bottom
+                   anchors.bottomMargin: generalMargin
+                   color: activePalette.button
+                   border.color: activePalette.dark
+                   radius: generalMargin
+                   Image {
+                       id: elementImage1
+                       width: elementItem1.width
+                       height: elementItem1.height - elementText1.height - 2*generalMargin
+                       anchors.horizontalCenter: parent.horizontalCenter
+                       anchors.top: parent.top
+                       anchors.topMargin: generalMargin
+                       fillMode: Image.PreserveAspectFit
+                       source: imageSource
+                      // source: vesselSegmentationModel.get(vesselSegmentationListView.currentIndex).imageSource
+                   }
+                   Text {
+                       id: elementText1
+                       anchors.bottom: elementItem1.bottom
+                       anchors.bottomMargin: generalMargin
+                       anchors.horizontalCenter: elementItem1.horizontalCenter
+                       text: name
+                       color: activePalette.text
+                       font.pixelSize: 16
+                       z: 1
+                       wrapMode: Text.WordWrap
+                  }
+                   MouseArea {
+                       anchors.fill: parent
+                       onClicked: {
+                           vesselSegmentationListView.currentIndex = index
+                       }
+                       onDoubleClicked: {
+                           welcomeScreen.loadModule(selectedModule, selectedLayout)
+                       }
+                       z: 2
+                   }
+                   states: [
+                       State {
+                           name: "selected"
+                           when:vesselSegmentationListView.currentIndex == index// module == selectedModule
+                           PropertyChanges {target: elementItem1; color: activePalette.dark;}
+                       }
+                   ]
+               }
+               onCurrentItemChanged: {
+                   if (vesselSegmentationListView.currentIndex != -1) {
+                       selectedModule = vesselSegmentationModel.get(currentIndex).module
+                       selectedLayout = vesselSegmentationModel.get(currentIndex).layout
+
+                       descriptionRectangleText.text =
+                         vesselSegmentationModel.get(currentIndex).description
+                       descriptionRectangleImage.visible = true;
+                       descriptionRectangleImage.source =
+                         vesselSegmentationModel.get(currentIndex).imageSource
+                       openButton.visible = true
+                       recentlyLoadedFilesModel.fileTypes =
+                         vesselSegmentationModel.get(currentIndex).fileTypes
+                       selectedFiles = []
+                   }
+               }
+           }
+        ListView {
+               id: utilitiesListView
+               visible:false
+               spacing: generalSpacing
+               anchors.fill:parent
+               currentIndex: -1
+               clip:true
+               snapMode: ListView.SnapToItem
+               boundsBehavior: Flickable.StopAtBounds
+               focus:true
+               orientation: ListView.Horizontal
+               model:  utilitiesModel
+
+               delegate: Rectangle {
+                   id: elementItem2
+                   height: elementHeight
+                   width: aboutRectangle.width
+                   anchors.top: parent.top
+                   anchors.topMargin: generalMargin
+                   anchors.bottom: parent.bottom
+                   anchors.bottomMargin: generalMargin
+                   color: activePalette.button
+                  // color:"green"
+                   border.color: activePalette.dark
+                   radius: generalMargin
+                   Image {
+                       id: elementImage2
+                       width: elementItem2.width
+                       height: elementItem2.height - elementText2.height - 2*generalMargin
+                       anchors.horizontalCenter: parent.horizontalCenter
+                       anchors.top: parent.top
+                       anchors.topMargin: generalMargin
+                       fillMode: Image.PreserveAspectFit
+                       source: imageSource
+                   }
+                   Text {
+                       id: elementText2
+                       anchors.bottom: elementItem2.bottom
+                       anchors.bottomMargin: generalMargin
+                       anchors.horizontalCenter: elementItem2.horizontalCenter
+                       text: name
+                       color: activePalette.text
+                       font.pixelSize: 16
+                       z: 1
+                       wrapMode: Text.WordWrap
+                  }
+                   MouseArea {
+                       anchors.fill: parent
+                       onClicked: {
+                           utilitiesListView.currentIndex = index
+                       }
+                       onDoubleClicked: {
+                           welcomeScreen.loadModule(selectedModule, selectedLayout)
+                       }
+                       z: 2
+                   }
+                   states: [
+                       State {
+                           name: "selected"
+                           when: utilitiesListView.currentIndex == index//module == selectedModule
+                           PropertyChanges {target: elementItem2; color: activePalette.dark;}
+                       }
+                   ]
+               }
+               onCurrentItemChanged: {
+                   if (utilitiesListView.currentIndex != -1) {
+                       selectedModule = utilitiesModel.get(currentIndex).module
+                       selectedLayout = utilitiesModel.get(currentIndex).layout
+
+                       descriptionRectangleText.text =
+                         utilitiesModel.get(currentIndex).description
+                       descriptionRectangleImage.visible = true;
+                       descriptionRectangleImage.source =
+                         utilitiesModel.get(currentIndex).imageSource
+                       openButton.visible = true
+                       recentlyLoadedFilesModel.fileTypes =
+                         utilitiesModel.get(currentIndex).fileTypes
+                       selectedFiles = []
+                   }
+               }
+           }
     }
 
     Rectangle {
@@ -343,9 +591,9 @@ Rectangle  {
         anchors.right: parent.right
         anchors.left: welcomeListView.right
         anchors.leftMargin: generalMargin
-        anchors.top: parent.top
-        height: descriptionRectangleText.height +
-          descriptionRectangleImage.height
+        anchors.top : horizontalListWithButtons.bottom
+       // anchors.top: parent.top
+        height: descriptionRectangleText.height +descriptionRectangleImage.height
 
         Image {
             id: descriptionRectangleImage
@@ -381,9 +629,8 @@ Rectangle  {
 
     Text {
         id: recentFilesTextBox
-        anchors.top: descriptionRectangle.bottom
-        anchors.topMargin: descriptionRectangle.height + 
-          Math.floor( descriptionRectangleImage.height / 2 )
+        anchors.bottom: openButton.top
+        anchors.bottomMargin: Math.floor(parent.height / 10)
         anchors.right: welcomeRectangle.right
         anchors.rightMargin: Math.floor( parent.width * 0.125 )
         anchors.left: welcomeListView.right
@@ -415,7 +662,7 @@ Rectangle  {
         clip:true
         snapMode: ListView.SnapToItem
         boundsBehavior: Flickable.StopAtBounds
-
+        focus:true
         model: recentlyLoadedFilesModel
 
         delegate: Rectangle{
