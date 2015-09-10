@@ -250,17 +250,6 @@ void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
   slicerMainWindow->moduleSelector()->selectModule(moduleName);
   emit done();
 }
-//-----------------------------------------------------------------------------
-void qAppWelcomeScreen::loadNewData()
-{
-	Q_D(qAppWelcomeScreen);
-	qSlicerIOManager *ioManager = qSlicerApplication::application()->ioManager();
-	if (!ioManager)
-		return;
-	else
-		ioManager->openAddDataDialog();
-	return;
-}
 
 //-----------------------------------------------------------------------------
 void qAppWelcomeScreen::onRecentlyLoadedFilesChanged()

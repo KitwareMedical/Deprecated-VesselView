@@ -45,7 +45,6 @@ public:
 
 public slots:
   void loadModule(const QString& moduleName, int layout = -1);
-  void loadNewData();
   void setFilesToOpenOnLoad(const QStringList& filenames);
 
 signals:
