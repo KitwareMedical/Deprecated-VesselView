@@ -4,6 +4,15 @@ import QtQuick 1.0
 ListModel {
 
     ListElement {
+        name: "About"
+        module: ""
+        imageSource: ":/Icons/Medium/VesselViewSplashScreen.svg"
+        description: "aboutText"
+        layout: -1
+        fileTypes: ""
+        subTasks:[]
+    }
+    ListElement {
         name: "Vessel Display"
         module: "SpatialObjects"
         imageSource: ":/Icons/Medium/VesselDisplay.svg"

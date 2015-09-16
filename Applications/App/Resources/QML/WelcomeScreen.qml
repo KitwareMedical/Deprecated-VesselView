@@ -68,47 +68,50 @@ Rectangle  {
 
     Rectangle {
         id: aboutRectangle
-        anchors.left: parent.left
-        anchors.leftMargin: 2 * generalMargin
-        anchors.top: parent.top
-        anchors.topMargin: generalMargin
-        anchors.rightMargin: generalMargin
-        width: welcomeListWidth
-        height: elementHeight + generalSpacing
+        visible: true
+        anchors{
+            left: welcomeListView.right
+            right: parent.right
+            top: parent.top
+            bottom: parent.bottom
+            margins: generalMargin
+            topMargin: Math.floor( aboutRectangle.height / 4)
+        }
 
         color: activePalette.base
         border.color: activePalette.base
         radius: generalMargin
-        z: 1 // So the image isn't hidden by the list view after it moved
 
-        Rectangle {
-            id: aboutImageRectangle
-            anchors.fill: parent
-            anchors.topMargin: welcomeListView.spacing
-            anchors.bottomMargin: welcomeListView.spacing
-            anchors.leftMargin: generalMargin
-            anchors.rightMargin: generalMargin
-            color: activePalette.base
+        Image {
+            id: aboutRectangleImage
+            anchors.right: parent.right
+            anchors.rightMargin: 0
+            anchors.left: parent.left
+            anchors.leftMargin: 0
+            anchors.top: parent.top
+            height: Math.floor( aboutRectangle.height / 4)
+            fillMode: Image.PreserveAspectFit
+            source: aboutSource
+        }
 
-            Image {
-                id: aboutImage
-                anchors.fill: parent
-                fillMode: Image.PreserveAspectFit
-                source: ":/Icons/Medium/VesselViewSplashScreen.svg"
-            }
-            MouseArea {
-                anchors.fill: aboutImage
-                onClicked: {
-                    selectedModule = ""
-                    selectedLayout = -1
-                    welcomeListView.currentIndex = -1
-                    descriptionRectangleText.text = aboutText
-                    descriptionRectangleImage.source = aboutSource
-                    openButton.visible = false
-                    recentlyLoadedFilesModel.fileTypes = ""
-                    selectedFiles = []
-                }
-            }
+
+        Text{
+            id: aboutRectangleText
+            anchors.right: parent.right
+            anchors.rightMargin: Math.floor( parent.width * 0.125 )
+            anchors.left: parent.left
+            anchors.leftMargin: Math.floor( parent.width * 0.125 )
+            anchors.top: aboutRectangleImage.bottom
+            anchors.topMargin: Math.floor( aboutRectangleImage.height / 2 )
+            height:Math.floor( aboutRectangle.height / 2)
+            wrapMode: Text.WordWrap
+            font.pointSize: 16
+            color: activePalette.text
+            verticalAlignment: Text.AlignTop
+            horizontalAlignment: Text.AlignLeft
+            text: aboutText
+            onLinkActivated: Qt.openUrlExternally(link)
+            clip: true
         }
     }
 
@@ -120,9 +123,9 @@ Rectangle  {
 
         spacing: generalSpacing
 
-        anchors.left: aboutRectangle.anchors.left
-        anchors.leftMargin: aboutRectangle.anchors.leftMargin
-        anchors.top: aboutRectangle.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: generalSpacing
+        anchors.top: parent.top
         anchors.bottom: parent.bottom
         width: welcomeListWidth
 
@@ -130,14 +133,25 @@ Rectangle  {
         delegate: WelcomeListDelegate {}
 
         onCurrentItemChanged: {
-            if (currentIndex != -1) {
+			if(currentIndex == 0){
+                selectedModule = ""
+                selectedLayout = -1
+                aboutRectangle.visible = true
+                descriptionRectangle.visible = false
+                openButton.visible = false
+                horizontalListWithButtons.visible = false;
+                recentlyLoadedFilesModel.fileTypes = ""
+                selectedFiles = []
+            }
+            else if (currentIndex != -1) {
                 selectedModule = model.get(currentIndex).module
                 selectedLayout = model.get(currentIndex).layout
-    
+                aboutRectangle.visible = false
+                descriptionRectangle.visible = true
                 descriptionRectangleText.text =
                   model.get(currentIndex).description
-                descriptionRectangleImage.source =
-                  model.get(currentIndex).imageSource
+               // descriptionRectangleImage.source =
+               //   model.get(currentIndex).imageSource
                 openButton.visible = true
                 recentlyLoadedFilesModel.fileTypes =
                   model.get(currentIndex).fileTypes
@@ -158,7 +172,7 @@ Rectangle  {
             top: parent.top
             leftMargin: generalMargin
             rightMargin: generalMargin
-            topMargin:generalSpacing// welcomeListView.buttonHeight
+            topMargin: welcomeListView.buttonHeight
         }
         color: activePalette.base
         height: elementHeight + generalSpacing//aboutRectangle.height
@@ -179,10 +193,12 @@ Rectangle  {
                    if (currentIndex != -1) {
                        selectedModule = model.get(currentIndex).module
                        selectedLayout = model.get(currentIndex).layout
+                       aboutRectangle.visible = false
+                       descriptionRectangle.visible = true
                        descriptionRectangleText.text =
                          model.get(currentIndex).description
-                       descriptionRectangleImage.source =
-                         model.get(currentIndex).imageSource
+                    //   descriptionRectangleImage.source =
+                     //    model.get(currentIndex).imageSource
                        openButton.visible = true
                        recentlyLoadedFilesModel.fileTypes =
                          model.get(currentIndex).fileTypes
@@ -202,8 +218,9 @@ Rectangle  {
         anchors.top : horizontalListWithButtons.bottom
         anchors.bottom: openButton.top
         height: welcomeListView.height
+		visible: false
 
-        Image {
+     /*   Image {
             id: descriptionRectangleImage
             anchors.right: parent.right
             anchors.rightMargin: 0
@@ -215,6 +232,7 @@ Rectangle  {
             fillMode: Image.PreserveAspectFit
             source: aboutSource
         }
+*/
 
         Text{
             id: descriptionRectangleText
@@ -222,9 +240,8 @@ Rectangle  {
             anchors.rightMargin: Math.floor( parent.width * 0.125 )
             anchors.left: parent.left
             anchors.leftMargin: Math.floor( parent.width * 0.125 )
-            anchors.top: descriptionRectangleImage.bottom
-            anchors.topMargin: Math.floor( descriptionRectangleImage.height /
-              2 )
+            anchors.top: parent.top
+            anchors.topMargin: Math.floor( elementHeight / 2 )
             height:Math.floor( parent.height/2)
             wrapMode: Text.WordWrap
             font.pointSize: 16
@@ -261,7 +278,7 @@ Rectangle  {
                 when: recentFiles.visible == true
                 PropertyChanges{
                     target:descriptionRectangle
-                    anchors.bottomMargin: Math.floor(welcomeListView.height * 1/6)
+                    anchors.bottomMargin: Math.floor(welcomeListView.height/8 )
                 }
             }
         ]
