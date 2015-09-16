@@ -505,11 +505,50 @@ Rectangle  {
         height: Math.floor(parent.height / 20)
         color: activePalette.base
 
+
+        Rectangle {
+            id: loadButtonButton
+            anchors.fill: openButton
+            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.leftMargin: Math.floor( parent.width / 4 )-generalMargin
+            anchors.rightMargin: Math.floor( parent.width / 2 )+generalMargin
+            radius: generalMargin
+            color: "olivedrab"            
+            Text {
+                id: loadButtonText
+                anchors.fill: loadButtonButton
+                text: "Load New Data"
+                font.pointSize: 20
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+            }
+            MouseArea {
+                anchors.fill: loadButtonButton
+                onPressed: {
+                  parent.color = activePalette.dark
+                }
+                onExited: {
+                  parent.color = "olivedrab"
+                }
+                onReleased: {
+                  parent.color = "olivedrab"
+                }
+                onClicked: {
+                  parent.color = "olivedrab"
+                  welcomeScreen.loadNewData()
+                  welcomeScreen.loadModule(selectedModule, selectedLayout)
+                }
+            }
+        }
+
         Rectangle {
             id: openButtonButton
             anchors.fill: openButton
-            anchors.leftMargin: Math.floor( ( parent.width - 200 ) / 2 )
-            anchors.rightMargin: Math.floor( ( parent.width - 200 ) / 2 )
+            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.leftMargin: Math.floor( parent.width / 2 )
+            anchors.rightMargin: Math.floor( parent.width / 4 )
             radius: generalMargin
             color: "olivedrab"
             Text {

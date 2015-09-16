@@ -252,6 +252,11 @@ void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
 }
 
 //-----------------------------------------------------------------------------
+void qAppWelcomeScreen::loadNewData(){
+	Q_D(qAppWelcomeScreen);
+	qSlicerApplication::application()->ioManager()->openAddDataDialog();
+}
+//-----------------------------------------------------------------------------
 void qAppWelcomeScreen::onRecentlyLoadedFilesChanged()
 {
   Q_D(qAppWelcomeScreen);
