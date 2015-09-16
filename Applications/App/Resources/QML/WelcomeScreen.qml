@@ -16,7 +16,7 @@ Rectangle  {
     property int generalSpacing: 2*generalMargin
     property real gradientStart: 0.8
     property real gradientEnd: 1.0
-
+    property real welcomeListWidth: Math.floor((welcomeRectangle.width - 2*generalMargin) / 4)
     property string aboutSource: ":/Icons/Medium/KitwareLogo.svg"
     property string aboutText: "
  <html>
@@ -72,7 +72,7 @@ Rectangle  {
         anchors.top: parent.top
         anchors.topMargin: generalMargin
         anchors.rightMargin: generalMargin
-        width: Math.floor((parent.width - 2*generalMargin) / 4)
+        width: welcomeListWidth
         height: elementHeight + generalSpacing
 
         color: activePalette.base
@@ -123,60 +123,10 @@ Rectangle  {
         anchors.leftMargin: aboutRectangle.anchors.leftMargin
         anchors.top: aboutRectangle.bottom
         anchors.bottom: parent.bottom
-        width: aboutRectangle.width
+        width: welcomeListWidth
 
         model: welcomeListModel
-        delegate: Rectangle {
-
-            id: elementItem
-            height: elementHeight
-            anchors.left: parent.left
-            anchors.leftMargin: generalMargin
-            anchors.right: parent.right
-            anchors.rightMargin: generalMargin
-            color: activePalette.button
-            border.color: activePalette.dark
-            radius: generalMargin
-
-            Image {
-                id: elementImage
-                width: elementItem.width
-                height: elementItem.height - elementText.height - 2*generalMargin
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: generalMargin
-                fillMode: Image.PreserveAspectFit
-                source: imageSource
-                }
-
-            Text {
-                id: elementText
-                anchors.bottom: elementItem.bottom
-                anchors.bottomMargin: generalMargin
-                anchors.horizontalCenter: elementItem.horizontalCenter
-                text: name
-                color: activePalette.text
-                font.pixelSize: 16
-                z: 1
-            }
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    welcomeListView.currentIndex = index
-                }
-                onDoubleClicked: {
-                    welcomeScreen.loadModule(selectedModule, selectedLayout)
-                }
-                z: 2
-            }
-            states: [
-                State {
-                    name: "selected"
-                    when: (module == selectedModule)
-                    PropertyChanges {target: elementItem; color: activePalette.dark;}
-                }
-            ]
-        }
+        delegate: WelcomeListDelegate {}
 
         onCurrentItemChanged: {
             if (currentIndex != -1) {

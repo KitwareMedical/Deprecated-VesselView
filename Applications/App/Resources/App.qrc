@@ -19,5 +19,6 @@
         <file alias="VerticalListViewWithButtons.qml">QML/VerticalListViewWithButtons.qml</file>
         <file alias="WelcomeScreen.qml">QML/WelcomeScreen.qml</file>
         <file alias="WelcomeListModel.qml">QML/WelcomeListModel.qml</file>
+        <file alias="WelcomeListDelegate.qml">QML/WelcomeListDelegate.qml</file>
     </qresource>
 </RCC>
