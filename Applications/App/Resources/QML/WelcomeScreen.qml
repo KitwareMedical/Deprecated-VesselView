@@ -344,8 +344,7 @@ Rectangle  {
         anchors.left: welcomeListView.right
         anchors.leftMargin: generalMargin
         anchors.top: parent.top
-        height: descriptionRectangleText.height +
-          descriptionRectangleImage.height
+        height: welcomeListView.height
 
         Image {
             id: descriptionRectangleImage
@@ -376,23 +375,38 @@ Rectangle  {
             horizontalAlignment: Text.AlignLeft
             text: aboutText
             onLinkActivated: Qt.openUrlExternally(link)
+            clip: true
         } 
     }
 
-    Text {
-        id: recentFilesTextBox
-        anchors.top: descriptionRectangle.bottom
-        anchors.topMargin: descriptionRectangle.height + 
-          Math.floor( descriptionRectangleImage.height / 2 )
-        anchors.right: welcomeRectangle.right
+    Rectangle{
+        id:recentFiles
+        anchors.right: parent.right
         anchors.rightMargin: Math.floor( parent.width * 0.125 )
         anchors.left: welcomeListView.right
         anchors.leftMargin: Math.floor( parent.width * 0.125 )
-        height: recentFilesTextBox.paintedHeight
-
-        text: "Recent files:"
-        color: activePalette.text
-        font.pixelSize: 14
+        anchors.top:descriptionRectangle.bottom
+        anchors.topMargin: generalMargin
+        color:activePalette.base
+        height:recentFilesTextBox.paintedHeight
+        Text {
+            id: recentFilesTextBox
+            anchors.fill: parent
+            height: recentFilesTextBox.paintedHeight
+            text: "Recent files:"
+            color: activePalette.text
+            font.pixelSize: 14
+        }
+        states:[
+            State{
+                name: "visible"
+                when: recentFiles.visible == true
+                PropertyChanges{
+                    target:descriptionRectangle
+                    anchors.bottomMargin: Math.floor(welcomeListView.height * 1/6)
+                }
+            }
+        ]
     }
 
     Binding {
@@ -404,7 +418,7 @@ Rectangle  {
     ListView {
         id: recentFilesView
         spacing: generalSpacing
-        anchors.top: recentFilesTextBox.bottom
+        anchors.top: recentFiles.bottom
         anchors.topMargin: generalMargin
         anchors.bottom: openButton.top
         anchors.bottomMargin: generalMargin
@@ -489,7 +503,7 @@ Rectangle  {
                 }
             }
         }
-
+        focus: true
         currentIndex: -1
     }
 
