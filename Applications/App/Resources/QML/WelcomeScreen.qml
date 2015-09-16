@@ -16,6 +16,7 @@ Rectangle  {
     property int generalSpacing: 2*generalMargin
     property real gradientStart: 0.8
     property real gradientEnd: 1.0
+    property int currentIndexWelcomeListView : -1
     property real welcomeListWidth: Math.floor((welcomeRectangle.width - 2*generalMargin) / 4)
     property string aboutSource: ":/Icons/Medium/KitwareLogo.svg"
     property string aboutText: "
@@ -141,8 +142,54 @@ Rectangle  {
                 recentlyLoadedFilesModel.fileTypes =
                   model.get(currentIndex).fileTypes
                 selectedFiles = []
+				horizontalListWithButtons.visible = true
+                subTasksListView.currentIndex = 0
+				currentIndexWelcomeListView = currentIndex
             }
         }
+    }
+
+    Rectangle{
+        id: horizontalListWithButtons
+        visible: false
+        anchors{
+            left: welcomeListView.right
+            right: parent.right
+            top: parent.top
+            leftMargin: generalMargin
+            rightMargin: generalMargin
+            topMargin:generalSpacing// welcomeListView.buttonHeight
+        }
+        color: activePalette.base
+        height: elementHeight + generalSpacing//aboutRectangle.height
+
+        ListView {
+               id: subTasksListView
+               spacing: generalSpacing
+               anchors.fill:parent
+               currentIndex: -1
+               clip:true
+               snapMode: ListView.SnapToItem
+               boundsBehavior: Flickable.StopAtBounds
+
+               orientation: ListView.Horizontal
+               model: welcomeListModel.get(currentIndexWelcomeListView).subTasks
+               delegate: WelcomeListDelegate {}
+               onCurrentItemChanged: {
+                   if (currentIndex != -1) {
+                       selectedModule = model.get(currentIndex).module
+                       selectedLayout = model.get(currentIndex).layout
+                       descriptionRectangleText.text =
+                         model.get(currentIndex).description
+                       descriptionRectangleImage.source =
+                         model.get(currentIndex).imageSource
+                       openButton.visible = true
+                       recentlyLoadedFilesModel.fileTypes =
+                         model.get(currentIndex).fileTypes
+                       selectedFiles = []
+                   }
+               }
+           }
     }
 
     Rectangle {
@@ -152,7 +199,8 @@ Rectangle  {
         anchors.right: parent.right
         anchors.left: welcomeListView.right
         anchors.leftMargin: generalMargin
-        anchors.top: parent.top
+        anchors.top : horizontalListWithButtons.bottom
+        anchors.bottom: openButton.top
         height: welcomeListView.height
 
         Image {
@@ -162,8 +210,8 @@ Rectangle  {
             anchors.left: parent.left
             anchors.leftMargin: 0
             anchors.top: parent.top
-            anchors.topMargin: Math.floor( welcomeListView.height / 8 )
-            height: Math.floor( welcomeListView.height / 6)
+            anchors.topMargin: Math.floor( descriptionRectangle.height / 8 )
+            height: Math.floor( descriptionRectangle.height / 4)
             fillMode: Image.PreserveAspectFit
             source: aboutSource
         }
@@ -177,6 +225,7 @@ Rectangle  {
             anchors.top: descriptionRectangleImage.bottom
             anchors.topMargin: Math.floor( descriptionRectangleImage.height /
               2 )
+            height:Math.floor( parent.height/2)
             wrapMode: Text.WordWrap
             font.pointSize: 16
             color: activePalette.text
