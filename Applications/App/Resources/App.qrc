@@ -1,23 +1,23 @@
-<!DOCTYPE RCC><RCC version="1.0">
-  <qresource>
-    <file alias="Icons/Medium/AutomaticVesselSegmentation.svg">Icons/Medium/AutomaticVesselSegmentation.svg</file>
-    <file alias="Icons/Medium/ComputeVesselTortuosity.svg">Icons/Medium/ComputeVesselTortuosity.svg</file>
-    <file alias="Icons/Medium/ConvertVessels.svg">Icons/Medium/ConvertVessels.svg</file>
-    <file alias="Icons/Medium/InteractiveOrganSegmentation.svg">Icons/Medium/InteractiveOrganSegmentation.svg</file>
-    <file alias="Icons/Medium/InteractiveVesselSegmentation.svg">Icons/Medium/InteractiveVesselSegmentation.svg</file>
-    <file alias="Icons/Medium/KitwareLogo.svg">Icons/Medium/KitwareLogo.svg</file>
-    <file alias="Icons/Medium/VesselDisplay.svg">Icons/Medium/VesselDisplay.svg</file>
-    <file alias="Icons/Medium/VesselViewLogo.svg">Icons/Medium/VesselViewLogo.svg</file>
-
-    <file alias="Icons/Medium/VesselViewSplashScreen.svg">Icons/Medium/VesselViewSplashScreen.svg</file>
-    <file alias="SplashScreen.png">Images/SplashScreen.png</file>
-    <file alias="WelcomeAbout.png">Images/WelcomeAbout.png</file>
-    <file alias="TubeTKTube.png">Images/TubeTKTube.png</file>
-    <file alias="Logo.png">Images/Logo.png</file>
-    <file alias="ModuleHome.png">Images/ModuleHome.png</file>
-    <file alias="DefaultSettings.ini">Settings/VesselViewDefaultSettings.ini</file>
-    <file alias="Button.qml">QML/Button.qml</file>
-    <file alias="VerticalListViewWithButtons.qml">QML/VerticalListViewWithButtons.qml</file>
-    <file alias="WelcomeScreen.qml">QML/WelcomeScreen.qml</file>
-  </qresource>
+<RCC>
+    <qresource prefix="/">
+        <file alias="Icons/Medium/AutomaticVesselSegmentation.svg">Icons/Medium/AutomaticVesselSegmentation.svg</file>
+        <file alias="Icons/Medium/ComputeVesselTortuosity.svg">Icons/Medium/ComputeVesselTortuosity.svg</file>
+        <file alias="Icons/Medium/ConvertVessels.svg">Icons/Medium/ConvertVessels.svg</file>
+        <file alias="Icons/Medium/InteractiveOrganSegmentation.svg">Icons/Medium/InteractiveOrganSegmentation.svg</file>
+        <file alias="Icons/Medium/InteractiveVesselSegmentation.svg">Icons/Medium/InteractiveVesselSegmentation.svg</file>
+        <file alias="Icons/Medium/KitwareLogo.svg">Icons/Medium/KitwareLogo.svg</file>
+        <file alias="Icons/Medium/VesselDisplay.svg">Icons/Medium/VesselDisplay.svg</file>
+        <file alias="Icons/Medium/VesselViewLogo.svg">Icons/Medium/VesselViewLogo.svg</file>
+        <file alias="Icons/Medium/VesselViewSplashScreen.svg">Icons/Medium/VesselViewSplashScreen.svg</file>
+        <file alias="SplashScreen.png">Images/SplashScreen.png</file>
+        <file alias="WelcomeAbout.png">Images/WelcomeAbout.png</file>
+        <file alias="TubeTKTube.png">Images/TubeTKTube.png</file>
+        <file alias="Logo.png">Images/Logo.png</file>
+        <file alias="ModuleHome.png">Images/ModuleHome.png</file>
+        <file alias="DefaultSettings.ini">Settings/VesselViewDefaultSettings.ini</file>
+        <file alias="Button.qml">QML/Button.qml</file>
+        <file alias="VerticalListViewWithButtons.qml">QML/VerticalListViewWithButtons.qml</file>
+        <file alias="WelcomeScreen.qml">QML/WelcomeScreen.qml</file>
+        <file alias="WelcomeListModel.qml">QML/WelcomeListModel.qml</file>
+    </qresource>
 </RCC>
