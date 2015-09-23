@@ -75,7 +75,6 @@ Rectangle  {
             top: parent.top
             bottom: parent.bottom
             margins: generalMargin
-            topMargin: Math.floor( aboutRectangle.height / 4)
         }
 
         color: activePalette.base
@@ -89,6 +88,7 @@ Rectangle  {
             anchors.left: parent.left
             anchors.leftMargin: 0
             anchors.top: parent.top
+            anchors.topMargin: Math.floor( aboutRectangle.height / 6)
             height: Math.floor( aboutRectangle.height / 4)
             fillMode: Image.PreserveAspectFit
             source: aboutSource
