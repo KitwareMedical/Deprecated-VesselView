@@ -87,8 +87,6 @@ Rectangle  {
                 left: parent.left
                 right: parent.right
                 top: parent.top
-                rightMargin: 0
-                leftMargin: 0
                 topMargin: Math.floor( aboutRectangle.height / 6)
             }
             height: Math.floor( aboutRectangle.height / 4)
@@ -213,11 +211,8 @@ Rectangle  {
         color: activePalette.base
         anchors{
             left: welcomeListView.right
-            right: parent.right
             top : horizontalListWithButtons.bottom
             bottom: openButton.top
-            leftMargin: generalMargin
-            rightMargin: generalMargin
         }
         height: welcomeListView.height
         width: parent.width - welcomeListWidth
@@ -243,7 +238,6 @@ Rectangle  {
                     topMargin: Math.floor( elementHeight / 2 )
                 }
                 height:Math.floor( parent.height/2)
-                width: parent.width
                 wrapMode: Text.WordWrap
                 font.pointSize: 16
                 color: activePalette.text
@@ -259,10 +253,8 @@ Rectangle  {
         id:recentFiles
         anchors{
             left: welcomeListView.right
-            right: parent.right
             top:descriptionRectangle.bottom
             leftMargin: Math.floor( parent.width * 0.125 )
-            rightMargin: Math.floor( parent.width * 0.125 )
             topMargin: generalMargin
         }
         color:activePalette.base
@@ -332,7 +324,6 @@ Rectangle  {
                 anchors{
                     left: parent.left
                     top: parent.top
-                    bottom: parent.bottom
                     leftMargin: generalMargin
                 }
                 text: "\uf15b" // fa-file
@@ -348,7 +339,6 @@ Rectangle  {
                     left: recentFilesDelegateItemTextIcon.right
                     right: parent.right
                     top: parent.top
-                    bottom: parent.bottom
                     leftMargin: generalMargin
                     rightMargin: generalMargin
                 }
@@ -411,9 +401,7 @@ Rectangle  {
         Rectangle {
             id: loadButtonButton
             anchors{
-                fill: openButton
-                left: parent.left
-                right: parent.right
+                fill: parent
                 leftMargin: Math.floor( parent.width / 4 )-generalMargin
                 rightMargin: Math.floor( parent.width / 2 )+generalMargin
             }
@@ -451,9 +439,7 @@ Rectangle  {
         Rectangle {
             id: openButtonButton
             anchors{
-                fill: openButton
-                left: parent.left
-                right: parent.right
+                fill: parent
                 leftMargin: Math.floor( parent.width / 2 )
                 rightMargin: Math.floor( parent.width / 4 )
             }
