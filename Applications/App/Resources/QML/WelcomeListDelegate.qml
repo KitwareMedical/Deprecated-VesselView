@@ -1,6 +1,8 @@
 import QtQuick 1.0
+
 Component {
     id: welcomeListDelegate
+
     Rectangle {
         id: elementItem
         height: elementHeight
@@ -19,6 +21,7 @@ Component {
             fillMode: Image.PreserveAspectFit
             source: imageSource
             }
+
         Text {
             id: elementText
             anchors.bottom: elementItem.bottom
@@ -30,6 +33,7 @@ Component {
             z: 1
             clip: true
         }
+
         MouseArea {
             anchors.fill: parent
             onClicked: {
@@ -41,11 +45,11 @@ Component {
             }
             z: 2
         }
+
         states: [
             State {
                 name: "selected"
                 when: elementItem.ListView.view.currentIndex == index
-  //(module == selectedModule)
                 PropertyChanges {target: elementItem; color: activePalette.dark;}
             }
         ]
