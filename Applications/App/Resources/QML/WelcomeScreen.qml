@@ -285,7 +285,7 @@ Rectangle  {
     }
 
     Binding {
-         target: recentFilesTextBox
+         target: recentFiles
          property: "visible"
          value: recentlyLoadedFilesModel.hasAtLeastOneEntry()
      }
