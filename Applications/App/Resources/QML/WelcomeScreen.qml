@@ -218,40 +218,35 @@ Rectangle  {
         anchors.top : horizontalListWithButtons.bottom
         anchors.bottom: openButton.top
         height: welcomeListView.height
+        width: parent.width - welcomeListWidth
 		visible: false
-
-     /*   Image {
-            id: descriptionRectangleImage
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            anchors.top: parent.top
-            anchors.topMargin: Math.floor( descriptionRectangle.height / 8 )
-            height: Math.floor( descriptionRectangle.height / 4)
-            fillMode: Image.PreserveAspectFit
-            source: aboutSource
-        }
-*/
-
-        Text{
-            id: descriptionRectangleText
-            anchors.right: parent.right
-            anchors.rightMargin: Math.floor( parent.width * 0.125 )
-            anchors.left: parent.left
-            anchors.leftMargin: Math.floor( parent.width * 0.125 )
-            anchors.top: parent.top
-            anchors.topMargin: Math.floor( elementHeight / 2 )
-            height:Math.floor( parent.height/2)
-            wrapMode: Text.WordWrap
-            font.pointSize: 16
-            color: activePalette.text
-            verticalAlignment: Text.AlignTop
-            horizontalAlignment: Text.AlignLeft
-            text: aboutText
-            onLinkActivated: Qt.openUrlExternally(link)
+        Flickable{
+            id: descriptionRectangleFlickable
+            anchors.fill: parent
+            contentWidth: descriptionRectangle.width
+            contentHeight: descriptionRectangleText.height
+            height: descriptionRectangleText * 2
+            boundsBehavior: Flickable.DragAndOvershootBounds
             clip: true
-        } 
+            Text{
+                id: descriptionRectangleText
+                anchors.right: parent.right
+                anchors.rightMargin: Math.floor( parent.width * 0.125 )
+                anchors.left: parent.left
+                anchors.leftMargin: Math.floor( parent.width * 0.125 )
+                anchors.top: parent.top
+                anchors.topMargin: Math.floor( elementHeight / 2 )
+                height:Math.floor( parent.height/2)
+                width: parent.width
+                wrapMode: Text.WordWrap
+                font.pointSize: 16
+                color: activePalette.text
+                verticalAlignment: Text.AlignTop
+                horizontalAlignment: Text.AlignLeft
+                text: aboutText
+                onLinkActivated: Qt.openUrlExternally(link)
+            }
+        }
     }
 
     Rectangle{
