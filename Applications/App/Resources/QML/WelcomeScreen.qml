@@ -148,8 +148,6 @@ Rectangle  {
                 descriptionRectangle.visible = true
                 descriptionRectangleText.text =
                   model.get(currentIndex).description
-               // descriptionRectangleImage.source =
-               //   model.get(currentIndex).imageSource
                 openButton.visible = true
                 recentlyLoadedFilesModel.fileTypes =
                   model.get(currentIndex).fileTypes
@@ -173,7 +171,7 @@ Rectangle  {
             topMargin: welcomeListView.buttonHeight
         }
         color: activePalette.base
-        height: elementHeight + generalSpacing//aboutRectangle.height
+        height: elementHeight + generalSpacing
 
         ListView {
                id: subTasksListView
@@ -195,8 +193,6 @@ Rectangle  {
                        descriptionRectangle.visible = true
                        descriptionRectangleText.text =
                          model.get(currentIndex).description
-                    //   descriptionRectangleImage.source =
-                     //    model.get(currentIndex).imageSource
                        openButton.visible = true
                        recentlyLoadedFilesModel.fileTypes =
                          model.get(currentIndex).fileTypes
@@ -363,12 +359,10 @@ Rectangle  {
 
                     if (selected) {
                         recentFilesDelegateItem.color = activePalette.dark
-
                         welcomeScreen.addUniqueFileToOpenOnLoad(fileToLoad)
                     }
                     else {
                         recentFilesDelegateItem.color = activePalette.button
-
                         welcomeScreen.removeOneFileToOpenOnLoad(fileToLoad)
                     }
                 }
