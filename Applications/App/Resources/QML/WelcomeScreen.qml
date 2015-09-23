@@ -83,26 +83,29 @@ Rectangle  {
 
         Image {
             id: aboutRectangleImage
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            anchors.top: parent.top
-            anchors.topMargin: Math.floor( aboutRectangle.height / 6)
+            anchors{
+                left: parent.left
+                right: parent.right
+                top: parent.top
+                rightMargin: 0
+                leftMargin: 0
+                topMargin: Math.floor( aboutRectangle.height / 6)
+            }
             height: Math.floor( aboutRectangle.height / 4)
             fillMode: Image.PreserveAspectFit
             source: aboutSource
         }
 
-
         Text{
             id: aboutRectangleText
-            anchors.right: parent.right
-            anchors.rightMargin: Math.floor( parent.width * 0.125 )
-            anchors.left: parent.left
-            anchors.leftMargin: Math.floor( parent.width * 0.125 )
-            anchors.top: aboutRectangleImage.bottom
-            anchors.topMargin: Math.floor( aboutRectangleImage.height / 2 )
+            anchors{
+                left: parent.left
+                right: parent.right
+                top: aboutRectangleImage.bottom
+                leftMargin: Math.floor( parent.width * 0.125 )
+                rightMargin: Math.floor( parent.width * 0.125 )
+                topMargin: Math.floor( aboutRectangleImage.height / 2 )
+            }
             height:Math.floor( aboutRectangle.height / 2)
             wrapMode: Text.WordWrap
             font.pointSize: 16
@@ -117,21 +120,18 @@ Rectangle  {
 
     VerticalListViewWithButtons {
         id: welcomeListView
-
         buttonRadius: generalMargin
         buttonHeight: Math.floor(elementHeight / 4) + 3 * generalSpacing
-
         spacing: generalSpacing
-
-        anchors.left: parent.left
-        anchors.leftMargin: generalSpacing
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        anchors{
+            left: parent.left
+            top: parent.top
+            leftMargin: generalSpacing
+            bottom: parent.bottom
+        }
         width: welcomeListWidth
-
         model: welcomeListModel
         delegate: WelcomeListDelegate {}
-
         onCurrentItemChanged: {
 			if(currentIndex == 0){
                 selectedModule = ""
@@ -211,15 +211,18 @@ Rectangle  {
     Rectangle {
         id: descriptionRectangle
         color: activePalette.base
-        anchors.rightMargin: generalMargin
-        anchors.right: parent.right
-        anchors.left: welcomeListView.right
-        anchors.leftMargin: generalMargin
-        anchors.top : horizontalListWithButtons.bottom
-        anchors.bottom: openButton.top
+        anchors{
+            left: welcomeListView.right
+            right: parent.right
+            top : horizontalListWithButtons.bottom
+            bottom: openButton.top
+            leftMargin: generalMargin
+            rightMargin: generalMargin
+        }
         height: welcomeListView.height
         width: parent.width - welcomeListWidth
 		visible: false
+
         Flickable{
             id: descriptionRectangleFlickable
             anchors.fill: parent
@@ -228,14 +231,17 @@ Rectangle  {
             height: descriptionRectangleText * 2
             boundsBehavior: Flickable.DragAndOvershootBounds
             clip: true
+
             Text{
                 id: descriptionRectangleText
-                anchors.right: parent.right
-                anchors.rightMargin: Math.floor( parent.width * 0.125 )
-                anchors.left: parent.left
-                anchors.leftMargin: Math.floor( parent.width * 0.125 )
-                anchors.top: parent.top
-                anchors.topMargin: Math.floor( elementHeight / 2 )
+                anchors{
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    leftMargin: Math.floor( parent.width * 0.125 )
+                    rightMargin: Math.floor( parent.width * 0.125 )
+                    topMargin: Math.floor( elementHeight / 2 )
+                }
                 height:Math.floor( parent.height/2)
                 width: parent.width
                 wrapMode: Text.WordWrap
@@ -251,14 +257,17 @@ Rectangle  {
 
     Rectangle{
         id:recentFiles
-        anchors.right: parent.right
-        anchors.rightMargin: Math.floor( parent.width * 0.125 )
-        anchors.left: welcomeListView.right
-        anchors.leftMargin: Math.floor( parent.width * 0.125 )
-        anchors.top:descriptionRectangle.bottom
-        anchors.topMargin: generalMargin
+        anchors{
+            left: welcomeListView.right
+            right: parent.right
+            top:descriptionRectangle.bottom
+            leftMargin: Math.floor( parent.width * 0.125 )
+            rightMargin: Math.floor( parent.width * 0.125 )
+            topMargin: generalMargin
+        }
         color:activePalette.base
         height:recentFilesTextBox.paintedHeight
+
         Text {
             id: recentFilesTextBox
             anchors.fill: parent
@@ -267,6 +276,7 @@ Rectangle  {
             color: activePalette.text
             font.pixelSize: 14
         }
+
         states:[
             State{
                 name: "visible"
@@ -288,14 +298,16 @@ Rectangle  {
     ListView {
         id: recentFilesView
         spacing: generalSpacing
-        anchors.top: recentFiles.bottom
-        anchors.topMargin: generalMargin
-        anchors.bottom: openButton.top
-        anchors.bottomMargin: generalMargin
-        anchors.right: welcomeRectangle.right
-        anchors.rightMargin: Math.floor( parent.width * 0.125 )
-        anchors.left: welcomeListView.right
-        anchors.leftMargin: Math.floor( parent.width * 0.125 )
+        anchors{
+            left: welcomeListView.right
+            right: welcomeRectangle.right
+            top: recentFiles.bottom
+            bottom: openButton.top
+            leftMargin: Math.floor( parent.width * 0.125 )
+            rightMargin: Math.floor( parent.width * 0.125 )
+            topMargin: generalMargin
+            bottomMargin: generalMargin
+        }
         clip:true
         snapMode: ListView.SnapToItem
         boundsBehavior: Flickable.StopAtBounds
@@ -304,36 +316,42 @@ Rectangle  {
 
         delegate: Rectangle{
             id: recentFilesDelegateItem
-            anchors.right: parent.right
-            anchors.rightMargin: 5 * generalMargin
-            anchors.left: parent.left
-            anchors.leftMargin: 5 * generalMargin
+            anchors{
+                left: parent.left
+                right: parent.right
+                leftMargin: 5 * generalMargin
+                rightMargin: 5 * generalMargin
+            }
             height: 20
-
             color: activePalette.button
             border.color: activePalette.dark
             radius: generalMargin
 
             Text {
                 id: recentFilesDelegateItemTextIcon
-                anchors.left: parent.left
-                anchors.leftMargin: generalMargin
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
+                anchors{
+                    left: parent.left
+                    top: parent.top
+                    bottom: parent.bottom
+                    leftMargin: generalMargin
+                }
                 text: "\uf15b" // fa-file
                 color: activePalette.text
                 font.pixelSize: 14
                 font.family: "FontAwesome"
                 verticalAlignment: Text.AlignVCenter
             }
+
             Text {
                 id: recentFilesDelegateItemText
-                anchors.left: recentFilesDelegateItemTextIcon.right
-                anchors.leftMargin: generalMargin
-                anchors.right: parent.right
-                anchors.rightMargin: generalMargin
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
+                anchors{
+                    left: recentFilesDelegateItemTextIcon.right
+                    right: parent.right
+                    top: parent.top
+                    bottom: parent.bottom
+                    leftMargin: generalMargin
+                    rightMargin: generalMargin
+                }
                 text: filename
                 color: activePalette.text
                 font.pixelSize: 14
@@ -341,6 +359,7 @@ Rectangle  {
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideLeft
             }
+
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -380,25 +399,27 @@ Rectangle  {
     Rectangle {
         id: openButton
         visible: false
-
-        anchors.right: welcomeRectangle.right
-        anchors.left: welcomeListView.right
-
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: Math.floor(parent.height / 20)
+        anchors{
+            left: welcomeListView.right
+            right: welcomeRectangle.right
+            bottom: parent.bottom
+            bottomMargin: Math.floor(parent.height / 20)
+        }
         height: Math.floor(parent.height / 20)
         color: activePalette.base
 
-
         Rectangle {
             id: loadButtonButton
-            anchors.fill: openButton
-            anchors.right: parent.right
-            anchors.left: parent.left
-            anchors.leftMargin: Math.floor( parent.width / 4 )-generalMargin
-            anchors.rightMargin: Math.floor( parent.width / 2 )+generalMargin
+            anchors{
+                fill: openButton
+                left: parent.left
+                right: parent.right
+                leftMargin: Math.floor( parent.width / 4 )-generalMargin
+                rightMargin: Math.floor( parent.width / 2 )+generalMargin
+            }
             radius: generalMargin
-            color: "olivedrab"            
+            color: "olivedrab"
+
             Text {
                 id: loadButtonText
                 anchors.fill: loadButtonButton
@@ -407,6 +428,7 @@ Rectangle  {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
             }
+
             MouseArea {
                 anchors.fill: loadButtonButton
                 onPressed: {
@@ -428,13 +450,16 @@ Rectangle  {
 
         Rectangle {
             id: openButtonButton
-            anchors.fill: openButton
-            anchors.right: parent.right
-            anchors.left: parent.left
-            anchors.leftMargin: Math.floor( parent.width / 2 )
-            anchors.rightMargin: Math.floor( parent.width / 4 )
+            anchors{
+                fill: openButton
+                left: parent.left
+                right: parent.right
+                leftMargin: Math.floor( parent.width / 2 )
+                rightMargin: Math.floor( parent.width / 4 )
+            }
             radius: generalMargin
             color: "olivedrab"
+
             Text {
                 id: openButtonText
                 anchors.fill: openButtonButton
@@ -443,6 +468,7 @@ Rectangle  {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
             }
+
             MouseArea {
                 anchors.fill: openButtonButton
                 onPressed: {
