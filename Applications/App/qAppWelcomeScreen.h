@@ -56,7 +56,7 @@ signals:
 protected slots:
   void onRecentlyLoadedFilesChanged();
   void onModelChanged();
-
+  void loadNewData();
 protected:
   QScopedPointer<qAppWelcomeScreenPrivate> d_ptr;
 

@@ -95,7 +95,7 @@ Item
         snapMode: ListView.SnapToItem
         boundsBehavior: Flickable.StopAtBounds
         onCurrentItemChanged: verticalListWithButtons.currentItemChanged()
-        currentIndex: -1
+        currentIndex: 0
     }
 
     Button {

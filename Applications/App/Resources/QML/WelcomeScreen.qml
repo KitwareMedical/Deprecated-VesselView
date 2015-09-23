@@ -8,7 +8,7 @@ Rectangle  {
     SystemPalette { id: activePalette; colorGroup: SystemPalette.Active }
     FontLoader { source: ":/Gutenberg.ttf" }
     color: activePalette.base
-
+    property variant welcomeListModel: WelcomeListModel{}
     property string selectedModule: ""
     property variant selectedFiles: []
     property int selectedLayout: -1
@@ -16,7 +16,8 @@ Rectangle  {
     property int generalSpacing: 2*generalMargin
     property real gradientStart: 0.8
     property real gradientEnd: 1.0
-
+    property int currentIndexWelcomeListView : -1
+    property real welcomeListWidth: Math.floor((welcomeRectangle.width - 2*generalMargin) / 4)
     property string aboutSource: ":/Icons/Medium/KitwareLogo.svg"
     property string aboutText: "
  <html>
@@ -52,147 +53,6 @@ Rectangle  {
  </div>
  </html> "
 
-    ListModel {
-        id: welcomeScreenModel
-
-        ListElement {
-            name: "Vessel Display"
-            module: "SpatialObjects"
-            imageSource: ":/Icons/Medium/VesselDisplay.svg"
-            description: "
- <html>
- <center>
- <em>Visualize images, vessels, and organs in 3D.</em>
- </center>
- <br><br><br>
- <div text-align=\"left\">
- Loads multiple data files and selectively displays them using a variety of
- basic and advanced visualization formats.
- </div>
- </html>"
-            layout: -1
-            fileTypes: "SpatialObjectFile"
-        }
-        ListElement {
-            name: "Interactive Vessel Segmentation"
-            module: "InteractiveSegmentTubes"
-            imageSource: ":/Icons/Medium/InteractiveVesselSegmentation.svg"
-            description:  "
- <html>
- <center>
- <em>Point-and-click within an image to segment tubes.</em>
- </center>
- <br><br><br>
- <div text-align=\"left\">
- Provides an interactive interface to
- <a href=\"http://www.tubetk.org\">TubeTK</a>'s vessel segmentation algorithms.
- <br><br>
- Pre-defined algorithm parameterizations are given for common tasks, such as:
- <ul>
-   <li> Liver vessels in contrast-enhanced CT </li>
-   <li> Brain vessels in MRA </li>
-   <li> Lung vessels in CT </li>
- </ul>
- </div>
- </html>"
-            layout: 3
-            fileTypes: "SpatialObjectFile"
-        }
-        ListElement {
-            name: "Automatic Vessel Segmentation"
-            module: "Workflow"
-            imageSource: ":/Icons/Medium/AutomaticVesselSegmentation.svg"
-            description:  "
- <html>
- <center>
- <em>Apply a trained statistical model to initiate vessel segmentations.</em> 
- </center>
- <br><br><br>
- <div text-align=\"left\">
- Provides a workflow-style interface to
- <a href=\"http://www.tubetk.org\">TubeTK</a>'s statistical methods for
- identifying points in an image for seeding vessel extractions.
- <br><br>
- Statistical models for seed selection are given for common conditions, such as:
- <ul>
-   <li> Liver vessels in contrast-enhanced CT </li>
-   <li> Brain vessels in MRA </li>
-   <li> Lung vessels in CT </li>
- </ul>
- </div>
- </html>"
-            layout: 3
-            fileTypes: "VolumeFile"
-        }
-        ListElement {
-            name: "Compute Vessel Tortuosity"
-            module: "Tortuosity"
-            imageSource: ":/Icons/Medium/ComputeVesselTortuosity.svg"
-            description:  "
- <html>
- <center>
- <em>Compute tortuosity metrics on vessels.</em> 
- </center>
- <br><br><br>
- <div text-align=\"left\">
- Work initiated by Dr. Bullitt has shown that morphological features of vessels
- within and around tumors can be used to assess malignancy and treatment
- efficacy.   Others have associated vessel morphological features with diabetic
- retinopathy, retinopathy of prematurity, and a variety of arterial diseases.
- <br><br>
- VesselView contains a variety of novel tortuosity metrics including:
- <ul>
-   <li> Fourier-based methods </li>
-   <li> Normalized inflection count </li>
-   <li> Mean curvature </li>
- </ul>
- </div>
- </html>"
-            layout: 24 // ConventionalQuantitative
-            fileTypes: "SpatialObjectFile"
-        }
-        ListElement {
-            name: "Convert Vessel Files"
-            module: "ConvertTRE"
-            imageSource: ":/Icons/Medium/ConvertVessels.svg"
-            description: "
- <html>
- <center>
- <em>Convert between various tube file formats.</em> 
- </center>
- <br><br><br>
- <div text-align=\"left\">
- Convert between ITK's TubeSpatialObject format (provided by MetaIO) and legacy
- formats such as
- <ul>
-   <li> Dr. Bullitt's TubeX files </li>
-   <li> UNC CADDLab's .tre files (pre-cursor to MetaIO) </li>
- </ul>
- </div>
- </html>"
-            layout: 4 // SlicerLayoutDefaultView
-            fileTypes: "SpatialObjectFile"
-        }
-        ListElement {
-            name: "Interactive Organ segmentation"
-            module: "Editor"
-            imageSource: ":/Icons/Medium/InteractiveOrganSegmentation.svg"
-            description: "
- <html>
- <center>
- <em>Semi-automated methods for segmenting organs and regions of interest in images.</em> 
- </center>
- <br><br><br>
- <div text-align=\"left\">
- Provides methods from TubeTK and 3D Slicer for creating and editing masks that
- represent organs and/or regions of interest that can be used to constrain 
- interactive and automated vessel segmentation algorithms in VesselView.
- </div>
- </html>"
-            layout: 3 
-            fileTypes: "VolumeFile"
-        }
-    }
 
     function elementHeightFunction(height, numberOfElements, spacing)
     {
@@ -208,47 +68,50 @@ Rectangle  {
 
     Rectangle {
         id: aboutRectangle
-        anchors.left: parent.left
-        anchors.leftMargin: 2 * generalMargin
-        anchors.top: parent.top
-        anchors.topMargin: generalMargin
-        anchors.rightMargin: generalMargin
-        width: Math.floor((parent.width - 2*generalMargin) / 4)
-        height: elementHeight + generalSpacing
+        visible: true
+        anchors{
+            left: welcomeListView.right
+            right: parent.right
+            top: parent.top
+            bottom: parent.bottom
+            margins: generalMargin
+            topMargin: Math.floor( aboutRectangle.height / 4)
+        }
 
         color: activePalette.base
         border.color: activePalette.base
         radius: generalMargin
-        z: 1 // So the image isn't hidden by the list view after it moved
 
-        Rectangle {
-            id: aboutImageRectangle
-            anchors.fill: parent
-            anchors.topMargin: welcomeListView.spacing
-            anchors.bottomMargin: welcomeListView.spacing
-            anchors.leftMargin: generalMargin
-            anchors.rightMargin: generalMargin
-            color: activePalette.base
+        Image {
+            id: aboutRectangleImage
+            anchors.right: parent.right
+            anchors.rightMargin: 0
+            anchors.left: parent.left
+            anchors.leftMargin: 0
+            anchors.top: parent.top
+            height: Math.floor( aboutRectangle.height / 4)
+            fillMode: Image.PreserveAspectFit
+            source: aboutSource
+        }
 
-            Image {
-                id: aboutImage
-                anchors.fill: parent
-                fillMode: Image.PreserveAspectFit
-                source: ":/Icons/Medium/VesselViewSplashScreen.svg"
-            }
-            MouseArea {
-                anchors.fill: aboutImage
-                onClicked: {
-                    selectedModule = ""
-                    selectedLayout = -1
-                    welcomeListView.currentIndex = -1
-                    descriptionRectangleText.text = aboutText
-                    descriptionRectangleImage.source = aboutSource
-                    openButton.visible = false
-                    recentlyLoadedFilesModel.fileTypes = ""
-                    selectedFiles = []
-                }
-            }
+
+        Text{
+            id: aboutRectangleText
+            anchors.right: parent.right
+            anchors.rightMargin: Math.floor( parent.width * 0.125 )
+            anchors.left: parent.left
+            anchors.leftMargin: Math.floor( parent.width * 0.125 )
+            anchors.top: aboutRectangleImage.bottom
+            anchors.topMargin: Math.floor( aboutRectangleImage.height / 2 )
+            height:Math.floor( aboutRectangle.height / 2)
+            wrapMode: Text.WordWrap
+            font.pointSize: 16
+            color: activePalette.text
+            verticalAlignment: Text.AlignTop
+            horizontalAlignment: Text.AlignLeft
+            text: aboutText
+            onLinkActivated: Qt.openUrlExternally(link)
+            clip: true
         }
     }
 
@@ -260,80 +123,89 @@ Rectangle  {
 
         spacing: generalSpacing
 
-        anchors.left: aboutRectangle.anchors.left
-        anchors.leftMargin: aboutRectangle.anchors.leftMargin
-        anchors.top: aboutRectangle.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: generalSpacing
+        anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: aboutRectangle.width
+        width: welcomeListWidth
 
-        model: welcomeScreenModel
-        delegate: Rectangle {
-
-            id: elementItem
-            height: elementHeight
-            anchors.left: parent.left
-            anchors.leftMargin: generalMargin
-            anchors.right: parent.right
-            anchors.rightMargin: generalMargin
-            color: activePalette.button
-            border.color: activePalette.dark
-            radius: generalMargin
-
-            Image {
-                id: elementImage
-                width: elementItem.width
-                height: elementItem.height - elementText.height - 2*generalMargin
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: generalMargin
-                fillMode: Image.PreserveAspectFit
-                source: imageSource
-                }
-
-            Text {
-                id: elementText
-                anchors.bottom: elementItem.bottom
-                anchors.bottomMargin: generalMargin
-                anchors.horizontalCenter: elementItem.horizontalCenter
-                text: name
-                color: activePalette.text
-                font.pixelSize: 16
-                z: 1
-            }
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    welcomeListView.currentIndex = index
-                }
-                onDoubleClicked: {
-                    welcomeScreen.loadModule(selectedModule, selectedLayout)
-                }
-                z: 2
-            }
-            states: [
-                State {
-                    name: "selected"
-                    when: (module == selectedModule)
-                    PropertyChanges {target: elementItem; color: activePalette.dark;}
-                }
-            ]
-        }
+        model: welcomeListModel
+        delegate: WelcomeListDelegate {}
 
         onCurrentItemChanged: {
-            if (currentIndex != -1) {
-                selectedModule = welcomeScreenModel.get(currentIndex).module
-                selectedLayout = welcomeScreenModel.get(currentIndex).layout
-    
-                descriptionRectangleText.text =
-                  welcomeScreenModel.get(currentIndex).description
-                descriptionRectangleImage.source =
-                  welcomeScreenModel.get(currentIndex).imageSource
-                openButton.visible = true
-                recentlyLoadedFilesModel.fileTypes =
-                  welcomeScreenModel.get(currentIndex).fileTypes
+			if(currentIndex == 0){
+                selectedModule = ""
+                selectedLayout = -1
+                aboutRectangle.visible = true
+                descriptionRectangle.visible = false
+                openButton.visible = false
+                horizontalListWithButtons.visible = false;
+                recentlyLoadedFilesModel.fileTypes = ""
                 selectedFiles = []
             }
+            else if (currentIndex != -1) {
+                selectedModule = model.get(currentIndex).module
+                selectedLayout = model.get(currentIndex).layout
+                aboutRectangle.visible = false
+                descriptionRectangle.visible = true
+                descriptionRectangleText.text =
+                  model.get(currentIndex).description
+               // descriptionRectangleImage.source =
+               //   model.get(currentIndex).imageSource
+                openButton.visible = true
+                recentlyLoadedFilesModel.fileTypes =
+                  model.get(currentIndex).fileTypes
+                selectedFiles = []
+				horizontalListWithButtons.visible = true
+                subTasksListView.currentIndex = 0
+				currentIndexWelcomeListView = currentIndex
+            }
         }
+    }
+
+    Rectangle{
+        id: horizontalListWithButtons
+        visible: false
+        anchors{
+            left: welcomeListView.right
+            right: parent.right
+            top: parent.top
+            leftMargin: generalMargin
+            rightMargin: generalMargin
+            topMargin: welcomeListView.buttonHeight
+        }
+        color: activePalette.base
+        height: elementHeight + generalSpacing//aboutRectangle.height
+
+        ListView {
+               id: subTasksListView
+               spacing: generalSpacing
+               anchors.fill:parent
+               currentIndex: -1
+               clip:true
+               snapMode: ListView.SnapToItem
+               boundsBehavior: Flickable.StopAtBounds
+
+               orientation: ListView.Horizontal
+               model: welcomeListModel.get(currentIndexWelcomeListView).subTasks
+               delegate: WelcomeListDelegate {}
+               onCurrentItemChanged: {
+                   if (currentIndex != -1) {
+                       selectedModule = model.get(currentIndex).module
+                       selectedLayout = model.get(currentIndex).layout
+                       aboutRectangle.visible = false
+                       descriptionRectangle.visible = true
+                       descriptionRectangleText.text =
+                         model.get(currentIndex).description
+                    //   descriptionRectangleImage.source =
+                     //    model.get(currentIndex).imageSource
+                       openButton.visible = true
+                       recentlyLoadedFilesModel.fileTypes =
+                         model.get(currentIndex).fileTypes
+                       selectedFiles = []
+                   }
+               }
+           }
     }
 
     Rectangle {
@@ -343,22 +215,24 @@ Rectangle  {
         anchors.right: parent.right
         anchors.left: welcomeListView.right
         anchors.leftMargin: generalMargin
-        anchors.top: parent.top
-        height: descriptionRectangleText.height +
-          descriptionRectangleImage.height
+        anchors.top : horizontalListWithButtons.bottom
+        anchors.bottom: openButton.top
+        height: welcomeListView.height
+		visible: false
 
-        Image {
+     /*   Image {
             id: descriptionRectangleImage
             anchors.right: parent.right
             anchors.rightMargin: 0
             anchors.left: parent.left
             anchors.leftMargin: 0
             anchors.top: parent.top
-            anchors.topMargin: Math.floor( welcomeListView.height / 8 )
-            height: Math.floor( welcomeListView.height / 6)
+            anchors.topMargin: Math.floor( descriptionRectangle.height / 8 )
+            height: Math.floor( descriptionRectangle.height / 4)
             fillMode: Image.PreserveAspectFit
             source: aboutSource
         }
+*/
 
         Text{
             id: descriptionRectangleText
@@ -366,9 +240,9 @@ Rectangle  {
             anchors.rightMargin: Math.floor( parent.width * 0.125 )
             anchors.left: parent.left
             anchors.leftMargin: Math.floor( parent.width * 0.125 )
-            anchors.top: descriptionRectangleImage.bottom
-            anchors.topMargin: Math.floor( descriptionRectangleImage.height /
-              2 )
+            anchors.top: parent.top
+            anchors.topMargin: Math.floor( elementHeight / 2 )
+            height:Math.floor( parent.height/2)
             wrapMode: Text.WordWrap
             font.pointSize: 16
             color: activePalette.text
@@ -376,23 +250,38 @@ Rectangle  {
             horizontalAlignment: Text.AlignLeft
             text: aboutText
             onLinkActivated: Qt.openUrlExternally(link)
+            clip: true
         } 
     }
 
-    Text {
-        id: recentFilesTextBox
-        anchors.top: descriptionRectangle.bottom
-        anchors.topMargin: descriptionRectangle.height + 
-          Math.floor( descriptionRectangleImage.height / 2 )
-        anchors.right: welcomeRectangle.right
+    Rectangle{
+        id:recentFiles
+        anchors.right: parent.right
         anchors.rightMargin: Math.floor( parent.width * 0.125 )
         anchors.left: welcomeListView.right
         anchors.leftMargin: Math.floor( parent.width * 0.125 )
-        height: recentFilesTextBox.paintedHeight
-
-        text: "Recent files:"
-        color: activePalette.text
-        font.pixelSize: 14
+        anchors.top:descriptionRectangle.bottom
+        anchors.topMargin: generalMargin
+        color:activePalette.base
+        height:recentFilesTextBox.paintedHeight
+        Text {
+            id: recentFilesTextBox
+            anchors.fill: parent
+            height: recentFilesTextBox.paintedHeight
+            text: "Recent files:"
+            color: activePalette.text
+            font.pixelSize: 14
+        }
+        states:[
+            State{
+                name: "visible"
+                when: recentFiles.visible == true
+                PropertyChanges{
+                    target:descriptionRectangle
+                    anchors.bottomMargin: Math.floor(welcomeListView.height/8 )
+                }
+            }
+        ]
     }
 
     Binding {
@@ -404,7 +293,7 @@ Rectangle  {
     ListView {
         id: recentFilesView
         spacing: generalSpacing
-        anchors.top: recentFilesTextBox.bottom
+        anchors.top: recentFiles.bottom
         anchors.topMargin: generalMargin
         anchors.bottom: openButton.top
         anchors.bottomMargin: generalMargin
@@ -489,7 +378,7 @@ Rectangle  {
                 }
             }
         }
-
+        focus: true
         currentIndex: -1
     }
 
@@ -505,11 +394,50 @@ Rectangle  {
         height: Math.floor(parent.height / 20)
         color: activePalette.base
 
+
+        Rectangle {
+            id: loadButtonButton
+            anchors.fill: openButton
+            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.leftMargin: Math.floor( parent.width / 4 )-generalMargin
+            anchors.rightMargin: Math.floor( parent.width / 2 )+generalMargin
+            radius: generalMargin
+            color: "olivedrab"            
+            Text {
+                id: loadButtonText
+                anchors.fill: loadButtonButton
+                text: "Load New Data"
+                font.pointSize: 20
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+            }
+            MouseArea {
+                anchors.fill: loadButtonButton
+                onPressed: {
+                  parent.color = activePalette.dark
+                }
+                onExited: {
+                  parent.color = "olivedrab"
+                }
+                onReleased: {
+                  parent.color = "olivedrab"
+                }
+                onClicked: {
+                  parent.color = "olivedrab"
+                  welcomeScreen.loadNewData()
+                  welcomeScreen.loadModule(selectedModule, selectedLayout)
+                }
+            }
+        }
+
         Rectangle {
             id: openButtonButton
             anchors.fill: openButton
-            anchors.leftMargin: Math.floor( ( parent.width - 200 ) / 2 )
-            anchors.rightMargin: Math.floor( ( parent.width - 200 ) / 2 )
+            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.leftMargin: Math.floor( parent.width / 2 )
+            anchors.rightMargin: Math.floor( parent.width / 4 )
             radius: generalMargin
             color: "olivedrab"
             Text {
