@@ -76,6 +76,7 @@ public slots:
   virtual void setHomeModuleCurrent();
   virtual void restoreToolbars();
 
+  virtual void on_ReturnToWelcomeScreenAction_triggered();
   virtual void on_FileAddDataAction_triggered();
   virtual void on_FileLoadDataAction_triggered();
   virtual void on_FileImportSceneAction_triggered();

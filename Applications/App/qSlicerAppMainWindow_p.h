@@ -70,6 +70,9 @@ public:
 
   void setErrorLogIconHighlighted(bool);
 
+  QToolBar * DefaultToolBar;
+  QAction* ReturnToWelcomeScreenAction;
+
 #ifdef Slicer_USE_PYTHONQT
   ctkPythonConsole*               PythonConsole;
 #endif

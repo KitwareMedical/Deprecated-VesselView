@@ -248,6 +248,8 @@ void qAppWelcomeScreen::loadModule(const QString& moduleName, int layout)
   Q_ASSERT(slicerMainWindow);
   d->openFilesBeforeLoad();
   slicerMainWindow->moduleSelector()->selectModule(moduleName);
+  QWidget* findWidget = slicerMainWindow->findChild<QWidget *>("DefaultToolBar");
+  findWidget->show();
   emit done();
 }
 
