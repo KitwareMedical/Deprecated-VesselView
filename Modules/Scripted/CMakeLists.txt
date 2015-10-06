@@ -20,6 +20,7 @@ set(modules
   InteractiveSegmentTubes
   Welcome
   Workflow
+  VesselDisplay
   )
 
 set(${APPLICATION_NAME}_MODULES)
