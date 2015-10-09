@@ -1,5 +1,6 @@
-<!DOCTYPE RCC><RCC version="1.0">
-  <qresource>
-    <file>Icons/InteractiveTubesToTree.png</file>
-  </qresource>
+<RCC>
+    <qresource prefix="/">
+        <file>Icons/InteractiveTubesToTree.png</file>
+        <file alias="AnnotationPointWithArrow.png">Icons/AnnotationPointWithArrow.png</file>
+    </qresource>
 </RCC>

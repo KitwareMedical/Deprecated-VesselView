@@ -1,30 +1,39 @@
-/*==============================================================================
+/*=========================================================================
 
-  Program: 3D Slicer
+Library:   VesselView
 
-  Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
+Copyright 2010 Kitware Inc. 28 Corporate Drive,
+Clifton Park, NY, 12065, USA.
 
-  See COPYRIGHT.txt
-  or http://www.slicer.org/copyright/copyright.txt for details.
+All rights reserved.
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-==============================================================================*/
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+=========================================================================*/
 
 #ifndef __qSlicerInteractiveTubesToTreeModuleWidget_h
 #define __qSlicerInteractiveTubesToTreeModuleWidget_h
 
+
 // SlicerQt includes
 #include "qSlicerAbstractModuleWidget.h"
-
 #include "qSlicerInteractiveTubesToTreeModuleExport.h"
 
 class qSlicerInteractiveTubesToTreeModuleWidgetPrivate;
 class vtkMRMLNode;
+class vtkMRMLVolumeNode;
+class vtkMRMLSpatialObjectsNode;
+class vtkSlicerInteractiveTubesToTreeLogic;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class Q_SLICER_QTMODULES_INTERACTIVETUBESTOTREE_EXPORT qSlicerInteractiveTubesToTreeModuleWidget :
@@ -39,7 +48,12 @@ public:
   virtual ~qSlicerInteractiveTubesToTreeModuleWidget();
 
 public slots:
-
+  void setCurrentSpatialObjectsNode(vtkMRMLNode* node);
+  void setCurrentSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
+  void setVolumeNode(vtkMRMLVolumeNode* node);
+  void setVolumeNode(vtkMRMLNode* node);
+  void restoreDefaults();
+  void runConversion();
 
 protected:
   QScopedPointer<qSlicerInteractiveTubesToTreeModuleWidgetPrivate> d_ptr;

@@ -86,10 +86,10 @@
          <string/>
         </property>
         <property name="addEnabled" stdset="0">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="editEnabled" stdset="0">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="renameEnabled" stdset="0">
          <bool>true</bool>
@@ -369,16 +369,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="AutoRunPushButton">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Auto Run</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -445,15 +435,15 @@
    <header>ctkSliderWidget.h</header>
   </customwidget>
   <customwidget>
+   <class>qMRMLSliderWidget</class>
+   <extends>ctkSliderWidget</extends>
+   <header>qMRMLSliderWidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>qSlicerCLIProgressBar</class>
    <extends>QWidget</extends>
    <header>qSlicerCLIProgressBar.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLSliderWidget</class>
-   <extends>ctkSliderWidget</extends>
-   <header>qMRMLSliderWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

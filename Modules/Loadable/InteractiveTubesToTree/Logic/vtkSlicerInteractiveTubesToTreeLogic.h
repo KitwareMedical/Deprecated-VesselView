@@ -32,6 +32,10 @@
 // STD includes
 #include <cstdlib>
 
+// MRML includes
+#include "vtkMRMLSpatialObjectsNode.h"
+#include "vtkMRMLVolumeNode.h"
+
 #include "vtkSlicerInteractiveTubesToTreeModuleLogicExport.h"
 
 
@@ -44,6 +48,9 @@ public:
   static vtkSlicerInteractiveTubesToTreeLogic *New();
   vtkTypeMacro(vtkSlicerInteractiveTubesToTreeLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  bool RunConversion(vtkMRMLSpatialObjectsNode* spacialNode, vtkMRMLVolumeNode* volumeNode, double maxTubeDistanceToRadiusRatio,
+    double maxContinuityAngleError, bool removeOrphanTubes, std::vector<int> rootTubeIdList);
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();
