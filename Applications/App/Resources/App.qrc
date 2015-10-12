@@ -21,4 +21,34 @@
         <file alias="WelcomeListModel.qml">QML/WelcomeListModel.qml</file>
         <file alias="WelcomeListDelegate.qml">QML/WelcomeListDelegate.qml</file>
     </qresource>
+    <qresource prefix="/Icons/Large">
+        <file>Icons/Large/LoadData.png</file>
+        <file>Icons/Large/SaveData.png</file>
+        <file>Icons/Large/ScreenShot.png</file>
+        <file>Icons/Large/WelcomeScreen.png</file>
+    </qresource>
+    <qresource prefix="/Icons/Small">
+        <file alias="LoadData.png">Icons/Small/LoadData.png</file>
+        <file alias="SaveData.png">Icons/Small/SaveData.png</file>
+        <file alias="ScreenShot.png">Icons/Small/ScreenShot.png</file>
+        <file alias="WelcomeScreen.png">Icons/Small/WelcomeScreen.png</file>
+    </qresource>
+    <qresource prefix="/Icons/XLarge">
+        <file>Icons/XLarge/LoadData.png</file>
+        <file>Icons/XLarge/SaveData.png</file>
+        <file>Icons/XLarge/ScreenShot.png</file>
+        <file>Icons/XLarge/WelcomeScreen.png</file>
+    </qresource>
+    <qresource prefix="/Icons/XSmall">
+        <file>Icons/XSmall/LoadData.png</file>
+        <file>Icons/XSmall/SaveData.png</file>
+        <file>Icons/XSmall/ScreenShot.png</file>
+        <file>Icons/XSmall/WelcomeScreen.png</file>
+    </qresource>
+    <qresource prefix="/Icons/Medium">
+        <file>Icons/Medium/LoadData.png</file>
+        <file>Icons/Medium/SaveData.png</file>
+        <file>Icons/Medium/ScreenShot.png</file>
+        <file>Icons/Medium/WelcomeScreen.png</file>
+    </qresource>
 </RCC>

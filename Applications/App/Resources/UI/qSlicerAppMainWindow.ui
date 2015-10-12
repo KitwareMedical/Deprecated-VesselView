@@ -68,30 +68,11 @@
        <normaloff>:/Icons/LayoutChooseView.png</normaloff>:/Icons/LayoutChooseView.png</iconset>
      </property>
      <addaction name="ViewLayoutConventionalAction"/>
-     <addaction name="ViewLayoutConventionalWidescreenAction"/>
-     <addaction name="ViewLayoutConventionalQuantitativeAction"/>
      <addaction name="ViewLayoutFourUpAction"/>
-     <addaction name="ViewLayoutFourUpQuantitativeAction"/>
-     <addaction name="ViewLayoutDual3DAction"/>
-     <addaction name="ViewLayoutTriple3DAction"/>
      <addaction name="ViewLayoutOneUp3DAction"/>
-     <addaction name="ViewLayoutOneUpQuantitativeAction"/>
      <addaction name="ViewLayoutOneUpRedSliceAction"/>
      <addaction name="ViewLayoutOneUpYellowSliceAction"/>
      <addaction name="ViewLayoutOneUpGreenSliceAction"/>
-     <addaction name="ViewLayoutTabbed3DAction"/>
-     <addaction name="ViewLayoutTabbedSliceAction"/>
-     <addaction name="ViewLayoutCompareAction"/>
-     <addaction name="ViewLayoutCompareWidescreenAction"/>
-     <addaction name="ViewLayoutCompareGridAction"/>
-     <addaction name="ViewLayoutThreeOverThreeAction"/>
-     <addaction name="ViewLayoutThreeOverThreeQuantitativeAction"/>
-     <addaction name="ViewLayoutFourOverFourAction"/>
-     <addaction name="ViewLayoutTwoOverTwoAction"/>
-     <addaction name="ViewLayoutSideBySideAction"/>
-     <addaction name="ViewLayoutFourByThreeSliceAction"/>
-     <addaction name="ViewLayoutFourByTwoSliceAction"/>
-     <addaction name="ViewLayoutThreeByThreeSliceAction"/>
     </widget>
     <widget class="QMenu" name="WindowToolBarsMenu">
      <property name="title">

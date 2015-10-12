@@ -153,6 +153,51 @@ void qSlicerAppMainWindowPrivate::setupUi(QMainWindow * mainWindow)
 #ifndef Slicer_BUILD_DICOM_SUPPORT
   this->LoadDICOMAction->setVisible(false);
 #endif
+  //----------------------------------------------------------------------------
+  // New Default Tool Bar in Vessel View
+  //----------------------------------------------------------------------------
+  DefaultToolBar = new QToolBar(mainWindow);
+  DefaultToolBar->setObjectName(QString::fromUtf8("DefaultToolBar"));
+  DefaultToolBar->setWindowTitle("Default");
+  mainWindow->addToolBar(Qt::TopToolBarArea, DefaultToolBar);
+
+  QIcon welcomeScreenIcon;
+  welcomeScreenIcon.addFile(QString::fromUtf8(":Icons/Small/WelcomeScreen.png"), QSize(), QIcon::Normal, QIcon::Off);
+  ReturnToWelcomeScreenAction = new QAction(mainWindow);
+  ReturnToWelcomeScreenAction->setObjectName(QString::fromUtf8("ReturnToWelcomeScreenAction"));
+  ReturnToWelcomeScreenAction->setIcon(welcomeScreenIcon);
+  DefaultToolBar->addWidget(new QLabel(q->tr("Return to Welcome Screen"), q));
+  DefaultToolBar->addAction(ReturnToWelcomeScreenAction);
+  QObject::connect(ReturnToWelcomeScreenAction, SIGNAL(triggered()), q,
+	  SLOT(on_ReturnToWelcomeScreenAction_triggered()));
+  DefaultToolBar->addSeparator();
+
+  QIcon loadDataIcon;
+  loadDataIcon.addFile(QString::fromUtf8(":Icons/Small/LoadData.png"), QSize(), QIcon::Normal, QIcon::Off);
+  DefaultToolBar->addWidget(new QLabel(q->tr("Load"), q));
+  DefaultToolBar->addAction(FileLoadDataAction);
+  FileLoadDataAction->setIcon(loadDataIcon);
+  QIcon saveDataIcon;
+  saveDataIcon.addFile(QString::fromUtf8(":Icons/Small/SaveData.png"), QSize(), QIcon::Normal, QIcon::Off);
+  DefaultToolBar->addWidget(new QLabel(q->tr("Save"), q));
+  DefaultToolBar->addAction(FileSaveSceneAction);
+  FileSaveSceneAction->setIcon(saveDataIcon);
+  DefaultToolBar->addSeparator();
+
+  DefaultToolBar->addWidget(new QLabel(q->tr("Layout"), q));
+  QToolButton* layoutButtonDefault = new QToolButton(q);
+  layoutButtonDefault->setText(q->tr("Layout"));
+  layoutButtonDefault->setMenu(this->LayoutMenu);
+  layoutButtonDefault->setPopupMode(QToolButton::InstantPopup);
+  layoutButtonDefault->setDefaultAction(this->ViewLayoutConventionalAction);
+  QObject::connect(this->LayoutMenu, SIGNAL(triggered(QAction*)),
+	  layoutButtonDefault, SLOT(setDefaultAction(QAction*)));
+  QObject::connect(this->LayoutMenu, SIGNAL(triggered(QAction*)),
+	  q, SLOT(onLayoutActionTriggered(QAction*)));
+  this->DefaultToolBar->addWidget(layoutButtonDefault);
+  QObject::connect(this->DefaultToolBar,
+	  SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
+	  layoutButtonDefault, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 
   //----------------------------------------------------------------------------
   // ModulePanel
@@ -247,6 +292,7 @@ void qSlicerAppMainWindowPrivate::setupUi(QMainWindow * mainWindow)
   toolBarActions << this->CaptureToolBar->toggleViewAction();
   toolBarActions << this->ViewersToolBar->toggleViewAction();
   toolBarActions << this->DialogToolBar->toggleViewAction();
+  toolBarActions << this->DefaultToolBar->toggleViewAction();
 
   this->WindowToolBarsMenu->insertActions(
     this->WindowToolbarsResetToDefaultAction, toolBarActions);
@@ -262,6 +308,7 @@ void qSlicerAppMainWindowPrivate::setupUi(QMainWindow * mainWindow)
   // minimizing the application and restore it doesn't hide the module panel. check
   // also the geometry and the state of the menu qactions are correctly restored when
   // loading slicer.
+  this->DefaultToolBar->toggleViewAction()->trigger();
   this->UndoRedoToolBar->toggleViewAction()->trigger();
   this->LayoutToolBar->toggleViewAction()->trigger();
   //q->removeToolBar(this->UndoRedoToolBar);
@@ -744,6 +791,13 @@ QStringList qSlicerAppMainWindow::recentlyLoadedPaths() const
       }
     }
   return paths;
+}
+
+//---------------------------------------------------------------------------
+void qSlicerAppMainWindow::on_ReturnToWelcomeScreenAction_triggered()
+{
+	qSlicerLayoutManager * layoutManager = qSlicerApplication::application()->layoutManager();
+	layoutManager->setCurrentModule("Welcome");
 }
 
 //---------------------------------------------------------------------------
