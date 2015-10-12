@@ -22,9 +22,15 @@ limitations under the License.
 =========================================================================*/
 
 // Qt includes
+#include <QDebug>
 #include <QtPlugin>
 
+// Slicer includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerModuleManager.h>
+
 // InteractiveTubesToTree Logic includes
+#include <vtkSlicerCLIModuleLogic.h>
 #include <vtkSlicerInteractiveTubesToTreeLogic.h>
 
 // InteractiveTubesToTree includes
@@ -111,6 +117,20 @@ void qSlicerInteractiveTubesToTreeModule::setup()
   this->Superclass::setup();
   vtkSlicerInteractiveTubesToTreeLogic* interactiveTubeToTreeLogic =
 	  vtkSlicerInteractiveTubesToTreeLogic::SafeDownCast(this->logic());
+
+  qSlicerAbstractCoreModule* conversionModule =
+    qSlicerCoreApplication::application()->moduleManager()->module("ConvertTubesToTubeTree");
+  if (conversionModule)
+  {
+    vtkSlicerCLIModuleLogic* conversionLogic =
+      vtkSlicerCLIModuleLogic::SafeDownCast(conversionModule->logic());
+    interactiveTubeToTreeLogic->SetConversionLogic(conversionLogic);
+    qWarning() << "ConvertTubesToTubeTree module is found";
+  }
+  else
+  {
+    qWarning() << "ConvertTubesToTubeTree module is not found";
+  }
 }
 
 //-----------------------------------------------------------------------------

@@ -26,6 +26,8 @@
 
 // Slicer includes
 #include "vtkSlicerModuleLogic.h"
+class vtkSlicerCLIModuleLogic;
+class vtkMRMLVolumeNode;
 
 // MRML includes
 
@@ -34,7 +36,6 @@
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
-#include "vtkMRMLVolumeNode.h"
 
 #include "vtkSlicerInteractiveTubesToTreeModuleLogicExport.h"
 
@@ -48,9 +49,11 @@ public:
   static vtkSlicerInteractiveTubesToTreeLogic *New();
   vtkTypeMacro(vtkSlicerInteractiveTubesToTreeLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
+  void SetConversionLogic(vtkSlicerCLIModuleLogic* logic);
+  vtkSlicerCLIModuleLogic* GetConversionLogic();
 
-  bool RunConversion(vtkMRMLSpatialObjectsNode* spacialNode, vtkMRMLVolumeNode* volumeNode, double maxTubeDistanceToRadiusRatio,
-    double maxContinuityAngleError, bool removeOrphanTubes, std::vector<int> rootTubeIdList);
+  bool Apply(vtkMRMLSpatialObjectsNode* spacialNode, vtkMRMLVolumeNode* volumeNode, double maxTubeDistanceToRadiusRatio,
+    double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdList);
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();
@@ -62,10 +65,14 @@ protected:
   virtual void UpdateFromMRMLScene();
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
+
 private:
 
   vtkSlicerInteractiveTubesToTreeLogic(const vtkSlicerInteractiveTubesToTreeLogic&); // Not implemented
   void operator=(const vtkSlicerInteractiveTubesToTreeLogic&); // Not implemented
+  class vtkInternal;
+  vtkInternal* Internal;
+
 };
 
 #endif

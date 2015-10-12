@@ -92,7 +92,11 @@ void qSlicerInteractiveTubesToTreeModuleWidget::setup()
 {
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
   d->init();
+
   this->Superclass::setup();
+
+  
+
 }
 
 //------------------------------------------------------------------------------
@@ -187,6 +191,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
 
   std::vector<int> rootTubeIdList;
   QString rootTubeIdString = d->RootTubeIDListLineEdit->text();
+  std::string temp = rootTubeIdString.toStdString();
   QStringList rootTubeIdStringList = rootTubeIdString.split(",");
   for (int i = 0; i < rootTubeIdStringList.size(); ++i)
   {
@@ -198,8 +203,8 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
 
   d->ApplyPushButton->setEnabled(false);
 
-  if (!d->logic()->RunConversion(d->currentSpatialObject, d->volumeNode, maxTubeDistanceToRadiusRatio, 
-    maxContinuityAngleError, removeOrphanTubes, rootTubeIdList))
+  if (!d->logic()->Apply(d->currentSpatialObject, d->volumeNode, maxTubeDistanceToRadiusRatio, 
+    maxContinuityAngleError, removeOrphanTubes, temp))
   {
     qCritical("Error while running conversion !");
   }
