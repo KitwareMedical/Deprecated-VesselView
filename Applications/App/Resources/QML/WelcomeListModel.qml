@@ -23,7 +23,6 @@ limitations under the License.
 
 import QtQuick 1.0
 
-
 ListModel {
 
     ListElement {
