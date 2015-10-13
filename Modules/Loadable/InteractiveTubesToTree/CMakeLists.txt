@@ -41,6 +41,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${vtkSlicerSpatialObjectsModuleMRML_SOURCE_DIR}
   ${vtkSlicerSpatialObjectsModuleMRML_BINARY_DIR}
+  ${vtkSlicerSpatialObjectsModuleLogic_SOURCE_DIR}
+  ${vtkSlicerSpatialObjectsModuleLogic_BINARY_DIR}
  # ${vtkSlicerInteractiveTubesToTreeMRML_SOURCE_DIR}
  # ${vtkSlicerInteractiveTubesToTreeMRML_BINARY_DIR}
   )
@@ -63,6 +65,7 @@ set(MODULE_UI_SRCS
 
 set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
+  vtkSlicerSpatialObjectsModuleLogic
   ${MRML_LIBRARIES}
   )
 

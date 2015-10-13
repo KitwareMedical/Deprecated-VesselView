@@ -27,6 +27,7 @@
 // Slicer includes
 #include "vtkSlicerModuleLogic.h"
 class vtkSlicerCLIModuleLogic;
+class vtkSlicerSpatialObjectsLogic;
 class vtkMRMLVolumeNode;
 
 // MRML includes
@@ -51,9 +52,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   void SetConversionLogic(vtkSlicerCLIModuleLogic* logic);
   vtkSlicerCLIModuleLogic* GetConversionLogic();
+  void SetSpatialObjectsLogic(vtkSlicerSpatialObjectsLogic* logic);
+  vtkSlicerSpatialObjectsLogic* GetSpatialObjectsLogic();
 
-  bool Apply(vtkMRMLSpatialObjectsNode* spacialNode, vtkMRMLSpatialObjectsNode* volumeNode, double maxTubeDistanceToRadiusRatio,
+  bool Apply(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsNode* volumeNode, double maxTubeDistanceToRadiusRatio,
     double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdList);
+  std::string ConstructTemporaryFileName(const std::string& name);
+  std::string SaveSpatialObjectNode(vtkMRMLSpatialObjectsNode *spatialObjectsNode);
+  std::string GetOutputFileName();
+  void SetOutputFileName(std::string name);
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();
@@ -72,7 +79,7 @@ private:
   void operator=(const vtkSlicerInteractiveTubesToTreeLogic&); // Not implemented
   class vtkInternal;
   vtkInternal* Internal;
-
+  std::string OutputFileName;
 };
 
 #endif

@@ -31,6 +31,7 @@ limitations under the License.
 
 // InteractiveTubesToTree Logic includes
 #include <vtkSlicerCLIModuleLogic.h>
+#include "vtkSlicerSpatialObjectsLogic.h"
 #include <vtkSlicerInteractiveTubesToTreeLogic.h>
 
 // InteractiveTubesToTree includes
@@ -108,6 +109,7 @@ QStringList qSlicerInteractiveTubesToTreeModule::dependencies() const
 {
   QStringList moduleDependencies;
   moduleDependencies << "SpatialObjects";
+  moduleDependencies << "ConvertTubesToTubeTree";
   return moduleDependencies;
 }
 
@@ -120,11 +122,20 @@ void qSlicerInteractiveTubesToTreeModule::setup()
 
   qSlicerAbstractCoreModule* conversionModule =
     qSlicerCoreApplication::application()->moduleManager()->module("ConvertTubesToTubeTree");
-  if (conversionModule)
+
+  qSlicerAbstractCoreModule* spatialObjectsModule =
+    qSlicerCoreApplication::application()->moduleManager()->module("SpatialObjects");
+
+  if (conversionModule  && spatialObjectsModule)
   {
     vtkSlicerCLIModuleLogic* conversionLogic =
       vtkSlicerCLIModuleLogic::SafeDownCast(conversionModule->logic());
     interactiveTubeToTreeLogic->SetConversionLogic(conversionLogic);
+
+    vtkSlicerSpatialObjectsLogic* spatialObjectsLogic =
+      vtkSlicerSpatialObjectsLogic::SafeDownCast(spatialObjectsModule->logic());
+    interactiveTubeToTreeLogic->SetSpatialObjectsLogic(spatialObjectsLogic);   
+
     qWarning() << "ConvertTubesToTubeTree module is found";
   }
   else
