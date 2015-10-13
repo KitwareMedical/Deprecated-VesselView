@@ -31,7 +31,6 @@ limitations under the License.
 
 class qSlicerInteractiveTubesToTreeModuleWidgetPrivate;
 class vtkMRMLNode;
-class vtkMRMLVolumeNode;
 class vtkMRMLSpatialObjectsNode;
 class vtkSlicerInteractiveTubesToTreeLogic;
 
@@ -48,10 +47,10 @@ public:
   virtual ~qSlicerInteractiveTubesToTreeModuleWidget();
 
 public slots:
-  void setCurrentSpatialObjectsNode(vtkMRMLNode* node);
-  void setCurrentSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
-  void setVolumeNode(vtkMRMLVolumeNode* node);
-  void setVolumeNode(vtkMRMLNode* node);
+  void setInputSpatialObjectsNode(vtkMRMLNode* node);
+  void setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
+  void setOutputSpatialObjectsNode(vtkMRMLNode* node);
+  void setOutputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
   void restoreDefaults();
   void runConversion();
 

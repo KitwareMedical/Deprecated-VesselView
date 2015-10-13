@@ -125,12 +125,12 @@ void vtkSlicerInteractiveTubesToTreeLogic
 
 //---------------------------------------------------------------------------
 bool vtkSlicerInteractiveTubesToTreeLogic
-::Apply(vtkMRMLSpatialObjectsNode* spacialNode, vtkMRMLVolumeNode* volumeNode, double maxTubeDistanceToRadiusRatio,
+::Apply(vtkMRMLSpatialObjectsNode* inputNode, vtkMRMLSpatialObjectsNode* outputNode, double maxTubeDistanceToRadiusRatio,
 double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdList)
 {
   qCritical("In logic!!");
 
-  if (!spacialNode || !volumeNode)
+  if (!inputNode || !outputNode)
   {
     return false;
   }
@@ -145,9 +145,9 @@ double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdLi
     qCritical("In logic!! Command Line Module Node error");
     return false;
   }
-  std::string temp = spacialNode->GetID();
-  cmdNode->SetParameterAsString("inputTREFile", spacialNode->GetID());
-  cmdNode->SetParameterAsString("outputTREFile", volumeNode->GetID());
+  std::string temp = inputNode->GetID();
+  cmdNode->SetParameterAsNode("inputTREFile", inputNode);
+  cmdNode->SetParameterAsNode("outputTREFile", outputNode);
   cmdNode->SetParameterAsDouble("maxTubeDistanceToRadiusRatio", maxTubeDistanceToRadiusRatio);
   cmdNode->SetParameterAsDouble("maxContinuityAngleError", maxContinuityAngleError);
   cmdNode->SetParameterAsString("rootTubeIdList", rootTubeIdList);

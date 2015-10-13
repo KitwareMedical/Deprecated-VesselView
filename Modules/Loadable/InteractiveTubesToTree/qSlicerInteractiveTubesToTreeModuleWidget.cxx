@@ -30,7 +30,6 @@ limitations under the License.
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
-#include "vtkMRMLVolumeNode.h"
 #include "vtkSlicerInteractiveTubesToTreeLogic.h"
 
 // TubeTK includes
@@ -48,8 +47,8 @@ public:
   vtkSlicerInteractiveTubesToTreeLogic* logic() const;
 
   void init();
-  vtkMRMLSpatialObjectsNode* currentSpatialObject;
-  vtkMRMLVolumeNode* volumeNode;
+  vtkMRMLSpatialObjectsNode* inputSpatialObject;
+  vtkMRMLSpatialObjectsNode* outputSpatialObject;
 };
 
 //-----------------------------------------------------------------------------
@@ -59,7 +58,8 @@ public:
 qSlicerInteractiveTubesToTreeModuleWidgetPrivate::qSlicerInteractiveTubesToTreeModuleWidgetPrivate(
 	qSlicerInteractiveTubesToTreeModuleWidget& object) : q_ptr(&object)
 {
-  this->currentSpatialObject = 0;
+  this->inputSpatialObject = 0;
+  this->outputSpatialObject = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -94,9 +94,6 @@ void qSlicerInteractiveTubesToTreeModuleWidget::setup()
   d->init();
 
   this->Superclass::setup();
-
-  
-
 }
 
 //------------------------------------------------------------------------------
@@ -116,12 +113,12 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
 
   QObject::connect(
     this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-    q, SLOT(setCurrentSpatialObjectsNode(vtkMRMLNode*)));
+    q, SLOT(setInputSpatialObjectsNode(vtkMRMLNode*)));
 
   QObject::connect(
-    this->OutputVolumeNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-    q, SLOT(setVolumeNode(vtkMRMLNode*)));
-
+    this->OutputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    q, SLOT(setOutputSpatialObjectsNode(vtkMRMLNode*)));
+  
   QObject::connect(
     this->RestoreDefaultsPushButton, SIGNAL(clicked()),
     q, SLOT(restoreDefaults()));
@@ -133,39 +130,44 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
 
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget
-::setCurrentSpatialObjectsNode(vtkMRMLNode* node)
+::setInputSpatialObjectsNode(vtkMRMLNode* node)
 {
-  this->setCurrentSpatialObjectsNode(
+  this->setInputSpatialObjectsNode(
     vtkMRMLSpatialObjectsNode::SafeDownCast(node));
 }
 
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget
-::setCurrentSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node)
+::setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node)
 {
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
 
-  if (d->currentSpatialObject == node)
+  if (d->inputSpatialObject == node)
   {
     return;
   }
-  d->currentSpatialObject = node;
-  d->ApplyPushButton->setEnabled(d->volumeNode != 0 && d->currentSpatialObject != 0);
+  d->inputSpatialObject = node;
+  d->ApplyPushButton->setEnabled(d->inputSpatialObject != 0 && d->outputSpatialObject != 0);
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeModuleWidget::setVolumeNode(vtkMRMLNode* node)
+void qSlicerInteractiveTubesToTreeModuleWidget::setOutputSpatialObjectsNode(vtkMRMLNode* node)
 {
-	this->setVolumeNode(vtkMRMLVolumeNode::SafeDownCast(node));
+  this->setOutputSpatialObjectsNode(
+    vtkMRMLSpatialObjectsNode::SafeDownCast(node));
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeModuleWidget::setVolumeNode(vtkMRMLVolumeNode* volumeNode)
+void qSlicerInteractiveTubesToTreeModuleWidget::setOutputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node)
 {
 	Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
 
-	d->volumeNode = volumeNode;
-  d->ApplyPushButton->setEnabled(d->volumeNode != 0 && d->currentSpatialObject != 0);
+  if (d->outputSpatialObject == node)
+  {
+    return;
+  }
+  d->outputSpatialObject = node;
+  d->ApplyPushButton->setEnabled(d->inputSpatialObject != 0 && d->outputSpatialObject != 0);
 }
 
 //------------------------------------------------------------------------------
@@ -177,7 +179,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::restoreDefaults()
   d->MaxTubeDistanceToRadiusSliderWidget->setValue(2);
   d->RemoveOrphanTubesCheckBox->setChecked(false);
   d->RootTubeIDListLineEdit->setText("");
-  d->ApplyPushButton->setEnabled(d->volumeNode != 0 && d->currentSpatialObject != 0);
+  d->ApplyPushButton->setEnabled(d->inputSpatialObject != 0 && d->outputSpatialObject != 0);
 }
 
 //------------------------------------------------------------------------------
@@ -203,7 +205,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
 
   d->ApplyPushButton->setEnabled(false);
 
-  if (!d->logic()->Apply(d->currentSpatialObject, d->volumeNode, maxTubeDistanceToRadiusRatio, 
+  if (!d->logic()->Apply(d->inputSpatialObject, d->outputSpatialObject, maxTubeDistanceToRadiusRatio,
     maxContinuityAngleError, removeOrphanTubes, temp))
   {
     qCritical("Error while running conversion !");

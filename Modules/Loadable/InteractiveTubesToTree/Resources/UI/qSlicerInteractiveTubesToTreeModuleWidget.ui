@@ -105,7 +105,7 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>Input TRE file containing disjoint tubes</string>
+         <string>Output TRE file containing a tree of tubes</string>
         </property>
         <property name="text">
          <string>Output TRE File </string>
@@ -113,7 +113,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="OutputVolumeNodeComboBox" native="true">
+       <widget class="qMRMLNodeComboBox" name="OutputSpacialObjectsNodeComboBox" native="true">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -124,18 +124,18 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>Input TRE file containing disjoint tubes</string>
+         <string>Output TRE file containing a tree of tubes</string>
         </property>
         <property name="nodeTypes" stdset="0">
          <stringlist>
-          <string>vtkMRMLScalarVolumeNode</string>
+          <string>vtkMRMLSpatialObjectsNode</string>
          </stringlist>
         </property>
         <property name="showHidden" stdset="0">
          <bool>true</bool>
         </property>
         <property name="baseName" stdset="0">
-         <string/>
+         <string>Output TRE File</string>
         </property>
         <property name="renameEnabled" stdset="0">
          <bool>true</bool>
@@ -467,7 +467,7 @@
   <connection>
    <sender>qSlicerInteractiveTubesToTreeModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>OutputVolumeNodeComboBox</receiver>
+   <receiver>OutputSpacialObjectsNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">

@@ -52,7 +52,7 @@ public:
   void SetConversionLogic(vtkSlicerCLIModuleLogic* logic);
   vtkSlicerCLIModuleLogic* GetConversionLogic();
 
-  bool Apply(vtkMRMLSpatialObjectsNode* spacialNode, vtkMRMLVolumeNode* volumeNode, double maxTubeDistanceToRadiusRatio,
+  bool Apply(vtkMRMLSpatialObjectsNode* spacialNode, vtkMRMLSpatialObjectsNode* volumeNode, double maxTubeDistanceToRadiusRatio,
     double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdList);
 
 protected:
