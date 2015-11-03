@@ -28,7 +28,13 @@
 #include "vtkSlicerModuleLogic.h"
 class vtkSlicerCLIModuleLogic;
 class vtkSlicerSpatialObjectsLogic;
+class vtkMRMLSpatialObjectsDisplayNode;
 class vtkMRMLVolumeNode;
+class vtkColorTransferFunction;
+
+// ITK includes
+#include "itkVesselTubeSpatialObject.h"
+#include "itkVector.h"
 
 // MRML includes
 
@@ -55,12 +61,19 @@ public:
   void SetSpatialObjectsLogic(vtkSlicerSpatialObjectsLogic* logic);
   vtkSlicerSpatialObjectsLogic* GetSpatialObjectsLogic();
 
-  bool Apply(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsNode* volumeNode, double maxTubeDistanceToRadiusRatio,
+  // typdefs
+  typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
+  typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
+
+  bool Apply(vtkMRMLSpatialObjectsNode* inputNode, vtkMRMLSpatialObjectsNode* outputNode, double maxTubeDistanceToRadiusRatio,
     double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdList);
   std::string ConstructTemporaryFileName(const std::string& name);
   std::string SaveSpatialObjectNode(vtkMRMLSpatialObjectsNode *spatialObjectsNode);
   std::string GetOutputFileName();
   void SetOutputFileName(std::string name);
+  void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList);
+  void SetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
+  void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();

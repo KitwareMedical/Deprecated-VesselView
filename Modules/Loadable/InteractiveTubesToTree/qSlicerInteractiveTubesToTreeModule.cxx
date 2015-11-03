@@ -29,7 +29,7 @@ limitations under the License.
 #include <qSlicerCoreApplication.h>
 #include <qSlicerModuleManager.h>
 
-// InteractiveTubesToTree Logic includes
+// Logic includes
 #include <vtkSlicerCLIModuleLogic.h>
 #include "vtkSlicerSpatialObjectsLogic.h"
 #include <vtkSlicerInteractiveTubesToTreeLogic.h>

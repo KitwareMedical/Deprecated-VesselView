@@ -40,6 +40,9 @@ limitations under the License.
 #include <vtkIntArray.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkMRMLProceduralColorNode.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkMRMLSpatialObjectsDisplayNode.h>
 
 // STD includes
 #include <cassert>
@@ -123,8 +126,6 @@ vtkSlicerSpatialObjectsLogic* vtkSlicerInteractiveTubesToTreeLogic::GetSpatialOb
 //----------------------------------------------------------------------------
 void vtkSlicerInteractiveTubesToTreeLogic::SetOutputFileName(std::string name)
 {
-  qCritical("In Set");
-  qCritical(name.c_str());
   this->OutputFileName = name;
   return;
 }
@@ -132,7 +133,6 @@ void vtkSlicerInteractiveTubesToTreeLogic::SetOutputFileName(std::string name)
 //----------------------------------------------------------------------------
 std::string vtkSlicerInteractiveTubesToTreeLogic::GetOutputFileName()
 {
-  qCritical("In Get");
   qCritical(this->OutputFileName.c_str());
   return this->OutputFileName;
 }
@@ -259,3 +259,156 @@ std::string vtkSlicerInteractiveTubesToTreeLogic
   return fname;
 }
 
+//---------------------------------------------------------------------------
+void vtkSlicerInteractiveTubesToTreeLogic
+::GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList)
+{
+  if (!spatialNode)
+  {
+    return ;
+  }  
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+  
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube)
+    {
+      continue;
+    }
+    if (currTube->GetNumberOfPoints() < 2)
+    {
+      std::cerr << "Error, vessel #" << currTube->GetId()
+        << " has less than 2 points !" << std::endl;      
+    }
+    int currID = currTube->GetId();
+    TubeIDList.push_back(currID);
+  }
+  return ;
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerInteractiveTubesToTreeLogic
+::SetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float green, float blue)
+{
+  if (!spatialNode)
+  {
+    return;
+  }
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube)
+    {
+      continue;
+    }
+    if (currTube->GetId() == currTubeID)
+    {
+      currTube->GetProperty()->SetColor(red, green, blue); 
+      break;
+    }
+    else
+    {
+      continue;
+    }
+  }
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerInteractiveTubesToTreeLogic
+::CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode,  vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode)
+{
+  if (!spatialNode)
+  {
+    return;
+  }
+  char colorMapName[80];
+  strcpy(colorMapName, spatialNode->GetName());
+  strcat(colorMapName, "_TubeColor");
+  vtkMRMLNode* colorNode1 = spatialDisplayNode->GetScene()->GetFirstNodeByName(colorMapName);
+  vtkMRMLProceduralColorNode* colorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode1);
+
+  if (colorNode == NULL)
+  {
+    vtkNew<vtkMRMLProceduralColorNode> colorNode;
+    colorNode->SetName(colorMapName);
+    colorNode->SetAttribute("Category", "Tube Color Display");
+    colorNode->SetHideFromEditors(false);
+
+    vtkColorTransferFunction* colorMap = colorNode->GetColorTransferFunction();
+    colorMap->SetIndexedLookup(0);
+    TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+    char childName[] = "Tube";
+    TubeNetType::ChildrenListType* tubeList =
+      spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+    for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+    {
+      VesselTubeType* currTube =
+        dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+      if (!currTube)
+      {
+        continue;
+      }
+      if (currTube->GetNumberOfPoints() < 2)
+      {
+        std::cerr << "Error, vessel #" << currTube->GetId()
+          << " has less than 2 points !" << std::endl;
+      }
+
+      colorMap->AddRGBPoint(currTube->GetId(), currTube->GetProperty()->GetColor().GetRed(), currTube->GetProperty()->GetColor().GetGreen(), currTube->GetProperty()->GetColor().GetBlue());
+    }
+
+    spatialDisplayNode->GetScene()->AddNode(colorNode.GetPointer());
+    spatialDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
+  }
+  else
+  {
+    vtkColorTransferFunction* colorMap = colorNode->GetColorTransferFunction();
+    colorMap->SetIndexedLookup(0);
+    TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+    char childName[] = "Tube";
+    TubeNetType::ChildrenListType* tubeList =
+      spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+    if (colorMap->GetSize() != tubeList->size())
+    {
+      colorMap->RemoveAllPoints();
+      for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+      {
+        VesselTubeType* currTube =
+          dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+        if (!currTube)
+        {
+          continue;
+        }
+        if (currTube->GetNumberOfPoints() < 2)
+        {
+          std::cerr << "Error, vessel #" << currTube->GetId()
+            << " has less than 2 points !" << std::endl;
+        }
+
+        colorMap->AddRGBPoint(currTube->GetId(), currTube->GetProperty()->GetColor().GetRed(), currTube->GetProperty()->GetColor().GetGreen(), currTube->GetProperty()->GetColor().GetBlue());
+      }
+      spatialDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
+    }  
+    else
+    {
+      spatialDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
+    }
+  }
+}

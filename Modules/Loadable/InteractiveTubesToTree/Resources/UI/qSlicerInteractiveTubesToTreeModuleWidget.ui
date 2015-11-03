@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>345</width>
-    <height>302</height>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -341,6 +341,9 @@
     </widget>
    </item>
    <item>
+     <widget class="qSlicerInteractiveTubesToTreeTableWidget" name="Table" native="true"/>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -424,15 +427,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>ctkSliderWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkSliderWidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
    <header>ctkCollapsibleButton.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ctkSliderWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkSliderWidget.h</header>
   </customwidget>
   <customwidget>
    <class>qMRMLSliderWidget</class>

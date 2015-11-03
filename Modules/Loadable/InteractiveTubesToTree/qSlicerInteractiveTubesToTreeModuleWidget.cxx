@@ -25,12 +25,14 @@ limitations under the License.
 #include <QDebug>
 
 // SlicerQt includes
+#include "qSlicerApplication.h"
 #include "qSlicerInteractiveTubesToTreeModuleWidget.h"
 #include "ui_qSlicerInteractiveTubesToTreeModuleWidget.h"
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
 #include "vtkSlicerInteractiveTubesToTreeLogic.h"
+#include <vtkMRMLInteractionNode.h>
 
 // TubeTK includes
 #include "tubeTubeMath.h"
@@ -38,6 +40,7 @@ limitations under the License.
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerInteractiveTubesToTreeModuleWidgetPrivate: public Ui_qSlicerInteractiveTubesToTreeModuleWidget
 {
+  
   Q_DECLARE_PUBLIC(qSlicerInteractiveTubesToTreeModuleWidget);
 protected:
   qSlicerInteractiveTubesToTreeModuleWidget* const q_ptr;
@@ -49,6 +52,7 @@ public:
   void init();
   vtkMRMLSpatialObjectsNode* inputSpatialObject;
   vtkMRMLSpatialObjectsNode* outputSpatialObject;
+
 };
 
 //-----------------------------------------------------------------------------
@@ -107,6 +111,17 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
   pickRootTubesPushButtonIcon.addFile(QString::fromUtf8(":AnnotationPointWithArrow.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->PickRootTubesPushButton->setIcon(pickRootTubesPushButtonIcon);
 
+  QObject::connect(
+    this->PickRootTubesPushButton, SIGNAL(toggled(bool)),
+    q, SLOT(updateMRMLFromWidget()));
+
+  qSlicerApplication * app = qSlicerApplication::application();
+  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+  
+  q->qvtkReconnect(interactionNode, vtkCommand::ModifiedEvent,
+    q, SLOT(updateWidgetFromMRML()));
+
+  
   QRegExp rx("[0-9]+([0-9]*[ ]*,[ ]*)*");
   QValidator *validator = new QRegExpValidator(rx);
   this->RootTubeIDListLineEdit->setValidator(validator);
@@ -126,6 +141,12 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
   QObject::connect(
     this->ApplyPushButton, SIGNAL(clicked()),
     q, SLOT(runConversion()));
+
+  QObject::connect(
+    this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
+
+  q->updateWidgetFromMRML();
 }
 
 //------------------------------------------------------------------------------
@@ -191,26 +212,54 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
   double maxContinuityAngleError = d->MaxContinuityAngleErrorSliderWidget->value();
   bool removeOrphanTubes = d->RemoveOrphanTubesCheckBox->isChecked();
 
-  std::vector<int> rootTubeIdList;
-  QString rootTubeIdString = d->RootTubeIDListLineEdit->text();
-  std::string temp = rootTubeIdString.toStdString();
-  QStringList rootTubeIdStringList = rootTubeIdString.split(",");
-  for (int i = 0; i < rootTubeIdStringList.size(); ++i)
-  {
-    bool isNumeric;
-    int rootTubeId = rootTubeIdStringList[i].toInt(&isNumeric);
-    if (isNumeric)
-      rootTubeIdList.push_back(rootTubeId);
-  }
+  //getting root ids from the text box
+  std::string rootTubeIdList = d->RootTubeIDListLineEdit->text().toStdString();
+  //getting root ids from the table  
+  std::string selectedRoodtIds = d->Table->getSelectedRootIds();
+
+  rootTubeIdList = rootTubeIdList + " ," + selectedRoodtIds;
 
   d->ApplyPushButton->setEnabled(false);
 
   if (!d->logic()->Apply(d->inputSpatialObject, d->outputSpatialObject, maxTubeDistanceToRadiusRatio,
-    maxContinuityAngleError, removeOrphanTubes, temp))
+    maxContinuityAngleError, removeOrphanTubes, rootTubeIdList))
   {
     qCritical("Error while running conversion !");
   }
 
   d->ApplyPushButton->setChecked(false);
   d->ApplyPushButton->setEnabled(true);
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::updateMRMLFromWidget()
+{
+  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
+  qSlicerApplication * app = qSlicerApplication::application();
+  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+  if (d->PickRootTubesPushButton->isChecked())
+  {
+    interactionNode->SetCurrentInteractionMode(interactionNode->Place);
+  }
+  else
+  {
+    interactionNode->SetCurrentInteractionMode(interactionNode->ViewTransform);
+  }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::updateWidgetFromMRML()
+{
+  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
+  qSlicerApplication * app = qSlicerApplication::application();
+  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+ 
+  d->PickRootTubesPushButton->setChecked(interactionNode->GetCurrentInteractionMode()== interactionNode->Place);
+}
+
+// --------------------------------------------------------------------------
+vtkMRMLSpatialObjectsNode* qSlicerInteractiveTubesToTreeModuleWidget::mrmlSpatialObjectNode()const
+{
+  Q_D(const qSlicerInteractiveTubesToTreeModuleWidget);
+  return d->inputSpatialObject;
 }
