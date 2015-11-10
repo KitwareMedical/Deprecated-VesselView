@@ -24,6 +24,7 @@ limitations under the License.
 
 // CLI invocation
 #include <qSlicerCLIModule.h>
+#include <qSlicerApplication.h>
 #include <vtkSlicerCLIModuleLogic.h>
 
 // InteractiveTubesToTree Logic includes
@@ -32,7 +33,8 @@ limitations under the License.
 // MRML includes
 #include <vtkMRMLScene.h>
 #include "vtkMRMLVolumeNode.h"
-
+#include <vtkMRMLSelectionNode.h>
+#include <vtkMRMLMarkupsNode.h>
 //Spatial Objects includes
 #include "vtkSlicerSpatialObjectsLogic.h"
 
@@ -43,6 +45,8 @@ limitations under the License.
 #include <vtkMRMLProceduralColorNode.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkMRMLSpatialObjectsDisplayNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkObjectFactory.h>
 
 // STD includes
 #include <cassert>
@@ -217,6 +221,67 @@ double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdLi
   return true;
 }
 
+//----------------------------------------------------------------------------
+int vtkSlicerInteractiveTubesToTreeLogic::FindNearestTube(vtkMRMLSpatialObjectsNode* spatialNode, double *xyz)
+{
+  if (!spatialNode)
+  {
+    return -1;
+  }
+
+  PointType fiducial = PointType(xyz);
+  double minDistance = INT32_MAX;
+  int finalTubeID = -1;
+
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+  
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube)
+    {
+      continue;
+    }
+    
+    int numberOfPoints = currTube->GetNumberOfPoints();
+    for (int index = 0; index < numberOfPoints; index++)
+    {
+      VesselTubePointType* tubePoint =
+        dynamic_cast<VesselTubePointType*>(currTube->GetPoint(index));
+
+      PointType inputPoint = tubePoint->GetPosition();
+
+      inputPoint =
+        currTube->GetIndexToWorldTransform()->TransformPoint(inputPoint);
+
+      double distance = inputPoint.SquaredEuclideanDistanceTo(fiducial);
+      int i = 0;
+      if (minDistance > distance)
+      {
+        minDistance = distance;
+        finalTubeID = currTube->GetId();
+      }
+    }
+  }
+  return finalTubeID;
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerInteractiveTubesToTreeLogic::setActivePlaceNodeID(vtkMRMLMarkupsNode* node)
+{
+  if (node)
+  {
+    qSlicerApplication * app = qSlicerApplication::application();
+    vtkMRMLSelectionNode* selectionNode = app->applicationLogic()->GetSelectionNode();
+    selectionNode->SetActivePlaceNodeID(node->GetID());
+  }
+  return;
+}
 //----------------------------------------------------------------------------
 std::string vtkSlicerInteractiveTubesToTreeLogic
 ::SaveSpatialObjectNode(vtkMRMLSpatialObjectsNode *spatialObjectsNode)

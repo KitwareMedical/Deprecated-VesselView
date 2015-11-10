@@ -27,15 +27,15 @@ limitations under the License.
 // SlicerQt includes
 #include "qSlicerApplication.h"
 #include "qSlicerInteractiveTubesToTreeModuleWidget.h"
+#include "vtkSlicerInteractiveTubesToTreeLogic.h"
 #include "ui_qSlicerInteractiveTubesToTreeModuleWidget.h"
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
-#include "vtkSlicerInteractiveTubesToTreeLogic.h"
 #include <vtkMRMLInteractionNode.h>
+#include "vtkMRMLScene.h"
+#include <vtkMRMLMarkupsFiducialNode.h>
 
-// TubeTK includes
-#include "tubeTubeMath.h"
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerInteractiveTubesToTreeModuleWidgetPrivate: public Ui_qSlicerInteractiveTubesToTreeModuleWidget
@@ -72,8 +72,6 @@ qSlicerInteractiveTubesToTreeModuleWidgetPrivate::~qSlicerInteractiveTubesToTree
 }
 
 //-----------------------------------------------------------------------------
-// qSlicerInteractiveTubesToTreeModuleWidget methods
-//-----------------------------------------------------------------------------
 vtkSlicerInteractiveTubesToTreeLogic* qSlicerInteractiveTubesToTreeModuleWidgetPrivate::logic() const
 {
 	Q_Q(const qSlicerInteractiveTubesToTreeModuleWidget);
@@ -86,6 +84,8 @@ qSlicerInteractiveTubesToTreeModuleWidget::qSlicerInteractiveTubesToTreeModuleWi
 {
 }
 
+//-----------------------------------------------------------------------------
+// qSlicerInteractiveTubesToTreeModuleWidget methods
 //-----------------------------------------------------------------------------
 qSlicerInteractiveTubesToTreeModuleWidget::~qSlicerInteractiveTubesToTreeModuleWidget()
 {
@@ -106,7 +106,8 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
   Q_Q(qSlicerInteractiveTubesToTreeModuleWidget);
 
   this->setupUi(q);
-
+  //Picking root tube ids 
+ 
   QIcon pickRootTubesPushButtonIcon;
   pickRootTubesPushButtonIcon.addFile(QString::fromUtf8(":AnnotationPointWithArrow.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->PickRootTubesPushButton->setIcon(pickRootTubesPushButtonIcon);
@@ -117,11 +118,10 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
 
   qSlicerApplication * app = qSlicerApplication::application();
   vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
-  
   q->qvtkReconnect(interactionNode, vtkCommand::ModifiedEvent,
     q, SLOT(updateWidgetFromMRML()));
-
   
+  //REST.....
   QRegExp rx("[0-9]+([0-9]*[ ]*,[ ]*)*");
   QValidator *validator = new QRegExpValidator(rx);
   this->RootTubeIDListLineEdit->setValidator(validator);
@@ -147,6 +147,27 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
     this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
 
   q->updateWidgetFromMRML();
+}
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::enter()
+{
+  this->onEnter();
+  this->Superclass::enter();
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::onEnter()
+{
+  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
+  if (this->mrmlScene() == 0)
+  {
+    return;
+  }
+  updateWidgetFromMRML();
+
+  qSlicerApplication * app = qSlicerApplication::application();
+  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+  interactionNode->SetPlaceModePersistence(1);
 }
 
 //------------------------------------------------------------------------------
@@ -245,6 +266,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::updateMRMLFromWidget()
   {
     interactionNode->SetCurrentInteractionMode(interactionNode->ViewTransform);
   }
+  findTubeIDs();
 }
 
 //------------------------------------------------------------------------------
@@ -262,4 +284,58 @@ vtkMRMLSpatialObjectsNode* qSlicerInteractiveTubesToTreeModuleWidget::mrmlSpatia
 {
   Q_D(const qSlicerInteractiveTubesToTreeModuleWidget);
   return d->inputSpatialObject;
+}
+
+// --------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs()
+{
+  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
+
+  std::vector<vtkMRMLNode*> nodes;
+  int numMarkups = this->mrmlScene()->GetNumberOfNodesByClass("vtkMRMLMarkupsNode");
+  if (numMarkups > 0)
+  {
+    this->mrmlScene()->GetNodesByClass("vtkMRMLMarkupsNode", nodes);
+    vtkMRMLMarkupsNode* currentMarkupsNode = vtkMRMLMarkupsNode::SafeDownCast(nodes[0]);
+    d->logic()->setActivePlaceNodeID(currentMarkupsNode);
+    
+    int num = currentMarkupsNode->GetNumberOfMarkups();
+    for (int i = 0; i < num; i++)
+    {
+      std::string currLabel = currentMarkupsNode->GetNthMarkupLabel(i);
+      if (currLabel.find("None") != std::string::npos)
+      {
+        currentMarkupsNode->SetNthMarkupVisibility(i, 0);
+        continue;
+      }
+      if (currLabel.find("TubeId") == std::string::npos)
+      {
+        std::string currAssociatedNodeID = currentMarkupsNode->GetNthMarkupAssociatedNodeID(i);
+        if (currAssociatedNodeID.find("vtkMRMLSpatialObjectsNode") == std::string::npos)
+        {
+          currentMarkupsNode->SetNthMarkupLabel(i, "None");
+          continue;
+        }
+        else
+        {
+          double xyz[3];
+          currentMarkupsNode->GetMarkupPointLPS(i, 0, xyz);
+        //  currentMarkupsNode->GetMarkupPoint(i, 0, xyz);
+          int TubeID = d->logic()->FindNearestTube(d->inputSpatialObject, xyz);
+          if (TubeID == -1)
+          {
+            currentMarkupsNode->SetNthMarkupLabel(i, "None");
+          }
+          else
+          {
+            char TubeId[30], newLabel[30];
+            itoa(TubeID, TubeId, 10);
+            strcpy(newLabel, "TubeId-");
+            strcat(newLabel, TubeId);
+            currentMarkupsNode->SetNthMarkupLabel(i, newLabel);
+          }
+        }
+      }
+    }
+  }
 }

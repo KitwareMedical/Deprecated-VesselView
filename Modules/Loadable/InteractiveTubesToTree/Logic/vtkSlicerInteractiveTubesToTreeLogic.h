@@ -31,6 +31,7 @@ class vtkSlicerSpatialObjectsLogic;
 class vtkMRMLSpatialObjectsDisplayNode;
 class vtkMRMLVolumeNode;
 class vtkColorTransferFunction;
+class vtkMRMLMarkupsNode;
 
 // ITK includes
 #include "itkVesselTubeSpatialObject.h"
@@ -64,9 +65,14 @@ public:
   // typdefs
   typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
   typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
+  typedef VesselTubeType::TubePointType        VesselTubePointType;
+  typedef itk::Point<double, 3>                PointType;
+
 
   bool Apply(vtkMRMLSpatialObjectsNode* inputNode, vtkMRMLSpatialObjectsNode* outputNode, double maxTubeDistanceToRadiusRatio,
     double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdList);
+  int FindNearestTube(vtkMRMLSpatialObjectsNode* inputNode, double*);
+  void setActivePlaceNodeID(vtkMRMLMarkupsNode* node);
   std::string ConstructTemporaryFileName(const std::string& name);
   std::string SaveSpatialObjectNode(vtkMRMLSpatialObjectsNode *spatialObjectsNode);
   std::string GetOutputFileName();

@@ -45,6 +45,7 @@ set(${KIT}_TARGET_LIBRARIES
   ${MRML_LIBRARIES}
   vtkSlicerSpatialObjectsModuleMRML
   vtkSlicerSpatialObjectsModuleLogic
+  vtkSlicerMarkupsModuleMRML
   )
 
 #-----------------------------------------------------------------------------
