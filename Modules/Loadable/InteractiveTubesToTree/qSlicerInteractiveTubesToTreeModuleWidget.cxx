@@ -333,6 +333,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs()
             strcpy(newLabel, "TubeId-");
             strcat(newLabel, TubeId);
             currentMarkupsNode->SetNthMarkupLabel(i, newLabel);
+            d->Table->selectRow(TubeID);
           }
         }
       }

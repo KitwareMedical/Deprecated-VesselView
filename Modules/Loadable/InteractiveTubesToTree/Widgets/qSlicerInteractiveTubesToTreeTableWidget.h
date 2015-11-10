@@ -59,6 +59,7 @@ public:
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
   std::string getSelectedRootIds();
+  void selectRow(int rowID);
 
 public slots:
   /// Set the MRML node of interest

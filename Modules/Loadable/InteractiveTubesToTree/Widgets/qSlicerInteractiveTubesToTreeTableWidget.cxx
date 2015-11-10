@@ -484,3 +484,30 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
   }
   return;
 }
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::selectRow(int tubeID)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  int rowID;
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
+  {
+    QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
+    bool isNumeric;
+    int currTubeId = item->text().toInt(&isNumeric);
+    if (isNumeric && currTubeId == tubeID)
+    {
+      rowID = indexRow;
+      break;
+    }
+  }
+
+  d->TableWidget->selectRow(rowID);
+  int colorIndex = d->columnIndex("Color");
+
+  ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowID, colorIndex));
+  t->setColor(QColor(0, 0, 1));
+  onTubeColorChanged(QColor(0, 0, 1));
+  return;
+}
