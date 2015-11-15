@@ -33,8 +33,9 @@ limitations under the License.
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
 #include <vtkMRMLInteractionNode.h>
+#include <vtkMRMLSelectionNode.h>
 #include "vtkMRMLScene.h"
-#include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkMRMLMarkupsNode.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -52,7 +53,7 @@ public:
   void init();
   vtkMRMLSpatialObjectsNode* inputSpatialObject;
   vtkMRMLSpatialObjectsNode* outputSpatialObject;
-
+  vtkMRMLMarkupsNode* MarkupsNode;
 };
 
 //-----------------------------------------------------------------------------
@@ -64,6 +65,7 @@ qSlicerInteractiveTubesToTreeModuleWidgetPrivate::qSlicerInteractiveTubesToTreeM
 {
   this->inputSpatialObject = 0;
   this->outputSpatialObject = 0;
+  this->MarkupsNode = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -77,6 +79,7 @@ vtkSlicerInteractiveTubesToTreeLogic* qSlicerInteractiveTubesToTreeModuleWidgetP
 	Q_Q(const qSlicerInteractiveTubesToTreeModuleWidget);
 	return vtkSlicerInteractiveTubesToTreeLogic::SafeDownCast(q->logic());
 }
+
 //-----------------------------------------------------------------------------
 qSlicerInteractiveTubesToTreeModuleWidget::qSlicerInteractiveTubesToTreeModuleWidget(QWidget* _parent)
   : Superclass( _parent )
@@ -146,6 +149,7 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
     this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
     this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
 
+
   q->updateWidgetFromMRML();
 }
 //------------------------------------------------------------------------------
@@ -168,6 +172,9 @@ void qSlicerInteractiveTubesToTreeModuleWidget::onEnter()
   qSlicerApplication * app = qSlicerApplication::application();
   vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
   interactionNode->SetPlaceModePersistence(1);
+  
+  this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
+    this, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
 }
 
 //------------------------------------------------------------------------------
@@ -266,7 +273,6 @@ void qSlicerInteractiveTubesToTreeModuleWidget::updateMRMLFromWidget()
   {
     interactionNode->SetCurrentInteractionMode(interactionNode->ViewTransform);
   }
-  findTubeIDs();
 }
 
 //------------------------------------------------------------------------------
@@ -291,52 +297,64 @@ void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs()
 {
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
 
-  std::vector<vtkMRMLNode*> nodes;
-  int numMarkups = this->mrmlScene()->GetNumberOfNodesByClass("vtkMRMLMarkupsNode");
-  if (numMarkups > 0)
+  if (d->MarkupsNode)
   {
-    this->mrmlScene()->GetNodesByClass("vtkMRMLMarkupsNode", nodes);
-    vtkMRMLMarkupsNode* currentMarkupsNode = vtkMRMLMarkupsNode::SafeDownCast(nodes[0]);
-    d->logic()->setActivePlaceNodeID(currentMarkupsNode);
-    
+    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;   
     int num = currentMarkupsNode->GetNumberOfMarkups();
     for (int i = 0; i < num; i++)
     {
       std::string currLabel = currentMarkupsNode->GetNthMarkupLabel(i);
-      if (currLabel.find("None") != std::string::npos)
+      std::string currAssociatedNodeID = currentMarkupsNode->GetNthMarkupAssociatedNodeID(i);
+      if (currAssociatedNodeID.find("vtkMRMLSpatialObjectsNode") == std::string::npos)
       {
-        currentMarkupsNode->SetNthMarkupVisibility(i, 0);
+        currentMarkupsNode->SetNthMarkupVisibility(i, false);
         continue;
       }
-      if (currLabel.find("TubeId") == std::string::npos)
+      else
       {
-        std::string currAssociatedNodeID = currentMarkupsNode->GetNthMarkupAssociatedNodeID(i);
-        if (currAssociatedNodeID.find("vtkMRMLSpatialObjectsNode") == std::string::npos)
+        double xyz[3];
+        currentMarkupsNode->GetMarkupPointLPS(i, 0, xyz);
+        int TubeID = d->logic()->FindNearestTube(d->inputSpatialObject, xyz);
+        if (TubeID == -1)
         {
-          currentMarkupsNode->SetNthMarkupLabel(i, "None");
-          continue;
+          currentMarkupsNode->SetNthMarkupVisibility(i, false);
         }
         else
         {
-          double xyz[3];
-          currentMarkupsNode->GetMarkupPointLPS(i, 0, xyz);
-        //  currentMarkupsNode->GetMarkupPoint(i, 0, xyz);
-          int TubeID = d->logic()->FindNearestTube(d->inputSpatialObject, xyz);
-          if (TubeID == -1)
-          {
-            currentMarkupsNode->SetNthMarkupLabel(i, "None");
-          }
-          else
-          {
-            char TubeId[30], newLabel[30];
-            itoa(TubeID, TubeId, 10);
-            strcpy(newLabel, "TubeId-");
-            strcat(newLabel, TubeId);
-            currentMarkupsNode->SetNthMarkupLabel(i, newLabel);
-            d->Table->selectRow(TubeID);
-          }
+          char TubeId[30], newLabel[30];
+          itoa(TubeID, TubeId, 10);
+          strcpy(newLabel, "TubeId-");
+          strcat(newLabel, TubeId);
+          currentMarkupsNode->SetNthMarkupLabel(i, newLabel);
+          currentMarkupsNode->SetNthMarkupVisibility(i, true);          
+          d->Table->selectRow(TubeID);         
         }
-      }
+      }   
+    }
+  }
+}
+
+// --------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::onNodeAddedEvent(vtkObject*, vtkObject* node)
+{
+  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    return;
+  }
+  if (d->MarkupsNode == NULL)
+  {
+    vtkMRMLMarkupsNode* MarkupsNode1 = vtkMRMLMarkupsNode::SafeDownCast(node);
+    if (MarkupsNode1)
+    {
+      d->MarkupsNode = MarkupsNode1;
+      d->logic()->setActivePlaceNodeID(d->MarkupsNode);
+      
+      this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::MarkupAddedEvent,
+        this, SLOT(findTubeIDs()));
+
+      findTubeIDs();
     }
   }
 }

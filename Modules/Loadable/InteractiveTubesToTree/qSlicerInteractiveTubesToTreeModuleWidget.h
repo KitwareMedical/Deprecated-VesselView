@@ -32,7 +32,7 @@ limitations under the License.
 class qSlicerInteractiveTubesToTreeModuleWidgetPrivate;
 class vtkMRMLNode;
 class vtkMRMLSpatialObjectsNode;
-class vtkMRMLMarkupsFiducialNode;
+class vtkMRMLMarkupsNode;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class Q_SLICER_QTMODULES_INTERACTIVETUBESTOTREE_EXPORT qSlicerInteractiveTubesToTreeModuleWidget :
@@ -59,12 +59,14 @@ public slots:
   void runConversion();
   void updateWidgetFromMRML();
   void updateMRMLFromWidget();
+  void findTubeIDs();
+  void onNodeAddedEvent(vtkObject*, vtkObject* node);
 
 protected:
   QScopedPointer<qSlicerInteractiveTubesToTreeModuleWidgetPrivate> d_ptr;    
   virtual void setup();
   void onEnter();
-  void findTubeIDs();
+  
 
 private:
   Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeModuleWidget);

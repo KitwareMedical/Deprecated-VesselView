@@ -22,7 +22,7 @@
 ##############################################################################
 #-----------------------------------------------------------------------------
 set(MODULE_NAME InteractiveTubesToTree)
-set(MODULE_TITLE ${MODULE_NAME})
+set(MODULE_TITLE "Interactive Convert Tubes To Tube Tree")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
