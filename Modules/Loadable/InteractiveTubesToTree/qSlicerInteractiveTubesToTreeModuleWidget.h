@@ -59,7 +59,8 @@ public slots:
   void runConversion();
   void updateWidgetFromMRML();
   void updateMRMLFromWidget();
-  void findTubeIDs();
+  void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);
+  void findTubeIDs(int n);
   void hideFiducials();
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
 

@@ -293,15 +293,13 @@ vtkMRMLSpatialObjectsNode* qSlicerInteractiveTubesToTreeModuleWidget::mrmlSpatia
 }
 
 // --------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs()
+void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs(int index)
 {
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
 
   if (d->MarkupsNode)
   {
     vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;   
-    int num = currentMarkupsNode->GetNumberOfMarkups();
-    int index = num - 1;
     std::string currLabel = currentMarkupsNode->GetNthMarkupLabel(index);
     std::string currAssociatedNodeID = currentMarkupsNode->GetNthMarkupAssociatedNodeID(index);
     if (currAssociatedNodeID.find("vtkMRMLSpatialObjectsNode") == std::string::npos)
@@ -341,6 +339,25 @@ void qSlicerInteractiveTubesToTreeModuleWidget::hideFiducials()
     currentMarkupsNode->SetNthMarkupVisibility(num - 1, false);
   }
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData)
+{
+  if (caller == NULL || callData == NULL)
+  {
+    return;
+  }
+
+  int *nPtr = NULL;
+  int n = -1;
+  nPtr = reinterpret_cast<int *>(callData);
+  if (nPtr)
+  {
+    n = *nPtr;
+  }
+  this->findTubeIDs(n);
+}
+
 // --------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget::onNodeAddedEvent(vtkObject*, vtkObject* node)
 {
@@ -359,10 +376,10 @@ void qSlicerInteractiveTubesToTreeModuleWidget::onNodeAddedEvent(vtkObject*, vtk
       d->logic()->setActivePlaceNodeID(d->MarkupsNode);
       
       this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent,
-        this, SLOT(findTubeIDs()));
+        this, SLOT(onNthMarkupModifiedEvent(vtkObject*, vtkObject*)));
       this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::MarkupAddedEvent,
         this, SLOT(hideFiducials()));
-      findTubeIDs();
+      findTubeIDs(0);
     }
   }
 }
