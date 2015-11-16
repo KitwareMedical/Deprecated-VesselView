@@ -212,7 +212,6 @@ double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdLi
   this->Internal->ConversionLogic->ApplyAndWait(cmdNode);
 
   this->Internal->SpatialObjectsLogic->SetSpatialObject(outputNode, outputfileName.c_str());
-  
   outputNode->SetName(this->GetOutputFileName().c_str());
 
   this->GetMRMLScene()->RemoveNode(cmdNode);
@@ -238,7 +237,7 @@ int vtkSlicerInteractiveTubesToTreeLogic::FindNearestTube(vtkMRMLSpatialObjectsN
   char childName[] = "Tube";
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
-  
+
   for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
   {
     VesselTubeType* currTube =
@@ -247,7 +246,7 @@ int vtkSlicerInteractiveTubesToTreeLogic::FindNearestTube(vtkMRMLSpatialObjectsN
     {
       continue;
     }
-    
+
     int numberOfPoints = currTube->GetNumberOfPoints();
     for (int index = 0; index < numberOfPoints; index++)
     {
@@ -331,13 +330,13 @@ void vtkSlicerInteractiveTubesToTreeLogic
   if (!spatialNode)
   {
     return ;
-  }  
+  }
   TubeNetType* spatialObject = spatialNode->GetSpatialObject();
 
   char childName[] = "Tube";
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
-  
+
   for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
   {
     VesselTubeType* currTube =
@@ -349,7 +348,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
     if (currTube->GetNumberOfPoints() < 2)
     {
       std::cerr << "Error, vessel #" << currTube->GetId()
-        << " has less than 2 points !" << std::endl;      
+        << " has less than 2 points !" << std::endl;
     }
     int currID = currTube->GetId();
     TubeIDList.push_back(currID);
@@ -381,7 +380,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
     }
     if (currTube->GetId() == currTubeID)
     {
-      currTube->GetProperty()->SetColor(red, green, blue); 
+      currTube->GetProperty()->SetColor(red, green, blue);
       break;
     }
     else
@@ -470,7 +469,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
         colorMap->AddRGBPoint(currTube->GetId(), currTube->GetProperty()->GetColor().GetRed(), currTube->GetProperty()->GetColor().GetGreen(), currTube->GetProperty()->GetColor().GetBlue());
       }
       spatialDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
-    }  
+    }
     else
     {
       spatialDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());

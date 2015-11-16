@@ -41,7 +41,7 @@ limitations under the License.
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerInteractiveTubesToTreeModuleWidgetPrivate: public Ui_qSlicerInteractiveTubesToTreeModuleWidget
 {
-  
+
   Q_DECLARE_PUBLIC(qSlicerInteractiveTubesToTreeModuleWidget);
 protected:
   qSlicerInteractiveTubesToTreeModuleWidget* const q_ptr;
@@ -109,8 +109,8 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
   Q_Q(qSlicerInteractiveTubesToTreeModuleWidget);
 
   this->setupUi(q);
-  //Picking root tube ids 
- 
+  //Picking root tube ids
+
   QIcon pickRootTubesPushButtonIcon;
   pickRootTubesPushButtonIcon.addFile(QString::fromUtf8(":AnnotationPointWithArrow.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->PickRootTubesPushButton->setIcon(pickRootTubesPushButtonIcon);
@@ -123,7 +123,7 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
   vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
   q->qvtkReconnect(interactionNode, vtkCommand::ModifiedEvent,
     q, SLOT(updateWidgetFromMRML()));
-  
+
   //REST.....
   QRegExp rx("[0-9]+([0-9]*[ ]*,[ ]*)*");
   QValidator *validator = new QRegExpValidator(rx);
@@ -136,11 +136,11 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
   QObject::connect(
     this->OutputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
     q, SLOT(setOutputSpatialObjectsNode(vtkMRMLNode*)));
-  
+
   QObject::connect(
     this->RestoreDefaultsPushButton, SIGNAL(clicked()),
     q, SLOT(restoreDefaults()));
-  
+
   QObject::connect(
     this->ApplyPushButton, SIGNAL(clicked()),
     q, SLOT(runConversion()));
@@ -172,7 +172,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::onEnter()
   qSlicerApplication * app = qSlicerApplication::application();
   vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
   interactionNode->SetPlaceModePersistence(1);
-  
+
   this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
     this, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
 }
@@ -235,14 +235,14 @@ void qSlicerInteractiveTubesToTreeModuleWidget::restoreDefaults()
 void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
 {
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
- 
+
   double maxTubeDistanceToRadiusRatio = d->MaxTubeDistanceToRadiusSliderWidget->value();
   double maxContinuityAngleError = d->MaxContinuityAngleErrorSliderWidget->value();
   bool removeOrphanTubes = d->RemoveOrphanTubesCheckBox->isChecked();
 
   //getting root ids from the text box
   std::string rootTubeIdList = d->RootTubeIDListLineEdit->text().toStdString();
-  //getting root ids from the table  
+  //getting root ids from the table
   std::string selectedRoodtIds = d->Table->getSelectedRootIds();
 
   rootTubeIdList = rootTubeIdList + " ," + selectedRoodtIds;
@@ -281,7 +281,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::updateWidgetFromMRML()
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
   qSlicerApplication * app = qSlicerApplication::application();
   vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
- 
+
   d->PickRootTubesPushButton->setChecked(interactionNode->GetCurrentInteractionMode()== interactionNode->Place);
 }
 
@@ -299,7 +299,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs(int index)
 
   if (d->MarkupsNode)
   {
-    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;   
+    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
     std::string currLabel = currentMarkupsNode->GetNthMarkupLabel(index);
     std::string currAssociatedNodeID = currentMarkupsNode->GetNthMarkupAssociatedNodeID(index);
     if (currAssociatedNodeID.find("vtkMRMLSpatialObjectsNode") == std::string::npos)
@@ -323,7 +323,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs(int index)
         currentMarkupsNode->SetNthMarkupVisibility(index, true);
         d->Table->selectRow(TubeID);
       }
-    }   
+    }
   }
 }
 
@@ -374,7 +374,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::onNodeAddedEvent(vtkObject*, vtk
     {
       d->MarkupsNode = MarkupsNode1;
       d->logic()->setActivePlaceNodeID(d->MarkupsNode);
-      
+
       this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent,
         this, SLOT(onNthMarkupModifiedEvent(vtkObject*, vtkObject*)));
       this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::MarkupAddedEvent,

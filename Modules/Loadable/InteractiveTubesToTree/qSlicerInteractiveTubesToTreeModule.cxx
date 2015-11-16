@@ -134,7 +134,7 @@ void qSlicerInteractiveTubesToTreeModule::setup()
 
     vtkSlicerSpatialObjectsLogic* spatialObjectsLogic =
       vtkSlicerSpatialObjectsLogic::SafeDownCast(spatialObjectsModule->logic());
-    interactiveTubeToTreeLogic->SetSpatialObjectsLogic(spatialObjectsLogic);   
+    interactiveTubeToTreeLogic->SetSpatialObjectsLogic(spatialObjectsLogic);
 
     qWarning() << "ConvertTubesToTubeTree module is found";
   }

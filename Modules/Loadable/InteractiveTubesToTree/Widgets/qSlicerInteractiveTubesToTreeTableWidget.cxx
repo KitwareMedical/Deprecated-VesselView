@@ -126,7 +126,7 @@ qSlicerInteractiveTubesToTreeTableWidget
 void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
 {
   Q_Q(qSlicerInteractiveTubesToTreeTableWidget);
-  this->setupUi(q);  
+  this->setupUi(q);
 
   this->TableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
   this->TableWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -182,13 +182,12 @@ void qSlicerInteractiveTubesToTreeTableWidget
   }
   vtkMRMLSpatialObjectsNode *oldNode = d->SpatialObjectsNode;
   d->SpatialObjectsNode = node;
-  
   this->setSpatialObjectsDisplayNode(
     d->SpatialObjectsNode ? d->SpatialObjectsNode->GetNthDisplayNode(1) : NULL);
 
   qvtkReconnect(oldNode, d->SpatialObjectsNode, vtkCommand::ModifiedEvent,
     this, SLOT(updateWidgetFromMRML()));
-    
+
   //calling tube display node
   buildTubeDisplayTable();
   this->updateWidgetFromMRML();
@@ -219,7 +218,7 @@ SpatialObjectsDisplayNode)
 
   qvtkReconnect(oldDisplayNode, this->SpatialObjectsDisplayNode(), vtkCommand::ModifiedEvent,
     this, SLOT(updateWidgetFromMRML()));
-   
+
   setSpatialObjectsDisplayNodeMode();//.....................................................ALERT
   this->updateWidgetFromMRML();
 }

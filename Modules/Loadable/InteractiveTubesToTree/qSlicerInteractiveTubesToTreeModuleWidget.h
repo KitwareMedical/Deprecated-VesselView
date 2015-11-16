@@ -65,10 +65,9 @@ public slots:
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
 
 protected:
-  QScopedPointer<qSlicerInteractiveTubesToTreeModuleWidgetPrivate> d_ptr;    
+  QScopedPointer<qSlicerInteractiveTubesToTreeModuleWidgetPrivate> d_ptr;
   virtual void setup();
   void onEnter();
-  
 
 private:
   Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeModuleWidget);
