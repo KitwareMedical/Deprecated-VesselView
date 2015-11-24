@@ -231,9 +231,8 @@ Rectangle  {
         anchors{
             left: welcomeListView.right
             top : horizontalListWithButtons.bottom
-            bottom: openButton.top
         }
-        height: welcomeListView.height
+        height: (2 * elementHeight) + generalSpacing
         width: parent.width - welcomeListWidth
 		visible: false
 
