@@ -121,7 +121,7 @@ std::vector<vtkDoubleArray*> vtkSlicerTortuosityLogic
 
   // Iterate through all the metric flags
   for (long int compareFlag = 0x01 ;
-    compareFlag <= FilterType::BITMASK_ALL_METRICS;
+    compareFlag <= FilterType::BITMASK_VESSEL_WISE_METRICS;
     compareFlag = compareFlag << 1)
     {
 
@@ -478,7 +478,7 @@ std::vector<std::string> vtkSlicerTortuosityLogic::GetPrintableNamesFromMetricFl
   names.push_back("TubeIDs");
   names.push_back("NumberOfPoints");
   for (long int compareFlag = 0x01 ;
-    compareFlag <= FilterType::BITMASK_ALL_METRICS ;
+    compareFlag <= FilterType::BITMASK_VESSEL_WISE_METRICS;
     compareFlag = compareFlag << 1)
     {
 
