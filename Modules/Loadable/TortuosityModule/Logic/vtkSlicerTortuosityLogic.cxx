@@ -460,9 +460,12 @@ bool vtkSlicerTortuosityLogic
     {
     metricsVector[i]->Modified();
     }
-  for(int i = 0 ; i < numberOfBins ; i++)
+  if ((metricFlag & FilterType::CURVATURE_HISTOGRAM_METRICS) > 0)
     {
-    m_HistogramArrays[i]->Modified();
+    for (int i = 0; i < numberOfBins; i++)
+      {
+      m_HistogramArrays[i]->Modified();
+      }
     }
 
   return true;
