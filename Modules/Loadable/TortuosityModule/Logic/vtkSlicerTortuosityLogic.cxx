@@ -274,6 +274,16 @@ bool vtkSlicerTortuosityLogic
       }
     }
 
+  // Additional metrics that don't use the tortuosity filter
+  // Volume Metric is part of the BasicMetrics Group
+  if(( groupFlag & BasicMetricsGroup ) > 0)
+    {
+    vtkDoubleArray * volumeArray = this->GetOrCreateDoubleArray( node, "VolumeMetric" );
+    if( volumeArray )
+      {
+      metricsVector.push_back( volumeArray );
+      }
+    }
 
   // Histogram Metric
   int numberOfBins = 20;
@@ -435,6 +445,24 @@ bool vtkSlicerTortuosityLogic
             metricsVector[i]->SetValue(tubeIndex,
               filter->GetInflectionPointValue(filterIndex));
             }
+          if(arrayName == "VolumeMetric")
+            {
+            if(filterIndex==0)
+              {
+              metricsVector[i]->SetValue(tubeIndex,0);
+              break;
+              }
+            VesselTubePointType* tubePointCurrent =
+                dynamic_cast<VesselTubePointType*>(currTube->GetPoint(filterIndex));
+            VesselTubePointType* tubePointBefore =
+                dynamic_cast<VesselTubePointType*>(currTube->GetPoint(filterIndex-1));
+            double height = tubePointCurrent->GetPosition().EuclideanDistanceTo(tubePointBefore->GetPosition());
+            double radius = (tubePointCurrent->GetRadius() + tubePointBefore->GetRadius()) / 2;
+            double volume = itk::Math::pi * radius * radius * height;
+            metricsVector[i]->SetValue(tubeIndex, volume);
+            double totalVolume = metricsVector[i]->GetValue(tubeIndex-filterIndex) + volume;
+            metricsVector[i]->SetValue(tubeIndex - filterIndex, totalVolume);
+            }
           }
         }
       nop->InsertNextValue(numberOfPoints);
@@ -513,6 +541,10 @@ bool vtkSlicerTortuosityLogic
     {
     names.push_back("Tau4Metric");
     }
+  if( (groupFlag & BasicMetricsGroup) > 0 )
+    {
+    names.push_back("VolumeMetric");
+    }
   for (std::vector<std::string>::iterator it = names.begin();
     it != names.end(); ++it)
     {
@@ -548,7 +580,6 @@ bool vtkSlicerTortuosityLogic
     {
     vtkNew<vtkDoubleArray> newArray;
     newArray->SetName((*it)->GetName());
-
     for (int j = 0; j < numberOfPointsArray->GetNumberOfTuples(); j += numberOfPointsArray->GetValue(j))
       {
       newArray->InsertNextTuple((*it)->GetTuple(j));
@@ -556,7 +587,6 @@ bool vtkSlicerTortuosityLogic
 
     table->AddColumn(newArray.GetPointer());
     }
-
 
   // Add the histogram features to the table
   if( (metricFlag & FilterType::CURVATURE_HISTOGRAM_METRICS) > 0 )
