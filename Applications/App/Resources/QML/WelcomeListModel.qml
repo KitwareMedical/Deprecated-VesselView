@@ -59,6 +59,24 @@ ListModel {
     </html>"
                 layout: -1
                 fileTypes: "SpatialObjectFile"
+            },
+            ListElement {
+                name: "Build Tube Tree"
+                module: "InteractiveTubesToTree"
+                imageSource: ":/Icons/Medium/VesselDisplay.svg"
+                description:  "
+    <html>
+    <center>
+    <em>Visualize images, vessels, and organs in 3D.</em>
+    </center>
+    <br><br><br>
+    <div text-align=\"left\">
+    Loads multiple data files and selectively displays them using a variety of
+    basic and advanced visualization formats.
+    </div>
+    </html>"
+                layout: -1
+                fileTypes: "SpatialObjectFile"
             }
         ]
     }
