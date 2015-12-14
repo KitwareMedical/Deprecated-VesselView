@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------
 set(MODULE_NAME VesselEditor)
-set(MODULE_TITLE ${MODULE_NAME})
+set(MODULE_TITLE "Vessel Editor")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 

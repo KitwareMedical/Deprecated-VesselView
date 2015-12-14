@@ -62,7 +62,8 @@ qSlicerVesselEditorModule::~qSlicerVesselEditorModule()
 //-----------------------------------------------------------------------------
 QString qSlicerVesselEditorModule::helpText() const
 {
-  return "This is a loadable module that can be bundled in an extension";
+  return "This module can be used to make some basic editions to a vessel"
+    "tree network like deletion and merging.";
 }
 
 //-----------------------------------------------------------------------------
@@ -88,7 +89,7 @@ QIcon qSlicerVesselEditorModule::icon() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerVesselEditorModule::categories() const
 {
-  return QStringList() << "Examples";
+  return QStringList() << "TubeTK";
 }
 
 //-----------------------------------------------------------------------------
