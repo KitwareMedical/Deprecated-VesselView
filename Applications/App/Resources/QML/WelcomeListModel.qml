@@ -77,6 +77,24 @@ ListModel {
     </html>"
                 layout: -1
                 fileTypes: "SpatialObjectFile"
+            },
+						ListElement {
+                name: "Edit Vessels in Tube Tree"
+                module: "VesselEditor"
+                imageSource: ":/Icons/Medium/VesselDisplay.svg"
+                description:  "
+    <html>
+    <center>
+    <em>Edit vessels netowrk in 3d.</em>
+    </center>
+    <br><br><br>
+    <div text-align=\"left\">
+    Loads multiple data files and selectively displays them using a variety of
+    basic and advanced visualization formats.
+    </div>
+    </html>"
+                layout: -1
+                fileTypes: "SpatialObjectFile"
             }
         ]
     }
