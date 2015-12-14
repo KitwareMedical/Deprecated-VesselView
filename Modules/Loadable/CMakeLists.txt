@@ -20,6 +20,7 @@
 set(modules
   TortuosityModule
   InteractiveTubesToTree
+  VesselEditor
   )
 
 set(${APPLICATION_NAME}_MODULES)
