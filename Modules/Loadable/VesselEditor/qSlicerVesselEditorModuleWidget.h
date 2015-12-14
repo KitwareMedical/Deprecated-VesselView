@@ -25,13 +25,14 @@
 
 class qSlicerVesselEditorModuleWidgetPrivate;
 class vtkMRMLNode;
+class vtkMRMLSpatialObjectsNode;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class Q_SLICER_QTMODULES_VESSELEDITOR_EXPORT qSlicerVesselEditorModuleWidget :
   public qSlicerAbstractModuleWidget
 {
   Q_OBJECT
-
+  QVTK_OBJECT
 public:
 
   typedef qSlicerAbstractModuleWidget Superclass;
@@ -39,7 +40,8 @@ public:
   virtual ~qSlicerVesselEditorModuleWidget();
 
 public slots:
-
+  void setInputSpatialObjectsNode(vtkMRMLNode* node);
+  void setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
 
 protected:
   QScopedPointer<qSlicerVesselEditorModuleWidgetPrivate> d_ptr;

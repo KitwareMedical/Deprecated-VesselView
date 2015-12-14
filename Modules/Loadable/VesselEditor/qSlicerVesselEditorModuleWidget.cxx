@@ -1,50 +1,82 @@
-/*==============================================================================
+/*=========================================================================
 
-  Program: 3D Slicer
+Library:   VesselView
 
-  Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
+Copyright 2010 Kitware Inc. 28 Corporate Drive,
+Clifton Park, NY, 12065, USA.
 
-  See COPYRIGHT.txt
-  or http://www.slicer.org/copyright/copyright.txt for details.
+All rights reserved.
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-==============================================================================*/
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+=========================================================================*/
 
 // Qt includes
 #include <QDebug>
 
 // SlicerQt includes
 #include "qSlicerVesselEditorModuleWidget.h"
+#include "vtkSlicerVesselEditorLogic.h"
 #include "ui_qSlicerVesselEditorModuleWidget.h"
+
+// MRML includes
+#include "vtkMRMLSpatialObjectsNode.h"
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerVesselEditorModuleWidgetPrivate: public Ui_qSlicerVesselEditorModuleWidget
 {
+  Q_DECLARE_PUBLIC( qSlicerVesselEditorModuleWidget );
+protected:
+  qSlicerVesselEditorModuleWidget* const q_ptr;
 public:
-  qSlicerVesselEditorModuleWidgetPrivate();
+  qSlicerVesselEditorModuleWidgetPrivate( qSlicerVesselEditorModuleWidget& object );
+  ~qSlicerVesselEditorModuleWidgetPrivate();
+  vtkSlicerVesselEditorLogic* logic() const;
+
+  void init();
+  vtkMRMLSpatialObjectsNode* inputSpatialObject;
 };
 
 //-----------------------------------------------------------------------------
 // qSlicerVesselEditorModuleWidgetPrivate methods
 
 //-----------------------------------------------------------------------------
-qSlicerVesselEditorModuleWidgetPrivate::qSlicerVesselEditorModuleWidgetPrivate()
+qSlicerVesselEditorModuleWidgetPrivate::qSlicerVesselEditorModuleWidgetPrivate(
+  qSlicerVesselEditorModuleWidget& object ) : q_ptr( &object )
 {
+  this->inputSpatialObject = 0;
+}
+
+//-----------------------------------------------------------------------------
+qSlicerVesselEditorModuleWidgetPrivate::~qSlicerVesselEditorModuleWidgetPrivate()
+{
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerVesselEditorLogic* qSlicerVesselEditorModuleWidgetPrivate::logic() const
+{
+	Q_Q( const qSlicerVesselEditorModuleWidget );
+	return vtkSlicerVesselEditorLogic::SafeDownCast( q->logic() );
 }
 
 //-----------------------------------------------------------------------------
 // qSlicerVesselEditorModuleWidget methods
 
 //-----------------------------------------------------------------------------
-qSlicerVesselEditorModuleWidget::qSlicerVesselEditorModuleWidget(QWidget* _parent)
+qSlicerVesselEditorModuleWidget::qSlicerVesselEditorModuleWidget( QWidget* _parent )
   : Superclass( _parent )
-  , d_ptr( new qSlicerVesselEditorModuleWidgetPrivate )
+  , d_ptr( new qSlicerVesselEditorModuleWidgetPrivate( *this ) )
 {
 }
 
@@ -56,7 +88,41 @@ qSlicerVesselEditorModuleWidget::~qSlicerVesselEditorModuleWidget()
 //-----------------------------------------------------------------------------
 void qSlicerVesselEditorModuleWidget::setup()
 {
-  Q_D(qSlicerVesselEditorModuleWidget);
-  d->setupUi(this);
+  Q_D( qSlicerVesselEditorModuleWidget );
+  d->init();
   this->Superclass::setup();
+}
+
+//------------------------------------------------------------------------------
+void qSlicerVesselEditorModuleWidgetPrivate::init()
+{
+  Q_Q( qSlicerVesselEditorModuleWidget );
+
+  this->setupUi( q );
+
+  QObject::connect(
+    this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    q, SLOT(setInputSpatialObjectsNode(vtkMRMLNode*)));
+
+}
+
+//------------------------------------------------------------------------------
+void qSlicerVesselEditorModuleWidget
+::setInputSpatialObjectsNode(vtkMRMLNode* node)
+{
+  this->setInputSpatialObjectsNode(
+    vtkMRMLSpatialObjectsNode::SafeDownCast(node));
+}
+
+//------------------------------------------------------------------------------
+void qSlicerVesselEditorModuleWidget
+::setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node)
+{
+  Q_D( qSlicerVesselEditorModuleWidget );
+
+  if (d->inputSpatialObject == node)
+  {
+    return;
+  }
+  d->inputSpatialObject = node;
 }

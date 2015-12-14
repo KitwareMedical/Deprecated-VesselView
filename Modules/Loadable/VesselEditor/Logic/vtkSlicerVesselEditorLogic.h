@@ -1,24 +1,28 @@
-/*==============================================================================
+/*=========================================================================
 
-  Program: 3D Slicer
+Library:   VesselView
 
-  Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
+Copyright 2010 Kitware Inc. 28 Corporate Drive,
+Clifton Park, NY, 12065, USA.
 
-  See COPYRIGHT.txt
-  or http://www.slicer.org/copyright/copyright.txt for details.
+All rights reserved.
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-==============================================================================*/
+http://www.apache.org/licenses/LICENSE-2.0
 
-// .NAME vtkSlicerVesselEditorLogic - slicer logic class for volumes manipulation
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+=========================================================================*/
+
+// .NAME vtkSlicerVesselEditorLogic - slicer logic class
 // .SECTION Description
-// This class manages the logic associated with reading, saving,
-// and changing propertied of the volumes
 
 
 #ifndef __vtkSlicerVesselEditorLogic_h
@@ -26,8 +30,15 @@
 
 // Slicer includes
 #include "vtkSlicerModuleLogic.h"
+class vtkSlicerSpatialObjectsLogic;
+class vtkMRMLSpatialObjectsDisplayNode;
+
+// ITK includes
+#include "itkVesselTubeSpatialObject.h"
+#include "itkVector.h"
 
 // MRML includes
+#include "vtkMRMLSpatialObjectsNode.h"
 
 // STD includes
 #include <cstdlib>
@@ -44,8 +55,10 @@ public:
   static vtkSlicerVesselEditorLogic *New();
   vtkTypeMacro(vtkSlicerVesselEditorLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  void SetSpatialObjectsLogic(vtkSlicerSpatialObjectsLogic* logic);
+  vtkSlicerSpatialObjectsLogic* GetSpatialObjectsLogic();
 protected:
+
   vtkSlicerVesselEditorLogic();
   virtual ~vtkSlicerVesselEditorLogic();
 
@@ -59,6 +72,8 @@ private:
 
   vtkSlicerVesselEditorLogic(const vtkSlicerVesselEditorLogic&); // Not implemented
   void operator=(const vtkSlicerVesselEditorLogic&); // Not implemented
+  class vtkInternal;
+  vtkInternal* Internal;
 };
 
 #endif
