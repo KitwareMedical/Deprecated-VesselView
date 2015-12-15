@@ -101,28 +101,50 @@ void qSlicerVesselEditorModuleWidgetPrivate::init()
   this->setupUi( q );
 
   QObject::connect(
-    this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-    q, SLOT(setInputSpatialObjectsNode(vtkMRMLNode*)));
+    this->InputSpacialObjectsNodeComboBox, SIGNAL( currentNodeChanged( vtkMRMLNode* ) ),
+    q, SLOT( setInputSpatialObjectsNode( vtkMRMLNode* ) ) );
 
+  QRegExp rx( "[0-9]+([0-9]*[ ]*,[ ]*)*" );
+  QValidator *validator = new QRegExpValidator( rx );
+  this->MergeVesselsLineEdit->setValidator( validator );
+  this->DeleteVesselsLineEdit->setValidator( validator );
+
+  QObject::connect(
+    this->RestoreDefaultsPushButton, SIGNAL( clicked() ),
+    q, SLOT( restoreDefaults() ) );
+
+  QObject::connect(
+    this->ApplyPushButton, SIGNAL( clicked() ),
+    q, SLOT( runConversion() ) );
 }
 
 //------------------------------------------------------------------------------
 void qSlicerVesselEditorModuleWidget
-::setInputSpatialObjectsNode(vtkMRMLNode* node)
+::setInputSpatialObjectsNode( vtkMRMLNode* node )
 {
   this->setInputSpatialObjectsNode(
-    vtkMRMLSpatialObjectsNode::SafeDownCast(node));
+    vtkMRMLSpatialObjectsNode::SafeDownCast( node ) );
 }
 
 //------------------------------------------------------------------------------
 void qSlicerVesselEditorModuleWidget
-::setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node)
+::setInputSpatialObjectsNode( vtkMRMLSpatialObjectsNode* node )
 {
   Q_D( qSlicerVesselEditorModuleWidget );
 
-  if (d->inputSpatialObject == node)
-  {
-    return;
-  }
+  if ( d->inputSpatialObject == node )
+    {
+      return;
+    }
   d->inputSpatialObject = node;
+}
+
+//------------------------------------------------------------------------------
+void qSlicerVesselEditorModuleWidget::restoreDefaults()
+{
+  Q_D( qSlicerVesselEditorModuleWidget );
+
+  d->MergeVesselsLineEdit->setText( "" );
+  d->DeleteVesselsLineEdit->setText( "" );
+  d->ApplyPushButton->setEnabled( d->inputSpatialObject != 0 );
 }

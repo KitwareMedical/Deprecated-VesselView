@@ -42,7 +42,7 @@ public:
 public slots:
   void setInputSpatialObjectsNode(vtkMRMLNode* node);
   void setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
-
+  void restoreDefaults();
 protected:
   QScopedPointer<qSlicerVesselEditorModuleWidgetPrivate> d_ptr;
 
