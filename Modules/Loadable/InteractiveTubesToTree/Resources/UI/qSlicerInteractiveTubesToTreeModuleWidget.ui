@@ -301,42 +301,6 @@
         </property>
        </spacer>
       </item>
-      <item row="4" column="2">
-       <widget class="QPushButton" name="PickRootTubesPushButton">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Place the fiducial on the root tube</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="PickRootTubesLabel">
-        <property name="text">
-         <string>Pick Root Tubes</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <spacer name="horizontalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
      </layout>
     </widget>
    </item>

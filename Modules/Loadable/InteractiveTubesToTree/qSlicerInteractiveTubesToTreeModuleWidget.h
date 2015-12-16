@@ -57,11 +57,6 @@ public slots:
   void setOutputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
   void restoreDefaults();
   void runConversion();
-  void updateWidgetFromMRML();
-  void updateMRMLFromWidget();
-  void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);
-  void onMarkupAddEvent();
-  void findTubeIDs(int n);
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
 
 protected:

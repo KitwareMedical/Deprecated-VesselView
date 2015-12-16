@@ -38,6 +38,7 @@ class vtkMRMLNode;
 class vtkMRMLSpatialObjectsNode;
 class vtkMRMLSpatialObjectsDisplayNode;
 class vtkMRMLSpatialObjectsDisplayPropertiesNode;
+class vtkMRMLMarkupsNode;
 class QTableWidgetItem;
 class vtkLookupTable;
 class vtkMRMLScene;
@@ -72,10 +73,14 @@ public slots:
   void onClickHorizontalHeader(int column);
   void onClickMarkSelectedAsRoot();
   void setSpatialObjectsDisplayNodeMode();
+  void onNodeAddedEvent(vtkObject*, vtkObject* node);
+  void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);
+  void onMarkupAddEvent();
+  void findTubeIDs(int n);
 
 protected slots:
   void updateWidgetFromMRML();
-  //void updateMRMLFromWidget();
+  void updateMRMLFromWidget();
   void setSpatialObjectsDisplayNode(vtkMRMLNode *node);
   void setSpatialObjectsDisplayNode(vtkMRMLSpatialObjectsDisplayNode *node);
   void onTableSelectionChanged();

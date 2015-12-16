@@ -26,24 +26,31 @@ limitations under the License.
 //CTK imports
 #include <ctkColorPickerButton.h>
 
+// SlicerQt includes
+#include "qSlicerApplication.h"
+
 // Table Widgets includes
 #include "qSlicerInteractiveTubesToTreeTableWidget.h"
 #include "ui_qSlicerInteractiveTubesToTreeTableWidget.h"
+#include "vtkSlicerInteractiveTubesToTreeLogic.h"
 
-// MRML includes
+//vtk includes
 #include <vtkDataSet.h>
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
-#include "vtkMRMLSpatialObjectsNode.h"
-#include "vtkSlicerInteractiveTubesToTreeLogic.h"
+#include <vtkLookupTable.h>
+#include <vtkColorTransferFunction.h>
+
+// MRML includes
 #include <vtkMRMLSpatialObjectsNode.h>
 #include <vtkMRMLSpatialObjectsDisplayNode.h>
 #include <vtkMRMLSpatialObjectsLineDisplayNode.h>
 #include <vtkMRMLSpatialObjectsDisplayPropertiesNode.h>
-#include "vtkLookupTable.h"
+#include <vtkMRMLInteractionNode.h>
+#include <vtkMRMLSelectionNode.h>
 #include <vtkMRMLProceduralColorNode.h>
 #include <vtkMRMLScene.h>
-#include <vtkColorTransferFunction.h>
+#include <vtkMRMLMarkupsNode.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_InteractiveTubesToTree
@@ -63,6 +70,7 @@ public:
   void init();
   vtkMRMLSpatialObjectsNode* SpatialObjectsNode;
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode;
+  vtkMRMLMarkupsNode* MarkupsNode;
   /// return the column index for a given QString, -1 if not a valid header
   int columnIndex(QString label);
 private:
@@ -75,8 +83,9 @@ qSlicerInteractiveTubesToTreeTableWidgetPrivate
   qSlicerInteractiveTubesToTreeTableWidget& object)
   : q_ptr(&object)
 {
-  this->SpatialObjectsNode - 0;
+  this->SpatialObjectsNode = 0;
   this->SpatialObjectsDisplayNode = 0;
+  this->MarkupsNode = 0;
   this->columnLabels << "Tube ID" << "Color" << "Select As Root";
 }
 
@@ -127,6 +136,19 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
 {
   Q_Q(qSlicerInteractiveTubesToTreeTableWidget);
   this->setupUi(q);
+
+  QIcon SelectTubesPushButtonIcon;
+  SelectTubesPushButtonIcon.addFile(QString::fromUtf8(":AnnotationPointWithArrow.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->SelectTubesPushButton->setIcon(SelectTubesPushButtonIcon);
+
+  QObject::connect(
+    this->SelectTubesPushButton, SIGNAL(toggled(bool)),
+    q, SLOT(updateMRMLFromWidget()));
+
+ // qSlicerApplication * app = qSlicerApplication::application();
+ // vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+//  q->qvtkReconnect(interactionNode, vtkCommand::ModifiedEvent,
+ //   q, SLOT(updateWidgetFromMRML()));
 
   this->TableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
   this->TableWidget->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -187,6 +209,7 @@ void qSlicerInteractiveTubesToTreeTableWidget
   {
     return;
   }
+  
   vtkMRMLSpatialObjectsNode *oldNode = d->SpatialObjectsNode;
   d->SpatialObjectsNode = node;
   this->setSpatialObjectsDisplayNode(
@@ -198,6 +221,11 @@ void qSlicerInteractiveTubesToTreeTableWidget
   //calling tube display node
   buildTubeDisplayTable();
   getTubeDisplayColor(defaultColor, 0);
+
+//  qSlicerApplication * app = qSlicerApplication::application();
+//  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+//  interactionNode->SetPlaceModePersistence(1);
+
   this->updateWidgetFromMRML();
 }
 
@@ -241,10 +269,30 @@ void qSlicerInteractiveTubesToTreeTableWidget::setSpatialObjectsDisplayNodeMode(
   d->logic()->CreateTubeColorColorMap(d->SpatialObjectsNode, d->SpatialObjectsDisplayNode);
 }
 
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::updateMRMLFromWidget()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  qSlicerApplication * app = qSlicerApplication::application();
+//  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+ // if (d->SelectTubesPushButton->isChecked())
+//  {
+//    interactionNode->SetCurrentInteractionMode(interactionNode->Place);
+ // }
+ // else
+//  {
+//    interactionNode->SetCurrentInteractionMode(interactionNode->ViewTransform);
+//  }
+}
+
 // --------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+ // qSlicerApplication * app = qSlicerApplication::application();
+ // vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+//  d->SelectTubesPushButton->setChecked(interactionNode->GetCurrentInteractionMode()== interactionNode->Place);
+
   if (!d->SpatialObjectsNode || !d->SpatialObjectsDisplayNode)
   {
     return;
@@ -589,4 +637,112 @@ bool qSlicerInteractiveTubesToTreeTableWidget::isRowSelected(int rowID, int tube
     }
   }
   return false;
+}
+
+// --------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onNodeAddedEvent(vtkObject*, vtkObject* node)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if (d->MarkupsNode == NULL)
+  {
+    vtkMRMLMarkupsNode* MarkupsNode1 = vtkMRMLMarkupsNode::SafeDownCast(node);
+    if (MarkupsNode1)
+    {
+      d->MarkupsNode = MarkupsNode1;
+      d->logic()->setActivePlaceNodeID(d->MarkupsNode);
+
+      this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent,
+        this, SLOT(onNthMarkupModifiedEvent(vtkObject*, vtkObject*)));
+      this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::MarkupAddedEvent,
+        this, SLOT(onMarkupAddEvent()));
+      findTubeIDs(0);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData)
+{
+  if (caller == NULL || callData == NULL)
+  {
+    return;
+  }
+
+  int *nPtr = NULL;
+  int n = -1;
+  nPtr = reinterpret_cast<int *>(callData);
+  if (nPtr)
+  {
+    n = *nPtr;
+  }
+  this->findTubeIDs(n);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onMarkupAddEvent()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if (d->MarkupsNode)
+  {
+    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+    int num = currentMarkupsNode->GetNumberOfMarkups();
+    currentMarkupsNode->SetNthMarkupVisibility(num - 1, false);
+  }
+}
+
+// --------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs(int index)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  if (d->MarkupsNode)
+  {
+    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+    std::string currLabel = currentMarkupsNode->GetNthMarkupLabel(index);
+    std::string currAssociatedNodeID = currentMarkupsNode->GetNthMarkupAssociatedNodeID(index);
+    if (currAssociatedNodeID.find("vtkMRMLSpatialObjectsNode") == std::string::npos)
+    {
+      currentMarkupsNode->SetNthMarkupVisibility(index, false);
+      return;
+    }
+    else
+    {
+      double xyz[3];
+      currentMarkupsNode->GetMarkupPointLPS(index, 0, xyz);
+      int TubeID = d->logic()->FindNearestTube(d->SpatialObjectsNode, xyz);
+      if (TubeID == -1)
+      {
+        currentMarkupsNode->RemoveMarkup(index);
+      }
+      else
+      {
+        char newLabel[30];
+        itoa(TubeID, newLabel, 10);
+        for(int i = 0 ; i< index; i++)
+        {
+          std::string currMarkupLabel = currentMarkupsNode->GetNthMarkupLabel(i);
+          bool isVisibleCurrMarkup = currentMarkupsNode->GetNthMarkupVisibility(i);
+          if(i!= index && currMarkupLabel.compare(newLabel) == 0 && isVisibleCurrMarkup)
+          {            
+            currentMarkupsNode->RemoveMarkup(i);
+            currentMarkupsNode->RemoveMarkup(index-1);
+            this->selectRow(TubeID,true);  
+            return;
+          }
+        }
+        currLabel = currentMarkupsNode->GetNthMarkupLabel(index);
+        if(currLabel.compare(newLabel) != 0)
+        {
+          currentMarkupsNode->SetNthMarkupLabel(index, newLabel);
+        }
+        if(!currentMarkupsNode->GetNthMarkupVisibility(index))
+        {
+          currentMarkupsNode->SetNthMarkupVisibility(index, true);
+        }
+
+        this->selectRow(TubeID,false);     
+      }
+    }
+  }
 }

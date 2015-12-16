@@ -275,9 +275,9 @@ void vtkSlicerInteractiveTubesToTreeLogic::setActivePlaceNodeID(vtkMRMLMarkupsNo
 {
   if (node)
   {
-    qSlicerApplication * app = qSlicerApplication::application();
-    vtkMRMLSelectionNode* selectionNode = app->applicationLogic()->GetSelectionNode();
-    selectionNode->SetActivePlaceNodeID(node->GetID());
+//    qSlicerApplication * app = qSlicerApplication::application();
+//    vtkMRMLSelectionNode* selectionNode = app->applicationLogic()->GetSelectionNode();
+//    selectionNode->SetActivePlaceNodeID(node->GetID());
   }
   return;
 }
@@ -344,11 +344,6 @@ void vtkSlicerInteractiveTubesToTreeLogic
     if (!currTube)
     {
       continue;
-    }
-    if (currTube->GetNumberOfPoints() < 2)
-    {
-      std::cerr << "Error, vessel #" << currTube->GetId()
-        << " has less than 2 points !" << std::endl;
     }
     int currID = currTube->GetId();
     TubeIDList.push_back(currID);
