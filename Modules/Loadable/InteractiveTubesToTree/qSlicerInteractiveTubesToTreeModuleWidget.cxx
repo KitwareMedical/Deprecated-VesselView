@@ -296,7 +296,6 @@ vtkMRMLSpatialObjectsNode* qSlicerInteractiveTubesToTreeModuleWidget::mrmlSpatia
 void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs(int index)
 {
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
-
   if (d->MarkupsNode)
   {
     vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
@@ -305,6 +304,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs(int index)
     if (currAssociatedNodeID.find("vtkMRMLSpatialObjectsNode") == std::string::npos)
     {
       currentMarkupsNode->SetNthMarkupVisibility(index, false);
+      return;
     }
     else
     {
@@ -313,30 +313,37 @@ void qSlicerInteractiveTubesToTreeModuleWidget::findTubeIDs(int index)
       int TubeID = d->logic()->FindNearestTube(d->inputSpatialObject, xyz);
       if (TubeID == -1)
       {
-        currentMarkupsNode->SetNthMarkupVisibility(index, false);
+        currentMarkupsNode->RemoveMarkup(index);
       }
       else
       {
         char newLabel[30];
         itoa(TubeID, newLabel, 10);
-        currentMarkupsNode->SetNthMarkupLabel(index, newLabel);
-        currentMarkupsNode->SetNthMarkupVisibility(index, true);
-        d->Table->selectRow(TubeID);
+        for(int i = 0 ; i< index; i++)
+        {
+          std::string currMarkupLabel = currentMarkupsNode->GetNthMarkupLabel(i);
+          bool isVisibleCurrMarkup = currentMarkupsNode->GetNthMarkupVisibility(i);
+          if(i!= index && currMarkupLabel.compare(newLabel) == 0 && isVisibleCurrMarkup)
+          {            
+            currentMarkupsNode->RemoveMarkup(i);
+            currentMarkupsNode->RemoveMarkup(index-1);
+            d->Table->selectRow(TubeID,true);  
+            return;
+          }
+        }
+        currLabel = currentMarkupsNode->GetNthMarkupLabel(index);
+        if(currLabel.compare(newLabel) != 0)
+        {
+          currentMarkupsNode->SetNthMarkupLabel(index, newLabel);
+        }
+        if(!currentMarkupsNode->GetNthMarkupVisibility(index))
+        {
+          currentMarkupsNode->SetNthMarkupVisibility(index, true);
+        }
+
+        d->Table->selectRow(TubeID,false);     
       }
     }
-  }
-}
-
-// --------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeModuleWidget::hideFiducials()
-{
-  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
-
-  if (d->MarkupsNode)
-  {
-    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
-    int num = currentMarkupsNode->GetNumberOfMarkups();
-    currentMarkupsNode->SetNthMarkupVisibility(num - 1, false);
   }
 }
 
@@ -356,6 +363,19 @@ void qSlicerInteractiveTubesToTreeModuleWidget::onNthMarkupModifiedEvent(vtkObje
     n = *nPtr;
   }
   this->findTubeIDs(n);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::onMarkupAddEvent()
+{
+  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
+
+  if (d->MarkupsNode)
+  {
+    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+    int num = currentMarkupsNode->GetNumberOfMarkups();
+    currentMarkupsNode->SetNthMarkupVisibility(num - 1, false);
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -378,7 +398,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::onNodeAddedEvent(vtkObject*, vtk
       this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent,
         this, SLOT(onNthMarkupModifiedEvent(vtkObject*, vtkObject*)));
       this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::MarkupAddedEvent,
-        this, SLOT(hideFiducials()));
+        this, SLOT(onMarkupAddEvent()));
       findTubeIDs(0);
     }
   }

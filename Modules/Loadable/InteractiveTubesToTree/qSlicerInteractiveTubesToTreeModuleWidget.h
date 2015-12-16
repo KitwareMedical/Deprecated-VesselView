@@ -60,8 +60,8 @@ public slots:
   void updateWidgetFromMRML();
   void updateMRMLFromWidget();
   void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);
+  void onMarkupAddEvent();
   void findTubeIDs(int n);
-  void hideFiducials();
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
 
 protected:

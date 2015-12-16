@@ -59,16 +59,18 @@ public:
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
   std::string getSelectedRootIds();
-  void selectRow(int rowID);
+  void selectRow(int rowID, bool isDefault);
+  bool isRowSelected(int rowID, int tubeID);
 
 public slots:
   /// Set the MRML node of interest
   void setSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
   void setSpatialObjectsNode(vtkMRMLNode* node);
   void onTableCellClicked(QTableWidgetItem* item);
-  void onTubeColorChanged(const QColor&);
+  void onCurTubeColorChanged(const QColor&);
+  void onRowTubeColorChanged(const QColor &color, int rowID);
   void onClickHorizontalHeader(int column);
-  void onStateChangedMarkSelectedAsRootCheckBox(int state);
+  void onClickMarkSelectedAsRoot();
   void setSpatialObjectsDisplayNodeMode();
 
 protected slots:
@@ -84,6 +86,7 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeTableWidget);
   Q_DISABLE_COPY(qSlicerInteractiveTubesToTreeTableWidget);
+  QColor defaultColor;
 };
 
 #endif

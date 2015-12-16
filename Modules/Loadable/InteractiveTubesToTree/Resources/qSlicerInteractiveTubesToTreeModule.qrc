@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>Icons/InteractiveTubesToTree.png</file>
         <file alias="AnnotationPointWithArrow.png">Icons/AnnotationPointWithArrow.png</file>
+        <file alias="DeleteSelected.png">Icons/DeleteSelected.png</file>
+        <file alias="MarkSelected.png">Icons/MarkSelected.png</file>
     </qresource>
 </RCC>
