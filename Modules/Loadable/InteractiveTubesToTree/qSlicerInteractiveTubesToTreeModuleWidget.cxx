@@ -201,6 +201,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::restoreDefaults()
   d->RemoveOrphanTubesCheckBox->setChecked(false);
   d->RootTubeIDListLineEdit->setText("");
   d->ApplyPushButton->setEnabled(d->inputSpatialObject != 0 && d->outputSpatialObject != 0);
+  d->Table->restoreDefaults();
 }
 
 //------------------------------------------------------------------------------

@@ -72,6 +72,7 @@ public slots:
   void onRowTubeColorChanged(const QColor &color, int rowID);
   void onClickHorizontalHeader(int column);
   void onClickMarkSelectedAsRoot();
+  void onClickDeleteSelected();
   void setSpatialObjectsDisplayNodeMode();
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
   void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);

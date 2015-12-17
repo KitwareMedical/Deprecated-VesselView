@@ -180,6 +180,9 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   markSelectedButtonIcon.addFile(QString::fromUtf8(":DeleteSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->DeleteSelectedPushButton->setIcon(markSelectedButtonIcon);
 
+  QObject::connect(this->DeleteSelectedPushButton, SIGNAL(clicked()),
+    q, SLOT(onClickDeleteSelected()));
+
   q->setEnabled(this->SpatialObjectsNode != 0);
 }
 
@@ -546,6 +549,45 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickMarkSelectedAsRoot()
     {
       item->setCheckState(Qt::Checked);
       item->setData(Qt::DisplayRole, "Root");
+    }
+  }
+  return;
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onClickDeleteSelected()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
+  std::set<int> selectedTubeID;
+  foreach (QModelIndex index, indexList)
+  {
+    int curRow = index.row();
+    QTableWidgetItem* item = d->TableWidget->item(curRow, tubeIDIndex);
+    bool isNumeric;
+    int tubeID = item->text().toInt(&isNumeric);
+    if(isNumeric)
+    {
+      selectedTubeID.insert(tubeID);      
+    }  
+  } 
+  if(selectedTubeID.size() != 0)
+  {
+    d->logic()->deleteTubeFromSpatialObject(d->SpatialObjectsNode, selectedTubeID);
+  }
+  //delete corresponding markups.
+  vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+  int numMarups = currentMarkupsNode->GetNumberOfMarkups();
+  for(int index = numMarups-1; index>=0; index--)
+  {
+    QString indexLabel = QString::fromStdString(currentMarkupsNode->GetNthMarkupLabel(index));
+    bool isNumeric;
+    int indexTubeId = indexLabel.toInt(&isNumeric);
+    if(isNumeric && selectedTubeID.find(indexTubeId) != selectedTubeID.end())
+    {
+      currentMarkupsNode->RemoveMarkup(index);
     }
   }
   return;
