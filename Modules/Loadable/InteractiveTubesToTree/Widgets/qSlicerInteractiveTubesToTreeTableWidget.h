@@ -77,6 +77,7 @@ public slots:
   void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);
   void onMarkupAddEvent();
   void findTubeIDs(int n);
+  void restoreDefaults();
 
 protected slots:
   void updateWidgetFromMRML();

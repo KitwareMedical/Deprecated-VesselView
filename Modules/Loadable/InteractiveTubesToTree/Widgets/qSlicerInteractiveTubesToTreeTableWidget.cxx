@@ -774,3 +774,28 @@ void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs(int index)
     }
   }
 }
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::restoreDefaults()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  
+  int rootIndex = d->columnIndex("Select As Root");
+  int colorIndex = d->columnIndex("Color");
+  int rowCount = d->TableWidget->rowCount();
+  for(int i = 0; i < rowCount; i++)
+  {
+    QTableWidgetItem* item = d->TableWidget->item(i, rootIndex);
+    item->setCheckState(Qt::Unchecked);
+    item->setData(Qt::DisplayRole, "");
+
+    this->onRowTubeColorChanged(defaultColor, i);
+  } 
+  
+  vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+  currentMarkupsNode->RemoveAllMarkups();
+
+  d->TableWidget->clearSelection();
+  return;
+ 
+}
