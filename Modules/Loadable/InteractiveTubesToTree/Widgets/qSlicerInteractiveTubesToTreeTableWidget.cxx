@@ -756,6 +756,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onMarkupAddEvent()
 
   if (d->MarkupsNode)
   {
+    //to call NthMarkupAddedEvent explicitly.
     vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
     int num = currentMarkupsNode->GetNumberOfMarkups();
     currentMarkupsNode->SetNthMarkupVisibility(num - 1, false);
