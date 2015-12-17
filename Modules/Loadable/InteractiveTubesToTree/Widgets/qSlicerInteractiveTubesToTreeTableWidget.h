@@ -60,7 +60,7 @@ public:
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
   std::string getSelectedRootIds();
-  void selectRow(int rowID, bool isDefault);
+  void selectRow(int rowID, int tubeID, bool isDefault);
   bool isRowSelected(int rowID, int tubeID);
 
 public slots:

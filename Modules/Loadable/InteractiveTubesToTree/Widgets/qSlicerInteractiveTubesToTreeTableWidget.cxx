@@ -555,39 +555,67 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickMarkSelectedAsRoot()
 void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-/*  int checkState = true;//d->MarkSelectedAsRootCheckBox->checkState();
-  int selectedIndex = d->columnIndex("Select As Root");
-  QList<QTableWidgetItem *> selectedItems = d->TableWidget->selectedItems();
-  QTableWidgetItem * item;
-
-  for each (item in selectedItems)
+/*
+  vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+  if(!currentMarkupsNode)
   {
-    int currRow = item->row();
-    int currColumn = item->column();
-    if (currColumn == selectedIndex && checkState == Qt::Checked)
+    return;
+  }
+
+  int numMarups = currentMarkupsNode->GetNumberOfMarkups();
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
+
+  for(int index = 0; index<numMarups; index++)
+  {
+    int flag = 0;
+    std::string indexLabel = currentMarkupsNode->GetNthMarkupLabel(index);
+    foreach (QModelIndex index, indexList)
     {
-      item->setCheckState(Qt::Checked);
-      item->setData(Qt::DisplayRole, "Root");
+      int curRow = index.row();
+      QTableWidgetItem* item = d->TableWidget->item(curRow, tubeIDIndex);
+      std::string currLabel = item->text().toStdString();
+      if(currLabel.compare(indexLabel) == 0)
+      {
+        flag = 1;
+        break;
+      }
     }
-  }*/
+    if(flag == 0)
+    {
+      QString label = QString::fromStdString(indexLabel);
+      bool isNumeric;
+      int indexTubeId = label.toInt(&isNumeric);
+      if(isNumeric)
+      {
+        currentMarkupsNode->RemoveMarkup(index);
+        selectRow(-1, indexTubeId, true);
+      }
+    }
+  }
+
   return;
+  */
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::selectRow(int tubeID, bool isDefault)
+void qSlicerInteractiveTubesToTreeTableWidget::selectRow(int rowID, int tubeID, bool isDefault)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  int rowID;
-  int tubeIDIndex = d->columnIndex("Tube ID");
-  for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
+
+  if(rowID == -1)
   {
-    QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
-    bool isNumeric;
-    int currTubeId = item->text().toInt(&isNumeric);
-    if (isNumeric && currTubeId == tubeID)
+    int tubeIDIndex = d->columnIndex("Tube ID");
+    for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
     {
-      rowID = indexRow;
-      break;
+      QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
+      bool isNumeric;
+      int currTubeId = item->text().toInt(&isNumeric);
+      if (isNumeric && currTubeId == tubeID)
+      {
+        rowID = indexRow;
+        break;
+      }
     }
   }
   if(isDefault)//un select the row and color corresponding tube in default color
@@ -727,7 +755,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs(int index)
           {            
             currentMarkupsNode->RemoveMarkup(i);
             currentMarkupsNode->RemoveMarkup(index-1);
-            this->selectRow(TubeID,true);  
+            this->selectRow(-1, TubeID, true);  
             return;
           }
         }
@@ -741,7 +769,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs(int index)
           currentMarkupsNode->SetNthMarkupVisibility(index, true);
         }
 
-        this->selectRow(TubeID,false);     
+        this->selectRow(-1, TubeID, false);     
       }
     }
   }
