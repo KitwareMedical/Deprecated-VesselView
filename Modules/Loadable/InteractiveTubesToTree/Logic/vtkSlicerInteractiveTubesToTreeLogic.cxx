@@ -60,7 +60,6 @@ struct DigitsToCharacters
     {
       return in + 17;
     }
-
     return in;
   }
 };
@@ -242,7 +241,7 @@ int vtkSlicerInteractiveTubesToTreeLogic::FindNearestTube(vtkMRMLSpatialObjectsN
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube)
+    if (!currTube || currTube->GetNumberOfPoints() < 2)
     {
       continue;
     }
@@ -275,9 +274,9 @@ void vtkSlicerInteractiveTubesToTreeLogic::setActivePlaceNodeID(vtkMRMLMarkupsNo
 {
   if (node)
   {
-    qSlicerApplication * app = qSlicerApplication::application();
-    vtkMRMLSelectionNode* selectionNode = app->applicationLogic()->GetSelectionNode();
-    selectionNode->SetActivePlaceNodeID(node->GetID());
+//    qSlicerApplication * app = qSlicerApplication::application();
+//    vtkMRMLSelectionNode* selectionNode = app->applicationLogic()->GetSelectionNode();
+//    selectionNode->SetActivePlaceNodeID(node->GetID());
   }
   return;
 }
@@ -341,14 +340,9 @@ void vtkSlicerInteractiveTubesToTreeLogic
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube)
+    if (!currTube || currTube->GetNumberOfPoints() < 2)
     {
       continue;
-    }
-    if (currTube->GetNumberOfPoints() < 2)
-    {
-      std::cerr << "Error, vessel #" << currTube->GetId()
-        << " has less than 2 points !" << std::endl;
     }
     int currID = currTube->GetId();
     TubeIDList.push_back(currID);
@@ -374,7 +368,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube)
+    if (!currTube || currTube->GetNumberOfPoints() < 2)
     {
       continue;
     }
@@ -423,16 +417,10 @@ void vtkSlicerInteractiveTubesToTreeLogic
     {
       VesselTubeType* currTube =
         dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-      if (!currTube)
+      if (!currTube || currTube->GetNumberOfPoints() < 2)
       {
         continue;
       }
-      if (currTube->GetNumberOfPoints() < 2)
-      {
-        std::cerr << "Error, vessel #" << currTube->GetId()
-          << " has less than 2 points !" << std::endl;
-      }
-
       colorMap->AddRGBPoint(currTube->GetId(), currTube->GetProperty()->GetColor().GetRed(), currTube->GetProperty()->GetColor().GetGreen(), currTube->GetProperty()->GetColor().GetBlue());
     }
 
@@ -456,14 +444,9 @@ void vtkSlicerInteractiveTubesToTreeLogic
       {
         VesselTubeType* currTube =
           dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-        if (!currTube)
+        if (!currTube || currTube->GetNumberOfPoints() < 2)
         {
           continue;
-        }
-        if (currTube->GetNumberOfPoints() < 2)
-        {
-          std::cerr << "Error, vessel #" << currTube->GetId()
-            << " has less than 2 points !" << std::endl;
         }
 
         colorMap->AddRGBPoint(currTube->GetId(), currTube->GetProperty()->GetColor().GetRed(), currTube->GetProperty()->GetColor().GetGreen(), currTube->GetProperty()->GetColor().GetBlue());
@@ -475,4 +458,83 @@ void vtkSlicerInteractiveTubesToTreeLogic
       spatialDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
     }
   }
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerInteractiveTubesToTreeLogic
+::deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, std::set<int> tubeIDs)
+{
+  if (!spatialNode)
+  {
+    return;
+  }
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  std::set<int>::iterator it;
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    {
+      continue;
+    }
+    int currTubeId = currTube->GetId();
+    it = tubeIDs.find(currTubeId);
+    if(it !=  tubeIDs.end())
+    {
+      //get current tube Parent
+      int parentID = currTube->GetParentId();
+      std::set<int> childrenIdList;
+      //update children of "to be deleted" tube to have parent id as parent id of "to be deleted" tube.
+      TubeNetType::ChildrenListType* currTubeChildrenList = currTube->GetChildren(1, childName);
+      for (TubeNetType::ChildrenListType::iterator tubeIt1 = currTubeChildrenList->begin();
+        tubeIt1 != currTubeChildrenList->end(); ++tubeIt1)
+      {
+        VesselTubeType* currTube1 =
+      dynamic_cast<VesselTubeType*>((*tubeIt1).GetPointer());
+        if (!currTube || currTube->GetNumberOfPoints() < 2)
+        {
+          continue;
+        }
+        currTube1->SetParentId(parentID);
+        childrenIdList.insert(currTube1->GetId());
+      }
+
+      for (TubeNetType::ChildrenListType::iterator tubeIt_1 = tubeList->begin(); tubeIt_1 != tubeList->end(); ++tubeIt_1)
+      {
+        VesselTubeType* currTube_1 =
+          dynamic_cast<VesselTubeType*>((*tubeIt_1).GetPointer());
+        int tubeId = currTube_1->GetId();
+        it = childrenIdList.find(tubeId);
+        if(it !=  childrenIdList.end())
+        {
+          currTube_1->SetParentId(parentID);
+        }
+      }
+
+      //delete "to be deleted" tube from children of its parent.
+      TubeNetType::ChildrenListType* currTubeParentChildrenList = currTube->GetParent()->GetChildren(1, childName);
+      for (TubeNetType::ChildrenListType::iterator tubeIt2 = currTubeParentChildrenList->begin();
+        tubeIt2 != currTubeParentChildrenList->end(); ++tubeIt2)
+      {
+        VesselTubeType* currTube2 =
+      dynamic_cast<VesselTubeType*>((*tubeIt2).GetPointer());
+        if (!currTube || currTube->GetNumberOfPoints() < 2)
+        {
+          continue;
+        }
+        if(currTube2->GetId() == currTubeId)
+        {
+          currTube2->Clear();
+          break;
+        }        
+      }
+    }  
+  }
+  spatialNode->UpdatePolyDataFromSpatialObject();
 }

@@ -26,24 +26,31 @@ limitations under the License.
 //CTK imports
 #include <ctkColorPickerButton.h>
 
+// SlicerQt includes
+#include "qSlicerApplication.h"
+
 // Table Widgets includes
 #include "qSlicerInteractiveTubesToTreeTableWidget.h"
 #include "ui_qSlicerInteractiveTubesToTreeTableWidget.h"
+#include "vtkSlicerInteractiveTubesToTreeLogic.h"
 
-// MRML includes
+//vtk includes
 #include <vtkDataSet.h>
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
-#include "vtkMRMLSpatialObjectsNode.h"
-#include "vtkSlicerInteractiveTubesToTreeLogic.h"
+#include <vtkLookupTable.h>
+#include <vtkColorTransferFunction.h>
+
+// MRML includes
 #include <vtkMRMLSpatialObjectsNode.h>
 #include <vtkMRMLSpatialObjectsDisplayNode.h>
 #include <vtkMRMLSpatialObjectsLineDisplayNode.h>
 #include <vtkMRMLSpatialObjectsDisplayPropertiesNode.h>
-#include "vtkLookupTable.h"
+#include <vtkMRMLInteractionNode.h>
+#include <vtkMRMLSelectionNode.h>
 #include <vtkMRMLProceduralColorNode.h>
 #include <vtkMRMLScene.h>
-#include <vtkColorTransferFunction.h>
+#include <vtkMRMLMarkupsNode.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_InteractiveTubesToTree
@@ -63,6 +70,7 @@ public:
   void init();
   vtkMRMLSpatialObjectsNode* SpatialObjectsNode;
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode;
+  vtkMRMLMarkupsNode* MarkupsNode;
   /// return the column index for a given QString, -1 if not a valid header
   int columnIndex(QString label);
 private:
@@ -75,8 +83,9 @@ qSlicerInteractiveTubesToTreeTableWidgetPrivate
   qSlicerInteractiveTubesToTreeTableWidget& object)
   : q_ptr(&object)
 {
-  this->SpatialObjectsNode - 0;
+  this->SpatialObjectsNode = 0;
   this->SpatialObjectsDisplayNode = 0;
+  this->MarkupsNode = 0;
   this->columnLabels << "Tube ID" << "Color" << "Select As Root";
 }
 
@@ -128,8 +137,21 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   Q_Q(qSlicerInteractiveTubesToTreeTableWidget);
   this->setupUi(q);
 
+  QIcon SelectTubesPushButtonIcon;
+  SelectTubesPushButtonIcon.addFile(QString::fromUtf8(":AnnotationPointWithArrow.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->SelectTubesPushButton->setIcon(SelectTubesPushButtonIcon);
+
+  QObject::connect(
+    this->SelectTubesPushButton, SIGNAL(toggled(bool)),
+    q, SLOT(updateMRMLFromWidget()));
+
+ // qSlicerApplication * app = qSlicerApplication::application();
+ // vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+//  q->qvtkReconnect(interactionNode, vtkCommand::ModifiedEvent,
+ //   q, SLOT(updateWidgetFromMRML()));
+
   this->TableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-  this->TableWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  this->TableWidget->setSelectionMode(QAbstractItemView::MultiSelection);
   this->TableWidget->setColumnCount(this->columnLabels.size());
   this->TableWidget->setHorizontalHeaderLabels(this->columnLabels);
   this->TableWidget->horizontalHeader()->setFixedHeight(45);
@@ -148,8 +170,18 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   QObject::connect(this->TableWidget->horizontalHeader(), SIGNAL(sectionClicked(int)),
     q, SLOT(onClickHorizontalHeader(int)));
 
-  QObject::connect(this->MarkSelectedAsRootCheckBox, SIGNAL(stateChanged(int)),
-    q, SLOT(onStateChangedMarkSelectedAsRootCheckBox(int)));
+  QIcon markSelectedButtonIcon;
+  markSelectedButtonIcon.addFile(QString::fromUtf8(":MarkSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->MarkSelectedAsRootPushButton->setIcon(markSelectedButtonIcon);
+
+  QObject::connect(this->MarkSelectedAsRootPushButton, SIGNAL(clicked()),
+    q, SLOT(onClickMarkSelectedAsRoot()));
+
+  markSelectedButtonIcon.addFile(QString::fromUtf8(":DeleteSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->DeleteSelectedPushButton->setIcon(markSelectedButtonIcon);
+
+  QObject::connect(this->DeleteSelectedPushButton, SIGNAL(clicked()),
+    q, SLOT(onClickDeleteSelected()));
 
   q->setEnabled(this->SpatialObjectsNode != 0);
 }
@@ -180,6 +212,7 @@ void qSlicerInteractiveTubesToTreeTableWidget
   {
     return;
   }
+  
   vtkMRMLSpatialObjectsNode *oldNode = d->SpatialObjectsNode;
   d->SpatialObjectsNode = node;
   this->setSpatialObjectsDisplayNode(
@@ -190,6 +223,12 @@ void qSlicerInteractiveTubesToTreeTableWidget
 
   //calling tube display node
   buildTubeDisplayTable();
+  getTubeDisplayColor(defaultColor, 0);
+
+//  qSlicerApplication * app = qSlicerApplication::application();
+//  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+//  interactionNode->SetPlaceModePersistence(1);
+
   this->updateWidgetFromMRML();
 }
 
@@ -233,10 +272,30 @@ void qSlicerInteractiveTubesToTreeTableWidget::setSpatialObjectsDisplayNodeMode(
   d->logic()->CreateTubeColorColorMap(d->SpatialObjectsNode, d->SpatialObjectsDisplayNode);
 }
 
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::updateMRMLFromWidget()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  qSlicerApplication * app = qSlicerApplication::application();
+//  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+ // if (d->SelectTubesPushButton->isChecked())
+//  {
+//    interactionNode->SetCurrentInteractionMode(interactionNode->Place);
+ // }
+ // else
+//  {
+//    interactionNode->SetCurrentInteractionMode(interactionNode->ViewTransform);
+//  }
+}
+
 // --------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+ // qSlicerApplication * app = qSlicerApplication::application();
+ // vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
+//  d->SelectTubesPushButton->setChecked(interactionNode->GetCurrentInteractionMode()== interactionNode->Place);
+
   if (!d->SpatialObjectsNode || !d->SpatialObjectsDisplayNode)
   {
     return;
@@ -292,7 +351,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       colorPicker->setColor(TubeDisplayColor);
       QObject::connect(colorPicker,
         SIGNAL(colorChanged(QColor)), this,
-        SLOT(onTubeColorChanged(QColor)));
+        SLOT(onCurTubeColorChanged(QColor)));
       d->TableWidget->setCellWidget(newRow, colorIndex, colorPicker);
 
       // Selected Column
@@ -372,7 +431,7 @@ bool qSlicerInteractiveTubesToTreeTableWidget::getTubeDisplayColor(QColor &TubeD
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::onTubeColorChanged(const QColor &color)
+void qSlicerInteractiveTubesToTreeTableWidget::onCurTubeColorChanged(const QColor &color)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
 
@@ -400,6 +459,44 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTubeColorChanged(const QColor &
   else
   {
     qCritical("Select a Row First");
+  }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onRowTubeColorChanged(const QColor &color, int rowID)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if (!d->SpatialObjectsDisplayNode)
+  {
+    return;
+  }
+  if(this->isRowSelected(rowID,-1))
+  {
+    d->TableWidget->selectRow(rowID);
+    d->TableWidget->selectRow(rowID);
+  }
+  else
+  {
+    d->TableWidget->selectRow(rowID);
+  }
+  int colorIndex = d->columnIndex("Color");
+  ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowID, colorIndex));
+  t->setColor(color);
+  if (rowID != -1)
+  {
+    int tubeIDIndex = d->columnIndex("Tube ID");
+    int currTubeID = d->TableWidget->item(rowID, tubeIDIndex)->text().toInt();
+    char colorMapName[80];
+    strcpy(colorMapName, d->SpatialObjectsNode->GetName());
+    strcat(colorMapName, "_TubeColor");
+    vtkMRMLNode* colorNode1 = d->SpatialObjectsDisplayNode->GetScene()->GetFirstNodeByName(colorMapName);
+    vtkMRMLProceduralColorNode* colorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode1);
+    vtkColorTransferFunction* colorMap = colorNode->GetColorTransferFunction();
+    colorMap->AddRGBPoint(currTubeID, color.redF(), color.greenF(), color.blueF());
+    d->SpatialObjectsDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
+
+    d->logic()->SetSpatialObjectData(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
   }
 }
 
@@ -437,7 +534,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickHorizontalHeader(int colum
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::onStateChangedMarkSelectedAsRootCheckBox(int checkState)
+void qSlicerInteractiveTubesToTreeTableWidget::onClickMarkSelectedAsRoot()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
 
@@ -448,15 +545,49 @@ void qSlicerInteractiveTubesToTreeTableWidget::onStateChangedMarkSelectedAsRootC
   {
     int currRow = item->row();
     int currColumn = item->column();
-    if (currColumn == selectedIndex && checkState == Qt::Checked)
+    if (currColumn == selectedIndex)
     {
       item->setCheckState(Qt::Checked);
       item->setData(Qt::DisplayRole, "Root");
     }
-    else if (currColumn == selectedIndex && checkState == Qt::Unchecked)
+  }
+  return;
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onClickDeleteSelected()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
+  std::set<int> selectedTubeID;
+  foreach (QModelIndex index, indexList)
+  {
+    int curRow = index.row();
+    QTableWidgetItem* item = d->TableWidget->item(curRow, tubeIDIndex);
+    bool isNumeric;
+    int tubeID = item->text().toInt(&isNumeric);
+    if(isNumeric)
     {
-      item->setCheckState(Qt::Unchecked);
-      item->setData(Qt::DisplayRole, "");
+      selectedTubeID.insert(tubeID);      
+    }  
+  } 
+  if(selectedTubeID.size() != 0)
+  {
+    d->logic()->deleteTubeFromSpatialObject(d->SpatialObjectsNode, selectedTubeID);
+  }
+  //delete corresponding markups.
+  vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+  int numMarups = currentMarkupsNode->GetNumberOfMarkups();
+  for(int index = numMarups-1; index>=0; index--)
+  {
+    QString indexLabel = QString::fromStdString(currentMarkupsNode->GetNthMarkupLabel(index));
+    bool isNumeric;
+    int indexTubeId = indexLabel.toInt(&isNumeric);
+    if(isNumeric && selectedTubeID.find(indexTubeId) != selectedTubeID.end())
+    {
+      currentMarkupsNode->RemoveMarkup(index);
     }
   }
   return;
@@ -466,47 +597,248 @@ void qSlicerInteractiveTubesToTreeTableWidget::onStateChangedMarkSelectedAsRootC
 void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  int checkState = d->MarkSelectedAsRootCheckBox->checkState();
-  int selectedIndex = d->columnIndex("Select As Root");
-  QList<QTableWidgetItem *> selectedItems = d->TableWidget->selectedItems();
-  QTableWidgetItem * item;
-
-  for each (item in selectedItems)
+/*
+  vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+  if(!currentMarkupsNode)
   {
-    int currRow = item->row();
-    int currColumn = item->column();
-    if (currColumn == selectedIndex && checkState == Qt::Checked)
+    return;
+  }
+
+  int numMarups = currentMarkupsNode->GetNumberOfMarkups();
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
+
+  for(int index = 0; index<numMarups; index++)
+  {
+    int flag = 0;
+    std::string indexLabel = currentMarkupsNode->GetNthMarkupLabel(index);
+    foreach (QModelIndex index, indexList)
     {
-      item->setCheckState(Qt::Checked);
-      item->setData(Qt::DisplayRole, "Root");
+      int curRow = index.row();
+      QTableWidgetItem* item = d->TableWidget->item(curRow, tubeIDIndex);
+      std::string currLabel = item->text().toStdString();
+      if(currLabel.compare(indexLabel) == 0)
+      {
+        flag = 1;
+        break;
+      }
+    }
+    if(flag == 0)
+    {
+      QString label = QString::fromStdString(indexLabel);
+      bool isNumeric;
+      int indexTubeId = label.toInt(&isNumeric);
+      if(isNumeric)
+      {
+        currentMarkupsNode->RemoveMarkup(index);
+        selectRow(-1, indexTubeId, true);
+      }
     }
   }
+
+  return;
+  */
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::selectRow(int rowID, int tubeID, bool isDefault)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if(rowID == -1)
+  {
+    int tubeIDIndex = d->columnIndex("Tube ID");
+    for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
+    {
+      QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
+      bool isNumeric;
+      int currTubeId = item->text().toInt(&isNumeric);
+      if (isNumeric && currTubeId == tubeID)
+      {
+        rowID = indexRow;
+        break;
+      }
+    }
+  }
+  if(isDefault)//un select the row and color corresponding tube in default color
+  {
+    onRowTubeColorChanged(defaultColor,rowID);
+    if(this->isRowSelected(rowID,-1))
+    {
+      d->TableWidget->selectRow(rowID);
+    }
+  }
+  else
+  {//select the row and color corresponding tube in black
+    onRowTubeColorChanged(QColor(0, 0, 1),rowID);
+    if(!this->isRowSelected(rowID,-1))
+    {
+      d->TableWidget->selectRow(rowID);
+    }
+  }  
   return;
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::selectRow(int tubeID)
+bool qSlicerInteractiveTubesToTreeTableWidget::isRowSelected(int rowID, int tubeID)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  int rowID;
-  int tubeIDIndex = d->columnIndex("Tube ID");
-  for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
+  if(tubeID != -1)
   {
-    QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
-    bool isNumeric;
-    int currTubeId = item->text().toInt(&isNumeric);
-    if (isNumeric && currTubeId == tubeID)
+    int tubeIDIndex = d->columnIndex("Tube ID");
+    for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
     {
-      rowID = indexRow;
-      break;
+      QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
+      bool isNumeric;
+      int currTubeId = item->text().toInt(&isNumeric);
+      if (isNumeric && currTubeId == tubeID)
+      {
+        rowID = indexRow;
+        break;
+      }
     }
   }
+  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
+  foreach (QModelIndex index, indexList)
+  {
+    if (rowID == index.row())
+    {
+      return true;
+    }
+  }
+  return false;
+}
 
-  d->TableWidget->selectRow(rowID);
+// --------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onNodeAddedEvent(vtkObject*, vtkObject* node)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if (d->MarkupsNode == NULL)
+  {
+    vtkMRMLMarkupsNode* MarkupsNode1 = vtkMRMLMarkupsNode::SafeDownCast(node);
+    if (MarkupsNode1)
+    {
+      d->MarkupsNode = MarkupsNode1;
+      d->logic()->setActivePlaceNodeID(d->MarkupsNode);
+
+      this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent,
+        this, SLOT(onNthMarkupModifiedEvent(vtkObject*, vtkObject*)));
+      this->qvtkConnect(d->MarkupsNode, vtkMRMLMarkupsNode::MarkupAddedEvent,
+        this, SLOT(onMarkupAddEvent()));
+      findTubeIDs(0);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData)
+{
+  if (caller == NULL || callData == NULL)
+  {
+    return;
+  }
+
+  int *nPtr = NULL;
+  int n = -1;
+  nPtr = reinterpret_cast<int *>(callData);
+  if (nPtr)
+  {
+    n = *nPtr;
+  }
+  this->findTubeIDs(n);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onMarkupAddEvent()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if (d->MarkupsNode)
+  {
+    //to call NthMarkupAddedEvent explicitly.
+    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+    int num = currentMarkupsNode->GetNumberOfMarkups();
+    currentMarkupsNode->SetNthMarkupVisibility(num - 1, false);
+  }
+}
+
+// --------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs(int index)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  if (d->MarkupsNode)
+  {
+    vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+    std::string currLabel = currentMarkupsNode->GetNthMarkupLabel(index);
+    std::string currAssociatedNodeID = currentMarkupsNode->GetNthMarkupAssociatedNodeID(index);
+    if (currAssociatedNodeID.find("vtkMRMLSpatialObjectsNode") == std::string::npos)
+    {
+      currentMarkupsNode->SetNthMarkupVisibility(index, false);
+      return;
+    }
+    else
+    {
+      double xyz[3];
+      currentMarkupsNode->GetMarkupPointLPS(index, 0, xyz);
+      int TubeID = d->logic()->FindNearestTube(d->SpatialObjectsNode, xyz);
+      if (TubeID == -1)
+      {
+        currentMarkupsNode->RemoveMarkup(index);
+      }
+      else
+      {
+        char newLabel[30];
+        itoa(TubeID, newLabel, 10);
+        for(int i = 0 ; i< index; i++)
+        {
+          std::string currMarkupLabel = currentMarkupsNode->GetNthMarkupLabel(i);
+          bool isVisibleCurrMarkup = currentMarkupsNode->GetNthMarkupVisibility(i);
+          if(i!= index && currMarkupLabel.compare(newLabel) == 0 && isVisibleCurrMarkup)
+          {            
+            currentMarkupsNode->RemoveMarkup(i);
+            currentMarkupsNode->RemoveMarkup(index-1);
+            this->selectRow(-1, TubeID, true);  
+            return;
+          }
+        }
+        currLabel = currentMarkupsNode->GetNthMarkupLabel(index);
+        if(currLabel.compare(newLabel) != 0)
+        {
+          currentMarkupsNode->SetNthMarkupLabel(index, newLabel);
+        }
+        if(!currentMarkupsNode->GetNthMarkupVisibility(index))
+        {
+          currentMarkupsNode->SetNthMarkupVisibility(index, true);
+        }
+
+        this->selectRow(-1, TubeID, false);     
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::restoreDefaults()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  
+  int rootIndex = d->columnIndex("Select As Root");
   int colorIndex = d->columnIndex("Color");
+  int rowCount = d->TableWidget->rowCount();
+  for(int i = 0; i < rowCount; i++)
+  {
+    QTableWidgetItem* item = d->TableWidget->item(i, rootIndex);
+    item->setCheckState(Qt::Unchecked);
+    item->setData(Qt::DisplayRole, "");
 
-  ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowID, colorIndex));
-  t->setColor(QColor(0, 0, 1));
-  onTubeColorChanged(QColor(0, 0, 1));
+    this->onRowTubeColorChanged(defaultColor, i);
+  } 
+  
+  vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
+  currentMarkupsNode->RemoveAllMarkups();
+
+  d->TableWidget->clearSelection();
   return;
+ 
 }

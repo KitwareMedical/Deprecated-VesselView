@@ -65,8 +65,8 @@ public:
   // typdefs
   typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
   typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
-  typedef VesselTubeType::TubePointType        VesselTubePointType;
-  typedef itk::Point<double, 3>                PointType;
+  typedef VesselTubeType::TubePointType                             VesselTubePointType;
+  typedef itk::Point<double, 3>                                     PointType;
 
 
   bool Apply(vtkMRMLSpatialObjectsNode* inputNode, vtkMRMLSpatialObjectsNode* outputNode, double maxTubeDistanceToRadiusRatio,
@@ -79,6 +79,7 @@ public:
   void SetOutputFileName(std::string name);
   void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList);
   void SetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
+  void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, std::set<int> tubeIDs);
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
 
 protected:

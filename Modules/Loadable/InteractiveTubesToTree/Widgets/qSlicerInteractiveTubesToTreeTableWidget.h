@@ -38,6 +38,7 @@ class vtkMRMLNode;
 class vtkMRMLSpatialObjectsNode;
 class vtkMRMLSpatialObjectsDisplayNode;
 class vtkMRMLSpatialObjectsDisplayPropertiesNode;
+class vtkMRMLMarkupsNode;
 class QTableWidgetItem;
 class vtkLookupTable;
 class vtkMRMLScene;
@@ -59,21 +60,29 @@ public:
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
   std::string getSelectedRootIds();
-  void selectRow(int rowID);
+  void selectRow(int rowID, int tubeID, bool isDefault);
+  bool isRowSelected(int rowID, int tubeID);
 
 public slots:
   /// Set the MRML node of interest
   void setSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
   void setSpatialObjectsNode(vtkMRMLNode* node);
   void onTableCellClicked(QTableWidgetItem* item);
-  void onTubeColorChanged(const QColor&);
+  void onCurTubeColorChanged(const QColor&);
+  void onRowTubeColorChanged(const QColor &color, int rowID);
   void onClickHorizontalHeader(int column);
-  void onStateChangedMarkSelectedAsRootCheckBox(int state);
+  void onClickMarkSelectedAsRoot();
+  void onClickDeleteSelected();
   void setSpatialObjectsDisplayNodeMode();
+  void onNodeAddedEvent(vtkObject*, vtkObject* node);
+  void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);
+  void onMarkupAddEvent();
+  void findTubeIDs(int n);
+  void restoreDefaults();
 
 protected slots:
   void updateWidgetFromMRML();
-  //void updateMRMLFromWidget();
+  void updateMRMLFromWidget();
   void setSpatialObjectsDisplayNode(vtkMRMLNode *node);
   void setSpatialObjectsDisplayNode(vtkMRMLSpatialObjectsDisplayNode *node);
   void onTableSelectionChanged();
@@ -84,6 +93,7 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeTableWidget);
   Q_DISABLE_COPY(qSlicerInteractiveTubesToTreeTableWidget);
+  QColor defaultColor;
 };
 
 #endif
