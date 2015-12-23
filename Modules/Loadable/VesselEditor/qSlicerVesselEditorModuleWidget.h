@@ -20,12 +20,12 @@
 
 // SlicerQt includes
 #include "qSlicerAbstractModuleWidget.h"
-
 #include "qSlicerVesselEditorModuleExport.h"
 
 class qSlicerVesselEditorModuleWidgetPrivate;
 class vtkMRMLNode;
 class vtkMRMLSpatialObjectsNode;
+class qSlicerInteractiveTubesToTreeTableWidget;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class Q_SLICER_QTMODULES_VESSELEDITOR_EXPORT qSlicerVesselEditorModuleWidget :

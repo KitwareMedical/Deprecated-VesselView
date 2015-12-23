@@ -28,6 +28,7 @@ limitations under the License.
 #include "qSlicerVesselEditorModuleWidget.h"
 #include "vtkSlicerVesselEditorLogic.h"
 #include "ui_qSlicerVesselEditorModuleWidget.h"
+#include "qSlicerInteractiveTubesToTreeTableWidget.h"
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
