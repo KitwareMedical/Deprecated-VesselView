@@ -119,6 +119,11 @@ void qSlicerVesselEditorModuleWidgetPrivate::init()
     this->ApplyPushButton, SIGNAL( clicked() ),
     q, SLOT( runConversion() ) );
 
+  //hide mark as root from table widget
+  int colId = this->Table->getColumnIndex("Select As Root");
+  this->Table->hideColumn(colId);
+  this->Table->hideMarkSelectedAsRootPushButton();
+
   QObject::connect(
     this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
     this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));

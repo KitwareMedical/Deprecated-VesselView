@@ -641,6 +641,29 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
 }
 
 //------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::hideMarkSelectedAsRootPushButton()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  d->MarkSelectedAsRootPushButton->setHidden(true);
+  d->MarkSelectedLabel->setHidden(true);
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::hideColumn(int colID)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  d->TableWidget->hideColumn(colID);
+}
+
+//------------------------------------------------------------------------------
+int qSlicerInteractiveTubesToTreeTableWidget::getColumnIndex(std::string columnName)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  int index = d->columnIndex(QString(columnName.c_str()));
+  return index;
+}
+
+//------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::selectRow(int rowID, int tubeID, bool isDefault)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);

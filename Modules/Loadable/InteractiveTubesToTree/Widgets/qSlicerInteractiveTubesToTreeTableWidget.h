@@ -61,7 +61,10 @@ public:
   void buildTubeDisplayTable();
   std::string getSelectedRootIds();
   void selectRow(int rowID, int tubeID, bool isDefault);
+  void hideColumn(int colID);
+  void hideMarkSelectedAsRootPushButton();
   bool isRowSelected(int rowID, int tubeID);
+  int getColumnIndex(std::string columnName);
 
 public slots:
   /// Set the MRML node of interest
