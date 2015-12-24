@@ -56,7 +56,9 @@ public:
   qSlicerInteractiveTubesToTreeTableWidget(QWidget *parent=0);
   virtual ~qSlicerInteractiveTubesToTreeTableWidget();
 
-  bool qSlicerInteractiveTubesToTreeTableWidget::getTubeDisplayColor(QColor&, int row);
+  bool getTubeDisplayColor(QColor&, int row);
+  bool getTubeRootStatus(int row);
+  int getTubeParentId(int row);
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
   std::string getSelectedRootIds();

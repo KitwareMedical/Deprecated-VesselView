@@ -352,7 +352,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
 
 //---------------------------------------------------------------------------
 void vtkSlicerInteractiveTubesToTreeLogic
-::SetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float green, float blue)
+::SetSpatialObjectColorData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float green, float blue)
 {
   if (!spatialNode)
   {
@@ -537,4 +537,72 @@ void vtkSlicerInteractiveTubesToTreeLogic
     }  
   }
   spatialNode->UpdatePolyDataFromSpatialObject();
+}
+
+//---------------------------------------------------------------------------=
+bool vtkSlicerInteractiveTubesToTreeLogic
+::GetSpatialObjectRootStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID)
+{
+  if (!spatialNode)
+  {
+    return false;
+  }
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    {
+      continue;
+    }
+    if (currTube->GetId() == currTubeID)
+    {
+      return currTube->GetRoot();
+    }
+    else
+    {
+      continue;
+    }
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------=
+int vtkSlicerInteractiveTubesToTreeLogic
+::GetSpatialObjectParentIdData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID)
+{
+  if (!spatialNode)
+  {
+    return false;
+  }
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    {
+      continue;
+    }
+    if (currTube->GetId() == currTubeID)
+    {
+      return currTube->GetParentId();
+    }
+    else
+    {
+      continue;
+    }
+  }
+  return false;
 }

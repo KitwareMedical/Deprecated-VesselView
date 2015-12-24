@@ -86,7 +86,7 @@ qSlicerInteractiveTubesToTreeTableWidgetPrivate
   this->SpatialObjectsNode = 0;
   this->SpatialObjectsDisplayNode = 0;
   this->MarkupsNode = 0;
-  this->columnLabels << "Tube ID" << "Color" << "Select As Root";
+  this->columnLabels << "Tube ID" << "Color" << "Is Root" << "Parent Id" << "Select As Root";
 }
 
 // --------------------------------------------------------------------------
@@ -354,6 +354,36 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
         SLOT(onCurTubeColorChanged(QColor)));
       d->TableWidget->setCellWidget(newRow, colorIndex, colorPicker);
 
+      //Is Root Column
+      int isRootIndex = d->columnIndex("Is Root");
+      QTableWidgetItem* isRootItem = new QTableWidgetItem();
+      bool isTubeRoot = getTubeRootStatus(newRow);
+      if(isTubeRoot)
+      {
+        isRootItem->setText("Root");
+      }
+      else
+      {
+        isRootItem->setText("");
+      }
+      isRootItem->setFlags(isRootItem->flags() &  ~Qt::ItemIsEditable);
+      d->TableWidget->setItem(newRow, isRootIndex, isRootItem);
+
+      //Parent Id Column
+      int parentIdIndex = d->columnIndex("Parent Id");
+      QTableWidgetItem* parentIdItem = new QTableWidgetItem();
+      int parentID = getTubeParentId(newRow);
+      if(parentID >= 0)
+      {
+        parentIdItem->setText(QVariant(parentID).toString());
+      }
+      else
+      {
+        parentIdItem->setText("");
+      }
+      parentIdItem->setFlags(parentIdItem->flags() &  ~Qt::ItemIsEditable);
+      d->TableWidget->setItem(newRow, parentIdIndex, parentIdItem);
+
       // Selected Column
       QTableWidgetItem* selectedItem = new QTableWidgetItem();
       selectedItem->setCheckState(Qt::Unchecked);
@@ -430,6 +460,36 @@ bool qSlicerInteractiveTubesToTreeTableWidget::getTubeDisplayColor(QColor &TubeD
   return true;
 }
 
+// --------------------------------------------------------------------------
+bool qSlicerInteractiveTubesToTreeTableWidget::getTubeRootStatus(int row)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  if (!d->SpatialObjectsDisplayNode)
+  {
+    qCritical("Error while reteriving Spatial Data tube display node !");
+    return false;
+  }
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  QTableWidgetItem *tubeIDItem = d->TableWidget->item(row, tubeIDIndex);
+  int tubeID = tubeIDItem->text().toInt();
+  return d->logic()->GetSpatialObjectRootStatusData(d->SpatialObjectsNode, tubeID);
+}
+
+// --------------------------------------------------------------------------
+int qSlicerInteractiveTubesToTreeTableWidget::getTubeParentId(int row)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  if (!d->SpatialObjectsDisplayNode)
+  {
+    qCritical("Error while reteriving Spatial Data tube display node !");
+    return false;
+  }
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  QTableWidgetItem *tubeIDItem = d->TableWidget->item(row, tubeIDIndex);
+  int tubeID = tubeIDItem->text().toInt();
+  return d->logic()->GetSpatialObjectParentIdData(d->SpatialObjectsNode, tubeID);
+}
+
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::onCurTubeColorChanged(const QColor &color)
 {
@@ -454,7 +514,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onCurTubeColorChanged(const QColo
     colorMap->AddRGBPoint(currTubeID, color.redF(), color.greenF(), color.blueF());
     d->SpatialObjectsDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
 
-    d->logic()->SetSpatialObjectData(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
+    d->logic()->SetSpatialObjectColorData(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
   }
   else
   {
@@ -496,7 +556,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onRowTubeColorChanged(const QColo
     colorMap->AddRGBPoint(currTubeID, color.redF(), color.greenF(), color.blueF());
     d->SpatialObjectsDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
 
-    d->logic()->SetSpatialObjectData(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
+    d->logic()->SetSpatialObjectColorData(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
   }
 }
 

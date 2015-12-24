@@ -78,9 +78,11 @@ public:
   std::string GetOutputFileName();
   void SetOutputFileName(std::string name);
   void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList);
-  void SetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
+  void SetSpatialObjectColorData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
   void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, std::set<int> tubeIDs);
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
+  bool GetSpatialObjectRootStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
+  int GetSpatialObjectParentIdData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();
