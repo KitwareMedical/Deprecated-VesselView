@@ -130,6 +130,7 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
     this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
     this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
 }
+
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget::enter()
 {
@@ -237,16 +238,4 @@ vtkMRMLSpatialObjectsNode* qSlicerInteractiveTubesToTreeModuleWidget::mrmlSpatia
 {
   Q_D(const qSlicerInteractiveTubesToTreeModuleWidget);
   return d->inputSpatialObject;
-}
-
-// --------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeModuleWidget::onNodeAddedEvent(vtkObject*, vtkObject* node)
-{
-  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    return;
-  }
-//  d->Table->onNodeAddedEvent(node);
 }
