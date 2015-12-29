@@ -63,6 +63,8 @@ public:
   vtkSlicerSpatialObjectsLogic* GetSpatialObjectsLogic();
 
   // typdefs
+  typedef itk::GroupSpatialObject<3>                                TubeNetType1;
+  typedef TubeNetType1::Pointer                                     TubeNetPointerType;
   typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
   typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
   typedef VesselTubeType::TubePointType                             VesselTubePointType;
@@ -83,6 +85,7 @@ public:
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
   bool GetSpatialObjectRootStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
   int GetSpatialObjectParentIdData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
+  bool GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();

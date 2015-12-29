@@ -75,14 +75,16 @@ public slots:
   void onTableCellClicked(QTableWidgetItem* item);
   void onSelectTubeColorChanged(const QColor&);
   void onShowRootsColorChanged(const QColor&);
-//  void onShowOrphansColorChanged(const QColor&);
+  void onShowOrphansColorChanged(const QColor&);
   void onCurTubeColorChanged(const QColor&);
   void onRowTubeColorChanged(const QColor &color, int rowID);
   void onClickHorizontalHeader(int column);
   void onClickMarkSelectedAsRoot();
   void onClickDeleteSelected();
   void onClickShowRoots(bool);
+  void onClickShowOrphans(bool);
   void onClickSelectAllRoots();
+  void onClickSelectAllOrphans();
   void setSpatialObjectsDisplayNodeMode();
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
   void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);

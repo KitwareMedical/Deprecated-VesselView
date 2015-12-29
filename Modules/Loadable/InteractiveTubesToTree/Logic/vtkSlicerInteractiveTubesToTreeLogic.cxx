@@ -579,10 +579,9 @@ int vtkSlicerInteractiveTubesToTreeLogic
 {
   if (!spatialNode)
   {
-    return false;
+    return -1;
   }
   TubeNetType* spatialObject = spatialNode->GetSpatialObject();
-
   char childName[] = "Tube";
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
@@ -604,5 +603,43 @@ int vtkSlicerInteractiveTubesToTreeLogic
       continue;
     }
   }
-  return false;
+  return -1;
+}
+
+//---------------------------------------------------------------------------=
+bool vtkSlicerInteractiveTubesToTreeLogic
+::GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID)
+{
+  if (!spatialNode)
+  {
+    return -1;
+  }
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    {
+      continue;
+    }
+    if (currTube->GetId() == currTubeID)
+    {
+      if(currTube->GetNumberOfChildren(spatialObject->GetMaximumDepth(), childName) > 0)
+      {
+        return false;
+      }
+      if(currTube->HasParent() && currTube->GetParentId() != spatialObject->GetId())
+      {
+        return false;
+      }
+      break;
+    }
+  }
+  return true;
 }

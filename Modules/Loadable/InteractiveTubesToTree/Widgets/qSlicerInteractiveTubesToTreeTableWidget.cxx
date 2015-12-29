@@ -171,7 +171,7 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   this->ShowOrphansPushButton->setCheckable(true);
   QObject::connect(
     this->ShowOrphansPushButton, SIGNAL(toggled(bool)),
-    q, SLOT(onClickShowOrphans()));
+    q, SLOT(onClickShowOrphans(bool)));
 
  // qSlicerApplication * app = qSlicerApplication::application();
  // vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
@@ -1057,6 +1057,105 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickSelectAllRoots()
       if(!this->isRowSelected(rowIndex,-1))
       {
         d->TableWidget->selectRow(rowIndex);
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onShowOrphansColorChanged(const QColor &color)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if (!d->SpatialObjectsDisplayNode || !d->ShowRootsPushButton->isChecked())
+  {
+    return;
+  }
+
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  for (int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
+  {
+    QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
+    bool isNumeric;
+    int currTubeId = item->text().toInt(&isNumeric);
+    if (isNumeric)
+    {
+      bool isSelected = false;
+      if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
+      {
+        if(this->isRowSelected(rowIndex,-1))
+        {
+          isSelected = true;
+        }
+        this->onRowTubeColorChanged(d->ShowOrphansColorPicker->color(), rowIndex);
+        if(this->isRowSelected(rowIndex,-1) && !isSelected)
+        {
+          d->TableWidget->selectRow(rowIndex);
+        }
+        if(!this->isRowSelected(rowIndex,-1) && isSelected)
+        {
+          d->TableWidget->selectRow(rowIndex);
+        }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onClickShowOrphans(bool value)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  if(value)
+  {
+    this->onShowOrphansColorChanged(d->ShowRootsColorPicker->color());
+  }
+  else
+  {
+    int tubeIDIndex = d->columnIndex("Tube ID");
+    for (int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
+    {
+      QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
+      bool isNumeric;
+      int currTubeId = item->text().toInt(&isNumeric);
+      if (isNumeric)
+      {
+        if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
+        {
+          if(this->isRowSelected(rowIndex,-1))
+          {
+            this->selectRow(rowIndex, -1, false);
+          }
+          else
+          {
+            this->selectRow(rowIndex, -1, true);
+          }
+        }
+      }
+    }
+  }
+  return;
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onClickSelectAllOrphans()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  for (int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
+  {
+    QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
+    bool isNumeric;
+    int currTubeId = item->text().toInt(&isNumeric);
+    if (isNumeric)
+    {
+      if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
+      {
+        this->onRowTubeColorChanged(d->SelectTubeColorPicker->color(), rowIndex);
+        if(!this->isRowSelected(rowIndex,-1))
+        {
+          d->TableWidget->selectRow(rowIndex);
+        }
       }
     }
   }
