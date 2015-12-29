@@ -324,7 +324,10 @@ std::string vtkSlicerInteractiveTubesToTreeLogic
 
 //---------------------------------------------------------------------------
 void vtkSlicerInteractiveTubesToTreeLogic
-::GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList)
+::GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode,
+  std::vector<int>& TubeIDList,
+  std::vector<int>& ParentIDList,
+  std::vector<bool>& IsRootList)
 {
   if (!spatialNode)
   {
@@ -344,12 +347,28 @@ void vtkSlicerInteractiveTubesToTreeLogic
     {
       continue;
     }
-    int currID = currTube->GetId();
-    TubeIDList.push_back(currID);
+    TubeIDList.push_back(currTube->GetId());
+    ParentIDList.push_back(currTube->GetParentId());
+    IsRootList.push_back(currTube->GetRoot());
   }
   return ;
 }
 
+int vtkSlicerInteractiveTubesToTreeLogic
+::GetSpatialObjectNumberOfTubes(vtkMRMLSpatialObjectsNode* spatialNode)
+{
+  if (!spatialNode)
+  {
+    return -1;
+  }
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  return tubeList->size();
+}
 //---------------------------------------------------------------------------
 void vtkSlicerInteractiveTubesToTreeLogic
 ::SetSpatialObjectColorData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float green, float blue)
@@ -537,73 +556,6 @@ void vtkSlicerInteractiveTubesToTreeLogic
     }  
   }
   spatialNode->UpdatePolyDataFromSpatialObject();
-}
-
-//---------------------------------------------------------------------------=
-bool vtkSlicerInteractiveTubesToTreeLogic
-::GetSpatialObjectRootStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID)
-{
-  if (!spatialNode)
-  {
-    return false;
-  }
-  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
-
-  char childName[] = "Tube";
-  TubeNetType::ChildrenListType* tubeList =
-    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
-
-  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
-  {
-    VesselTubeType* currTube =
-      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube || currTube->GetNumberOfPoints() < 2)
-    {
-      continue;
-    }
-    if (currTube->GetId() == currTubeID)
-    {
-      return currTube->GetRoot();
-    }
-    else
-    {
-      continue;
-    }
-  }
-  return false;
-}
-
-//---------------------------------------------------------------------------=
-int vtkSlicerInteractiveTubesToTreeLogic
-::GetSpatialObjectParentIdData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID)
-{
-  if (!spatialNode)
-  {
-    return -1;
-  }
-  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
-  char childName[] = "Tube";
-  TubeNetType::ChildrenListType* tubeList =
-    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
-
-  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
-  {
-    VesselTubeType* currTube =
-      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube || currTube->GetNumberOfPoints() < 2)
-    {
-      continue;
-    }
-    if (currTube->GetId() == currTubeID)
-    {
-      return currTube->GetParentId();
-    }
-    else
-    {
-      continue;
-    }
-  }
-  return -1;
 }
 
 //---------------------------------------------------------------------------=

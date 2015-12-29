@@ -79,12 +79,12 @@ public:
   std::string SaveSpatialObjectNode(vtkMRMLSpatialObjectsNode *spatialObjectsNode);
   std::string GetOutputFileName();
   void SetOutputFileName(std::string name);
-  void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList);
+  void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList, std::vector<int>& ParentIDList,
+    std::vector<bool>& IsRootList);
+  int GetSpatialObjectNumberOfTubes(vtkMRMLSpatialObjectsNode* spatialNode);
   void SetSpatialObjectColorData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
   void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, std::set<int> tubeIDs);
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
-  bool GetSpatialObjectRootStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
-  int GetSpatialObjectParentIdData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
   bool GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
 
 protected:

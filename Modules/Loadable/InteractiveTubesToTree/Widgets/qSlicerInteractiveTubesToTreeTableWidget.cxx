@@ -337,9 +337,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::updateWidgetFromMRML()
   }
   else
   {
-    std::vector<int> TubeIdList;
-    d->logic()->GetSpatialObjectData(d->SpatialObjectsNode, TubeIdList);
-    if (TubeIdList.size() != d->TableWidget->rowCount())
+    int NumberOfTubes = d->logic()->GetSpatialObjectNumberOfTubes(d->SpatialObjectsNode);
+    if (NumberOfTubes != d->TableWidget->rowCount())
     {
       setSpatialObjectsDisplayNodeMode();
       this->buildTubeDisplayTable();
@@ -359,7 +358,9 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
     //call function in logic to get the tube information
     //call logic
     std::vector<int> TubeIdList;
-    d->logic()->GetSpatialObjectData(d->SpatialObjectsNode, TubeIdList);
+    std::vector<int> ParentIdList;
+    std::vector<bool> IsRootList;
+    d->logic()->GetSpatialObjectData(d->SpatialObjectsNode, TubeIdList, ParentIdList, IsRootList);
     if (TubeIdList.size() == 0)
     {
       qCritical("Error while reteriving Spatial Data !");
@@ -392,8 +393,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       //Is Root Column
       int isRootIndex = d->columnIndex("Is Root");
       QTableWidgetItem* isRootItem = new QTableWidgetItem();
-      bool isTubeRoot = getTubeRootStatus(newRow);
-      if(isTubeRoot)
+      if(IsRootList[i])
       {
         isRootItem->setText("Root");
       }
@@ -407,15 +407,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       //Parent Id Column
       int parentIdIndex = d->columnIndex("Parent Id");
       QTableWidgetItem* parentIdItem = new QTableWidgetItem();
-      int parentID = getTubeParentId(newRow);
-      if(parentID >= 0)
-      {
-        parentIdItem->setText(QVariant(parentID).toString());
-      }
-      else
-      {
-        parentIdItem->setText("");
-      }
+      parentIdItem->setText(QVariant(ParentIdList[i]).toString());   
       parentIdItem->setFlags(parentIdItem->flags() &  ~Qt::ItemIsEditable);
       d->TableWidget->setItem(newRow, parentIdIndex, parentIdItem);
 
@@ -493,36 +485,6 @@ bool qSlicerInteractiveTubesToTreeTableWidget::getTubeDisplayColor(QColor &TubeD
     qCritical("No ColorNode");
   }
   return true;
-}
-
-// --------------------------------------------------------------------------
-bool qSlicerInteractiveTubesToTreeTableWidget::getTubeRootStatus(int row)
-{
-  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  if (!d->SpatialObjectsDisplayNode)
-  {
-    qCritical("Error while reteriving Spatial Data tube display node !");
-    return false;
-  }
-  int tubeIDIndex = d->columnIndex("Tube ID");
-  QTableWidgetItem *tubeIDItem = d->TableWidget->item(row, tubeIDIndex);
-  int tubeID = tubeIDItem->text().toInt();
-  return d->logic()->GetSpatialObjectRootStatusData(d->SpatialObjectsNode, tubeID);
-}
-
-// --------------------------------------------------------------------------
-int qSlicerInteractiveTubesToTreeTableWidget::getTubeParentId(int row)
-{
-  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  if (!d->SpatialObjectsDisplayNode)
-  {
-    qCritical("Error while reteriving Spatial Data tube display node !");
-    return false;
-  }
-  int tubeIDIndex = d->columnIndex("Tube ID");
-  QTableWidgetItem *tubeIDItem = d->TableWidget->item(row, tubeIDIndex);
-  int tubeID = tubeIDItem->text().toInt();
-  return d->logic()->GetSpatialObjectParentIdData(d->SpatialObjectsNode, tubeID);
 }
 
 //------------------------------------------------------------------------------
