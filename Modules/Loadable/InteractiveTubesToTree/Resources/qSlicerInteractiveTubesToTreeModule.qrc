@@ -4,5 +4,6 @@
         <file alias="AnnotationPointWithArrow.png">Icons/AnnotationPointWithArrow.png</file>
         <file alias="DeleteSelected.png">Icons/DeleteSelected.png</file>
         <file alias="MarkSelected.png">Icons/MarkSelected.png</file>
+        <file alias="SelectAllRoots.png">Icons/SelectAllRoots.png</file>
     </qresource>
 </RCC>

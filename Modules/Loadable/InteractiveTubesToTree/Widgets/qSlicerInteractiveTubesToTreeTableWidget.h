@@ -82,6 +82,7 @@ public slots:
   void onClickMarkSelectedAsRoot();
   void onClickDeleteSelected();
   void onClickShowRoots(bool);
+  void onClickSelectAllRoots();
   void setSpatialObjectsDisplayNodeMode();
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
   void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);

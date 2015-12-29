@@ -198,18 +198,25 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   QObject::connect(this->TableWidget->horizontalHeader(), SIGNAL(sectionClicked(int)),
     q, SLOT(onClickHorizontalHeader(int)));
 
-  QIcon markSelectedButtonIcon;
-  markSelectedButtonIcon.addFile(QString::fromUtf8(":MarkSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
-  this->MarkSelectedAsRootPushButton->setIcon(markSelectedButtonIcon);
-
+  pushButtonIcon.addFile(QString::fromUtf8(":MarkSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->MarkSelectedAsRootPushButton->setIcon(pushButtonIcon);
   QObject::connect(this->MarkSelectedAsRootPushButton, SIGNAL(clicked()),
     q, SLOT(onClickMarkSelectedAsRoot()));
 
-  markSelectedButtonIcon.addFile(QString::fromUtf8(":DeleteSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
-  this->DeleteSelectedPushButton->setIcon(markSelectedButtonIcon);
-
+  pushButtonIcon.addFile(QString::fromUtf8(":DeleteSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->DeleteSelectedPushButton->setIcon(pushButtonIcon);
   QObject::connect(this->DeleteSelectedPushButton, SIGNAL(clicked()),
     q, SLOT(onClickDeleteSelected()));
+
+  pushButtonIcon.addFile(QString::fromUtf8(":SelectAllRoots.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->SelectAllRootsPushButton->setIcon(pushButtonIcon);
+  QObject::connect(this->SelectAllRootsPushButton, SIGNAL(clicked()),
+    q, SLOT(onClickSelectAllRoots()));
+
+  pushButtonIcon.addFile(QString::fromUtf8(":SelectAllOrphans.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->SelectAllOrphansPushButton->setIcon(pushButtonIcon);
+  QObject::connect(this->SelectAllOrphansPushButton, SIGNAL(clicked()),
+    q, SLOT(onClickSelectAllOrphans()));
 
   q->setEnabled(this->SpatialObjectsNode != 0);
 }
@@ -1032,4 +1039,25 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowRoots(bool value)
     }
   }
   return;
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onClickSelectAllRoots()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  int isRootIndex = d->columnIndex("Is Root");
+  int rowCount = d->TableWidget->rowCount();
+  for(int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+  {
+    QTableWidgetItem* item = d->TableWidget->item(rowIndex, isRootIndex);
+    if(item->text() != QString(""))
+    {
+      this->onRowTubeColorChanged(d->SelectTubeColorPicker->color(), rowIndex);
+      if(!this->isRowSelected(rowIndex,-1))
+      {
+        d->TableWidget->selectRow(rowIndex);
+      }
+    }
+  }
 }
