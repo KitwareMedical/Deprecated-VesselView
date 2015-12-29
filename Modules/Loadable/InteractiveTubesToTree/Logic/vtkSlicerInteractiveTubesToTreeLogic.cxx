@@ -371,7 +371,7 @@ int vtkSlicerInteractiveTubesToTreeLogic
 }
 //---------------------------------------------------------------------------
 void vtkSlicerInteractiveTubesToTreeLogic
-::SetSpatialObjectColorData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float green, float blue)
+::SetSpatialObjectColor(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float green, float blue)
 {
   if (!spatialNode)
   {
@@ -395,10 +395,6 @@ void vtkSlicerInteractiveTubesToTreeLogic
     {
       currTube->GetProperty()->SetColor(red, green, blue);
       break;
-    }
-    else
-    {
-      continue;
     }
   }
 }

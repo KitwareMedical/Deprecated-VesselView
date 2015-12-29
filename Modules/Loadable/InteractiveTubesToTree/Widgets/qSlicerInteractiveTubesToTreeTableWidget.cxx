@@ -527,7 +527,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onCurTubeColorChanged(const QColo
     colorMap->AddRGBPoint(currTubeID, color.redF(), color.greenF(), color.blueF());
     d->SpatialObjectsDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
 
-    d->logic()->SetSpatialObjectColorData(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
+    d->logic()->SetSpatialObjectColor(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
   }
   else
   {
@@ -569,7 +569,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onRowTubeColorChanged(const QColo
     colorMap->AddRGBPoint(currTubeID, color.redF(), color.greenF(), color.blueF());
     d->SpatialObjectsDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
 
-    d->logic()->SetSpatialObjectColorData(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
+    d->logic()->SetSpatialObjectColor(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
   }
 }
 
