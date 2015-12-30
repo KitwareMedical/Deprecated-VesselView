@@ -338,7 +338,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::updateWidgetFromMRML()
   else
   {
     int NumberOfTubes = d->logic()->GetSpatialObjectNumberOfTubes(d->SpatialObjectsNode);
-    if (NumberOfTubes != d->TableWidget->rowCount())
+    if (NumberOfTubes == d->TableWidget->rowCount())
     {
       setSpatialObjectsDisplayNodeMode();
       this->buildTubeDisplayTable();
@@ -652,15 +652,18 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickDeleteSelected()
   }
   //delete corresponding markups.
   vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
-  int numMarups = currentMarkupsNode->GetNumberOfMarkups();
-  for(int index = numMarups-1; index>=0; index--)
+  if(currentMarkupsNode)
   {
-    QString indexLabel = QString::fromStdString(currentMarkupsNode->GetNthMarkupLabel(index));
-    bool isNumeric;
-    int indexTubeId = indexLabel.toInt(&isNumeric);
-    if(isNumeric && selectedTubeID.find(indexTubeId) != selectedTubeID.end())
+    int numMarups = currentMarkupsNode->GetNumberOfMarkups();
+    for(int index = numMarups-1; index>=0; index--)
     {
-      currentMarkupsNode->RemoveMarkup(index);
+      QString indexLabel = QString::fromStdString(currentMarkupsNode->GetNthMarkupLabel(index));
+      bool isNumeric;
+      int indexTubeId = indexLabel.toInt(&isNumeric);
+      if(isNumeric && selectedTubeID.find(indexTubeId) != selectedTubeID.end())
+      {
+        currentMarkupsNode->RemoveMarkup(index);
+      }
     }
   }
   return;

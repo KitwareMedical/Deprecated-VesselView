@@ -490,7 +490,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
 
   std::set<int>::iterator it;
-  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end();++tubeIt)
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
@@ -502,54 +502,36 @@ void vtkSlicerInteractiveTubesToTreeLogic
     it = tubeIDs.find(currTubeId);
     if(it !=  tubeIDs.end())
     {
-      //get current tube Parent
-      int parentID = currTube->GetParentId();
-      std::set<int> childrenIdList;
-      //update children of "to be deleted" tube to have parent id as parent id of "to be deleted" tube.
-      TubeNetType::ChildrenListType* currTubeChildrenList = currTube->GetChildren(1, childName);
-      for (TubeNetType::ChildrenListType::iterator tubeIt1 = currTubeChildrenList->begin();
-        tubeIt1 != currTubeChildrenList->end(); ++tubeIt1)
-      {
-        VesselTubeType* currTube1 =
-      dynamic_cast<VesselTubeType*>((*tubeIt1).GetPointer());
-        if (!currTube || currTube->GetNumberOfPoints() < 2)
-        {
-          continue;
-        }
-        currTube1->SetParentId(parentID);
-        childrenIdList.insert(currTube1->GetId());
-      }
-
+      //currTube is the "to be deleted" tube
+      //update parent id of the children of "to be deleted" tube in the list of tubes under spatial object.
       for (TubeNetType::ChildrenListType::iterator tubeIt_1 = tubeList->begin(); tubeIt_1 != tubeList->end(); ++tubeIt_1)
       {
-        VesselTubeType* currTube_1 =
+        VesselTubeType* currTube1 =
           dynamic_cast<VesselTubeType*>((*tubeIt_1).GetPointer());
-        int tubeId = currTube_1->GetId();
-        it = childrenIdList.find(tubeId);
-        if(it !=  childrenIdList.end())
+        if(currTube1 && currTube1->GetParentId() == currTubeId)
         {
-          currTube_1->SetParentId(parentID);
+          currTube1->SetParentId(spatialObject->GetId());
         }
       }
-
       //delete "to be deleted" tube from children of its parent.
-      TubeNetType::ChildrenListType* currTubeParentChildrenList = currTube->GetParent()->GetChildren(1, childName);
+      TubeNetType::ChildrenListType* currTubeParentChildrenList = currTube->GetParent()->GetChildren(0, childName);
       for (TubeNetType::ChildrenListType::iterator tubeIt2 = currTubeParentChildrenList->begin();
         tubeIt2 != currTubeParentChildrenList->end(); ++tubeIt2)
       {
-        VesselTubeType* currTube2 =
+        VesselTubeType* currTube1 =
       dynamic_cast<VesselTubeType*>((*tubeIt2).GetPointer());
-        if (!currTube || currTube->GetNumberOfPoints() < 2)
+        if (!currTube1 || currTube1->GetNumberOfPoints() < 1)
         {
           continue;
         }
-        if(currTube2->GetId() == currTubeId)
+        if(currTube1->GetId() == currTubeId)
         {
-          currTube2->Clear();
+          currTube1->Clear();
           break;
         }        
-      }
-    }  
+      } 
+ //     spatialObject->RemoveSpatialObject(currTube);
+    }
   }
   spatialNode->UpdatePolyDataFromSpatialObject();
 }
