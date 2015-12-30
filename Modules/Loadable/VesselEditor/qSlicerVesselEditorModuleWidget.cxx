@@ -146,6 +146,11 @@ void qSlicerVesselEditorModuleWidget::onEnter()
   }
   this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
    d->Table, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
+  vtkMRMLNode* vtkMRMLMarkupFiducialNode = this->mrmlScene()->GetNthNodeByClass(0,"vtkMRMLMarkupsFiducialNode");
+  if(vtkMRMLMarkupFiducialNode)
+  {
+    d->Table->onNodeAddedEvent(NULL, vtkMRMLMarkupFiducialNode);
+  }
 }
 
 //------------------------------------------------------------------------------
