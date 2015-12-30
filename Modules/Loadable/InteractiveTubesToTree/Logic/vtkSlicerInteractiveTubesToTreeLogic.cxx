@@ -241,11 +241,10 @@ int vtkSlicerInteractiveTubesToTreeLogic::FindNearestTube(vtkMRMLSpatialObjectsN
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
     {
       continue;
     }
-
     int numberOfPoints = currTube->GetNumberOfPoints();
     for (int index = 0; index < numberOfPoints; index++)
     {
@@ -343,7 +342,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
     {
       continue;
     }
@@ -366,8 +365,18 @@ int vtkSlicerInteractiveTubesToTreeLogic
   char childName[] = "Tube";
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
-
-  return tubeList->size();
+  int count = 0;
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end();++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
+    {
+      continue;
+    }
+    count++;
+  }
+  return count;
 }
 //---------------------------------------------------------------------------
 void vtkSlicerInteractiveTubesToTreeLogic
@@ -387,7 +396,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
     {
       continue;
     }
@@ -432,7 +441,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
     {
       VesselTubeType* currTube =
         dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-      if (!currTube || currTube->GetNumberOfPoints() < 2)
+      if (!currTube || currTube->GetNumberOfPoints() < 1)
       {
         continue;
       }
@@ -459,11 +468,10 @@ void vtkSlicerInteractiveTubesToTreeLogic
       {
         VesselTubeType* currTube =
           dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-        if (!currTube || currTube->GetNumberOfPoints() < 2)
+        if (!currTube || currTube->GetNumberOfPoints() < 1)
         {
           continue;
         }
-
         colorMap->AddRGBPoint(currTube->GetId(), currTube->GetProperty()->GetColor().GetRed(), currTube->GetProperty()->GetColor().GetGreen(), currTube->GetProperty()->GetColor().GetBlue());
       }
       spatialDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
@@ -494,7 +502,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
     {
       continue;
     }
@@ -554,7 +562,7 @@ bool vtkSlicerInteractiveTubesToTreeLogic
   {
     VesselTubeType* currTube =
       dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
-    if (!currTube || currTube->GetNumberOfPoints() < 2)
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
     {
       continue;
     }
