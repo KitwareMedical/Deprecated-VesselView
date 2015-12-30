@@ -568,7 +568,7 @@ bool vtkSlicerInteractiveTubesToTreeLogic
     }
     if (currTube->GetId() == currTubeID)
     {
-      if(currTube->GetNumberOfChildren(spatialObject->GetMaximumDepth(), childName) > 0)
+      if(currTube->GetChildren(0, childName)->size() > 0)
       {
         return false;
       }

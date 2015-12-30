@@ -338,7 +338,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::updateWidgetFromMRML()
   else
   {
     int NumberOfTubes = d->logic()->GetSpatialObjectNumberOfTubes(d->SpatialObjectsNode);
-    if (NumberOfTubes == d->TableWidget->rowCount())
+    if (NumberOfTubes != d->TableWidget->rowCount())
     {
       setSpatialObjectsDisplayNodeMode();
       this->buildTubeDisplayTable();
@@ -934,8 +934,11 @@ void qSlicerInteractiveTubesToTreeTableWidget::restoreDefaults()
       item->setData(Qt::DisplayRole, "");
 
       this->onRowTubeColorChanged(defaultColor, i);
-    } 
-    d->MarkupsNode->RemoveAllMarkups();
+    }
+    if(d->MarkupsNode)
+    {
+      d->MarkupsNode->RemoveAllMarkups();
+    }
     d->TableWidget->clearSelection();
   }
   return;
@@ -1032,7 +1035,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onShowOrphansColorChanged(const Q
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
 
-  if (!d->SpatialObjectsDisplayNode || !d->ShowRootsPushButton->isChecked())
+  if (!d->SpatialObjectsDisplayNode || !d->ShowOrphansPushButton->isChecked())
   {
     return;
   }

@@ -228,7 +228,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
   {
     qCritical("Error while running conversion !");
   }
-
+  d->Table->buildTubeDisplayTable();
   d->ApplyPushButton->setChecked(false);
   d->ApplyPushButton->setEnabled(true);
 }
