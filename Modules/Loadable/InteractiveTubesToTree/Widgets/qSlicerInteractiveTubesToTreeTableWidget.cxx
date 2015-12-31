@@ -339,15 +339,11 @@ void qSlicerInteractiveTubesToTreeTableWidget::updateWidgetFromMRML()
   }
   else
   {
-    int NumberOfTubes = d->logic()->GetSpatialObjectNumberOfTubes(d->SpatialObjectsNode);
-    if (NumberOfTubes != d->TableWidget->rowCount())
-    {
-      setSpatialObjectsDisplayNodeMode();
-      this->buildTubeDisplayTable();
-    }
+    setSpatialObjectsDisplayNodeMode();
     return;
   }
 }
+
 // --------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
 {
@@ -664,6 +660,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickDeleteSelected()
   if(selectedTubeID.size() != 0)
   {
     d->logic()->deleteTubeFromSpatialObject(d->SpatialObjectsNode, selectedTubeID);
+    this->buildTubeDisplayTable();
   }
   //delete corresponding markups.
   vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
