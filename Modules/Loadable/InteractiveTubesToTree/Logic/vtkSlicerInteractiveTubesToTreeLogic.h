@@ -86,6 +86,7 @@ public:
   void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, std::set<int> tubeIDs);
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
   bool GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
+  std::set<int> GetSpatialObjectChildrenData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();

@@ -22,6 +22,8 @@ limitations under the License.
 =========================================================================*/
 //Qt imports
 #include <QStandardItemModel>
+#include <QSignalMapper>
+#include <QMenuBar>
 #include <QDebug>
 //CTK imports
 #include <ctkColorPickerButton.h>
@@ -367,6 +369,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       return ;
     }
 
+    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     for (int i = 0; i < TubeIdList.size(); i++)
     {
       int newRow = d->TableWidget->rowCount();
@@ -396,6 +399,17 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       if(IsRootList[i])
       {
         isRootItem->setText("Root");
+        QPushButton* showTreePushButton = new QPushButton(this);
+        showTreePushButton->setText("Root");
+        QIcon pushButtonIcon;
+        pushButtonIcon.addFile(QString::fromUtf8(":ShowTree.png"), QSize(), QIcon::Normal, QIcon::Off);
+        showTreePushButton->setIcon(pushButtonIcon);
+        QMenu *menu = new QMenu(this);
+        QAction* action = menu->addAction("Color Tree Same As Root");
+        showTreePushButton->setMenu(menu);
+        connect (action, SIGNAL(triggered()), signalMapper, SLOT(map())) ;
+        signalMapper->setMapping (action, TubeIdList[i]) ;
+        d->TableWidget->setCellWidget(newRow, isRootIndex, showTreePushButton);
       }
       else
       {
@@ -419,6 +433,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       int selectedIndex = d->columnIndex("Select As Root");
       d->TableWidget->setItem(newRow, selectedIndex, selectedItem);
     }
+    connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(onActionColorTree(int))) ;
   }
   return ;
 }
@@ -1123,6 +1138,63 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickSelectAllOrphans()
         if(!this->isRowSelected(rowIndex,-1))
         {
           d->TableWidget->selectRow(rowIndex);
+        }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onActionColorTree(int tubeID)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  QPushButton* pButton = qobject_cast<QPushButton*>(sender());
+  std::set<int> childrenIDList = d->logic()->GetSpatialObjectChildrenData(d->SpatialObjectsNode, tubeID);
+  
+  if(childrenIDList.size() != 0)
+  {
+    QColor rootColor;
+    int tubeIDIndex = d->columnIndex("Tube ID");
+    //find color of this tubeID i.e the root
+    for(int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
+    {
+      QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
+      bool isNumeric;
+      int currTubeId = item->text().toInt(&isNumeric);
+      if(isNumeric && currTubeId == tubeID)
+      {
+        int colorIndex = d->columnIndex("Color");
+        ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowIndex, colorIndex));
+        rootColor = t->color();
+        break;
+      }
+    }
+    //color all the children   
+    std::set<int>::iterator it;
+    for(int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
+    {
+      QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
+      bool isNumeric;
+      int currTubeId = item->text().toInt(&isNumeric);
+      if (isNumeric)
+      {
+        it = childrenIDList.find(currTubeId);
+        if(it != childrenIDList.end())
+        {
+          bool isSelected = false;
+          if(this->isRowSelected(rowIndex,-1))
+          {
+            isSelected = true;
+          }
+          this->onRowTubeColorChanged(rootColor, rowIndex);
+          if(this->isRowSelected(rowIndex,-1) && !isSelected)
+          {
+            d->TableWidget->selectRow(rowIndex);
+          }
+          if(!this->isRowSelected(rowIndex,-1) && isSelected)
+          {
+            d->TableWidget->selectRow(rowIndex);
+          }
         }
       }
     }
