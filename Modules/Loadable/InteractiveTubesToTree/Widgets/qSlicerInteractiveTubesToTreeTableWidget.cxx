@@ -73,7 +73,6 @@ public:
   vtkMRMLSpatialObjectsNode* SpatialObjectsNode;
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode;
   vtkMRMLMarkupsNode* MarkupsNode;
-  /// return the column index for a given QString, -1 if not a valid header
   int columnIndex(QString label);
 private:
   QStringList columnLabels;
@@ -260,7 +259,7 @@ void qSlicerInteractiveTubesToTreeTableWidget
 
   //calling tube display node
   buildTubeDisplayTable();
-  getTubeDisplayColor(defaultColor, 0);
+  buildDefaultColorMap();
 
 //  qSlicerApplication * app = qSlicerApplication::application();
 //  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
@@ -784,6 +783,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::selectRow(int rowID, int tubeID, 
   }
   if(isDefault)//un select the row and color corresponding tube in default color
   {
+    std::vector<int> color = this->defaultColorMap.find(tubeID)->second;
+    QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
     onRowTubeColorChanged(defaultColor,rowID);
     if(this->isRowSelected(rowID,-1))
     {
@@ -949,14 +950,22 @@ void qSlicerInteractiveTubesToTreeTableWidget::restoreDefaults()
   {
     int rootIndex = d->columnIndex("Select As Root");
     int colorIndex = d->columnIndex("Color");
+    int tubeIDIndex = d->columnIndex("Tube ID");
     int rowCount = d->TableWidget->rowCount();
     for(int i = 0; i < rowCount; i++)
     {
       QTableWidgetItem* item = d->TableWidget->item(i, rootIndex);
       item->setCheckState(Qt::Unchecked);
       item->setData(Qt::DisplayRole, "");
-
-      this->onRowTubeColorChanged(defaultColor, i);
+      QTableWidgetItem* item1 = d->TableWidget->item(i, tubeIDIndex);
+      bool isNumeric;
+      int currTubeId = item1->text().toInt(&isNumeric);
+      if(isNumeric)
+      {
+        std::vector<int> color = this->defaultColorMap.find(currTubeId)->second;
+        QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
+        this->onRowTubeColorChanged(defaultColor, i);
+      }
     }
     if(d->MarkupsNode)
     {
@@ -1233,5 +1242,15 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowHideTubes(bool value)
       pushButtonIcon.addFile(QString::fromUtf8(":Show.png"), QSize(), QIcon::Normal, QIcon::Off);
       pButton->setIcon(pushButtonIcon);
     }
+  }
+}
+
+// --------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::buildDefaultColorMap()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  if (d->SpatialObjectsNode != 0)
+  {
+    d->logic()->buildDefaultColorMap(d->SpatialObjectsNode, this->defaultColorMap);
   }
 }

@@ -27,6 +27,9 @@ limitations under the License.
 // Qt includes
 #include "qSlicerAbstractModuleWidget.h"
 
+//std include
+#include <map>
+
 // CTK includes
 #include <ctkVTKObject.h>
 
@@ -59,6 +62,7 @@ public:
   bool getTubeDisplayColor(QColor&, int row);
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
+  void buildDefaultColorMap();
   std::string getSelectedRootIds();
   void selectRow(int rowID, int tubeID, bool isDefault);
   void hideColumn(int colID);
@@ -105,7 +109,7 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeTableWidget);
   Q_DISABLE_COPY(qSlicerInteractiveTubesToTreeTableWidget);
-  QColor defaultColor;
+  std::map <int, std::vector<int>> defaultColorMap;
 };
 
 #endif

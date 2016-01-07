@@ -350,7 +350,6 @@ void vtkSlicerInteractiveTubesToTreeLogic
     ParentIDList.push_back(currTube->GetParentId());
     IsRootList.push_back(currTube->GetRoot());
   }
-  return ;
 }
 
 //---------------------------------------------------------------------------
@@ -584,4 +583,34 @@ std::set<int> vtkSlicerInteractiveTubesToTreeLogic
     }
   }
   return childrenIDList;
+}
+
+//---------------------------------------------------------------------------=
+void vtkSlicerInteractiveTubesToTreeLogic
+::buildDefaultColorMap(vtkMRMLSpatialObjectsNode* spatialNode, std::map <int, std::vector<int>> &defaultColorMap)
+{
+  if (!spatialNode)
+  {
+    return ;
+  }
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
+    {
+      continue;
+    }
+    std::vector<int> color;
+    color.push_back(currTube->GetProperty()->GetColor().GetRed());
+    color.push_back(currTube->GetProperty()->GetColor().GetGreen());
+    color.push_back(currTube->GetProperty()->GetColor().GetBlue());
+    defaultColorMap[currTube->GetId()] = color;
+  }
 }

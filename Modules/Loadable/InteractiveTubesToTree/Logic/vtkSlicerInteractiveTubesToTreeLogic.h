@@ -41,6 +41,7 @@ class vtkMRMLMarkupsNode;
 
 // STD includes
 #include <cstdlib>
+#include <map>
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
@@ -86,7 +87,7 @@ public:
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
   bool GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
   std::set<int> GetSpatialObjectChildrenData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
-
+  void buildDefaultColorMap(vtkMRMLSpatialObjectsNode* spatialNode, std::map <int, std::vector<int>> &defaultColorMap);
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();
   virtual ~vtkSlicerInteractiveTubesToTreeLogic();
