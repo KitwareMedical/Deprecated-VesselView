@@ -397,6 +397,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       ctkColorPickerButton* colorPicker = new ctkColorPickerButton(this);
       colorPicker->setDisplayColorName(false);
       colorPicker->setColor(TubeDisplayColor);
+      colorPicker->setWindowIconText(QVariant(TubeIdList[i]).toString());
       QObject::connect(colorPicker,
         SIGNAL(colorChanged(QColor)), this,
         SLOT(onCurTubeColorChanged(QColor)));
@@ -535,26 +536,24 @@ void qSlicerInteractiveTubesToTreeTableWidget::onCurTubeColorChanged(const QColo
   {
     return;
   }
-
-  int currRow = d->TableWidget->currentRow();
-  if (currRow != -1)
+  ctkColorPickerButton* colorPicker = qobject_cast<ctkColorPickerButton*>(sender());
+  if(!colorPicker)
   {
-    int tubeIDIndex = d->columnIndex("Tube ID");
-    int currTubeID = d->TableWidget->item(currRow, tubeIDIndex)->text().toInt();
+    return;
+  }
+  bool isNumeric;
+  int tubeID = colorPicker->windowIconText().toInt(&isNumeric);
+  if (isNumeric)
+  {
     char colorMapName[80];
     strcpy(colorMapName, d->SpatialObjectsNode->GetName());
     strcat(colorMapName, "_TubeColor");
     vtkMRMLNode* colorNode1 = d->SpatialObjectsDisplayNode->GetScene()->GetFirstNodeByName(colorMapName);
     vtkMRMLProceduralColorNode* colorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode1);
     vtkColorTransferFunction* colorMap = colorNode->GetColorTransferFunction();
-    colorMap->AddRGBPoint(currTubeID, color.redF(), color.greenF(), color.blueF());
+    colorMap->AddRGBPoint(tubeID, color.redF(), color.greenF(), color.blueF());
     d->SpatialObjectsDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
-
-    d->logic()->SetSpatialObjectColor(d->SpatialObjectsNode, currTubeID, color.redF(), color.greenF(), color.blueF());
-  }
-  else
-  {
-    qCritical("Select a Row First");
+    d->logic()->SetSpatialObjectColor(d->SpatialObjectsNode, tubeID, color.redF(), color.greenF(), color.blueF());
   }
 }
 
