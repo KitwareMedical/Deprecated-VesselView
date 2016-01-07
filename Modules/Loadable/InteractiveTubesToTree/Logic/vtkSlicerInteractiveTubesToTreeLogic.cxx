@@ -485,35 +485,21 @@ void vtkSlicerInteractiveTubesToTreeLogic
     it = tubeIDs.find(currTubeId);
     if(it !=  tubeIDs.end())
     {
-      //currTube is the "to be deleted" tube
-      //update parent id of the children of "to be deleted" tube in the list of tubes under spatial object.
-      for (TubeNetType::ChildrenListType::iterator tubeIt_1 = tubeList->begin(); tubeIt_1 != tubeList->end(); ++tubeIt_1)
+      TubeNetType::ChildrenListType* currTubeChildren =
+        currTube->GetChildren(0, childName);
+      for (TubeNetType::ChildrenListType::iterator tubeIt_1 = currTubeChildren->begin(); tubeIt_1 != currTubeChildren->end(); ++tubeIt_1)
       {
-        VesselTubeType* currTube1 =
+        VesselTubeType* child =
           dynamic_cast<VesselTubeType*>((*tubeIt_1).GetPointer());
-        if(currTube1 && currTube1->GetParentId() == currTubeId)
+        if(child)
         {
-          currTube1->SetParentId(spatialObject->GetId());
+          child->SetParentId(spatialObject->GetId());
+          spatialObject->AddSpatialObject(child);
         }
       }
-      //delete "to be deleted" tube from children of its parent.
-      TubeNetType::ChildrenListType* currTubeParentChildrenList = currTube->GetParent()->GetChildren(0, childName);
-      for (TubeNetType::ChildrenListType::iterator tubeIt2 = currTubeParentChildrenList->begin();
-        tubeIt2 != currTubeParentChildrenList->end(); ++tubeIt2)
-      {
-        VesselTubeType* currTube1 =
-      dynamic_cast<VesselTubeType*>((*tubeIt2).GetPointer());
-        if (!currTube1 || currTube1->GetNumberOfPoints() < 1)
-        {
-          continue;
-        }
-        if(currTube1->GetId() == currTubeId)
-        {
-          currTube1->Clear();
-          break;
-        }        
-      } 
- //     spatialObject->RemoveSpatialObject(currTube);
+      TubeNetType::ChildrenListType emptyChildrenList;
+      currTube->SetChildren(emptyChildrenList);       
+      currTube->GetParent()->RemoveSpatialObject(currTube);
     }
   }
   spatialNode->UpdatePolyDataFromSpatialObject();
@@ -543,7 +529,7 @@ bool vtkSlicerInteractiveTubesToTreeLogic
     }
     if (currTube->GetId() == currTubeID)
     {
-      if(currTube->GetChildren(0, childName)->size() > 0)
+      if(currTube->GetChildren(0, childName)->size() > 0 || currTube->GetRoot())
       {
         return false;
       }
