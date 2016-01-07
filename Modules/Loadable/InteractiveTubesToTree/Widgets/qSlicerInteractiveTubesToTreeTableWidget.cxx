@@ -88,7 +88,7 @@ qSlicerInteractiveTubesToTreeTableWidgetPrivate
   this->SpatialObjectsNode = 0;
   this->SpatialObjectsDisplayNode = 0;
   this->MarkupsNode = 0;
-  this->columnLabels << "Tube ID" << "Color" << "Is Root" << "Parent Id" << "Select As Root";
+  this->columnLabels << "Tube ID" << "Show/Hide" << "Color" << "Is Root" << "Parent Id" << "Select As Root";
 }
 
 // --------------------------------------------------------------------------
@@ -184,7 +184,7 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   this->TableWidget->setSelectionMode(QAbstractItemView::MultiSelection);
   this->TableWidget->setColumnCount(this->columnLabels.size());
   this->TableWidget->setHorizontalHeaderLabels(this->columnLabels);
-  this->TableWidget->horizontalHeader()->setFixedHeight(45);
+  this->TableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 
   QTableWidgetItem *selectedHeader = this->TableWidget->horizontalHeaderItem(this->columnIndex("Select As Root"));
   selectedHeader->setToolTip(QString("Click in this column to select/deselect a tube as Root"));
@@ -371,14 +371,27 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       int newRow = d->TableWidget->rowCount();
       d->TableWidget->insertRow(newRow);
       //Tube ID Column
-      int tubeIDIndex = d->columnIndex("Tube ID");
+      int colIndex = d->columnIndex("Tube ID");
       QTableWidgetItem* tubeIDItem = new QTableWidgetItem();
       tubeIDItem->setText(QVariant(TubeIdList[i]).toString());
       tubeIDItem->setFlags(tubeIDItem->flags() &  ~Qt::ItemIsEditable);
-      d->TableWidget->setItem(newRow, tubeIDIndex, tubeIDItem);
+      d->TableWidget->setItem(newRow, colIndex, tubeIDItem);
+
+      //show/Hide Column
+      colIndex = d->columnIndex("Show/Hide");
+      QPushButton* showHidePushButton = new QPushButton(this);
+      QIcon pushButtonIcon;
+      pushButtonIcon.addFile(QString::fromUtf8(":Show.png"), QSize(), QIcon::Normal, QIcon::Off);
+      showHidePushButton->setIcon(pushButtonIcon);
+      showHidePushButton->setCheckable(true);
+      showHidePushButton->setWindowIconText(QVariant(TubeIdList[i]).toString());
+      QObject::connect(showHidePushButton,
+        SIGNAL(toggled(bool)),
+        this, SLOT(onClickShowHideTubes(bool)));
+      d->TableWidget->setCellWidget(newRow, colIndex, showHidePushButton);
 
       //color column
-      int colorIndex = d->columnIndex("Color");
+      colIndex = d->columnIndex("Color");
       QColor TubeDisplayColor;
       getTubeDisplayColor(TubeDisplayColor, newRow);
       ctkColorPickerButton* colorPicker = new ctkColorPickerButton(this);
@@ -387,17 +400,16 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       QObject::connect(colorPicker,
         SIGNAL(colorChanged(QColor)), this,
         SLOT(onCurTubeColorChanged(QColor)));
-      d->TableWidget->setCellWidget(newRow, colorIndex, colorPicker);
+      d->TableWidget->setCellWidget(newRow, colIndex, colorPicker);
 
       //Is Root Column
-      int isRootIndex = d->columnIndex("Is Root");
+      colIndex = d->columnIndex("Is Root");
       QTableWidgetItem* isRootItem = new QTableWidgetItem();
       if(IsRootList[i])
       {
         isRootItem->setText("Root");
         QPushButton* showTreePushButton = new QPushButton(this);
         showTreePushButton->setText("Root");
-        QIcon pushButtonIcon;
         pushButtonIcon.addFile(QString::fromUtf8(":ShowTree.png"), QSize(), QIcon::Normal, QIcon::Off);
         showTreePushButton->setIcon(pushButtonIcon);
         QMenu *menu = new QMenu(this);
@@ -405,29 +417,29 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
         showTreePushButton->setMenu(menu);
         connect (action, SIGNAL(triggered()), signalMapper, SLOT(map())) ;
         signalMapper->setMapping (action, TubeIdList[i]) ;
-        d->TableWidget->setCellWidget(newRow, isRootIndex, showTreePushButton);
+        d->TableWidget->setCellWidget(newRow, colIndex, showTreePushButton);
       }
       else
       {
         isRootItem->setText("");
       }
       isRootItem->setFlags(isRootItem->flags() &  ~Qt::ItemIsEditable);
-      d->TableWidget->setItem(newRow, isRootIndex, isRootItem);
+      d->TableWidget->setItem(newRow, colIndex, isRootItem);
 
       //Parent Id Column
-      int parentIdIndex = d->columnIndex("Parent Id");
+      colIndex = d->columnIndex("Parent Id");
       QTableWidgetItem* parentIdItem = new QTableWidgetItem();
       parentIdItem->setText(QVariant(ParentIdList[i]).toString());   
       parentIdItem->setFlags(parentIdItem->flags() &  ~Qt::ItemIsEditable);
-      d->TableWidget->setItem(newRow, parentIdIndex, parentIdItem);
+      d->TableWidget->setItem(newRow, colIndex, parentIdItem);
 
       // Selected Column
+      colIndex = d->columnIndex("Select As Root");
       QTableWidgetItem* selectedItem = new QTableWidgetItem();
       selectedItem->setCheckState(Qt::Unchecked);
       selectedItem->setFlags(selectedItem->flags() &  ~Qt::ItemIsEditable);
-      selectedItem->setData(Qt::DisplayRole, "");
-      int selectedIndex = d->columnIndex("Select As Root");
-      d->TableWidget->setItem(newRow, selectedIndex, selectedItem);
+      selectedItem->setData(Qt::DisplayRole, "");      
+      d->TableWidget->setItem(newRow, colIndex, selectedItem);
     }
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(onActionColorTree(int))) ;
   }
@@ -1113,7 +1125,6 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowOrphans(bool value)
       }
     }
   }
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -1194,6 +1205,34 @@ void qSlicerInteractiveTubesToTreeTableWidget::onActionColorTree(int tubeID)
           }
         }
       }
+    }
+  }
+}
+
+void qSlicerInteractiveTubesToTreeTableWidget::onClickShowHideTubes(bool value)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  QPushButton* pButton = qobject_cast<QPushButton*>(sender());
+  QIcon pushButtonIcon;
+  if(!pButton)
+  {
+    return;
+  }
+  bool isNumeric;
+  int tubeID = pButton->windowIconText().toInt(&isNumeric);
+  if(isNumeric)
+  {
+    if(value) //hide it
+    {
+
+      pushButtonIcon.addFile(QString::fromUtf8(":Hide.png"), QSize(), QIcon::Normal, QIcon::Off);
+      pButton->setIcon(pushButtonIcon);         
+    }
+    else //show it
+    {
+      
+      pushButtonIcon.addFile(QString::fromUtf8(":Show.png"), QSize(), QIcon::Normal, QIcon::Off);
+      pButton->setIcon(pushButtonIcon);
     }
   }
 }

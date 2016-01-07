@@ -6,5 +6,7 @@
         <file alias="MarkSelected.png">Icons/MarkSelected.png</file>
         <file alias="SelectAllRoots.png">Icons/SelectAllRoots.png</file>
         <file alias="ShowTree.png">Icons/ShowTree.png</file>
+        <file alias="Hide.png">Icons/Hide.png</file>
+        <file alias="Show.png">Icons/Show.png</file>
     </qresource>
 </RCC>
