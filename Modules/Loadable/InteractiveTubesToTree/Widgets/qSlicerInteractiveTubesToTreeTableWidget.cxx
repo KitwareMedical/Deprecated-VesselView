@@ -765,10 +765,20 @@ int qSlicerInteractiveTubesToTreeTableWidget::getColumnIndex(std::string columnN
 void qSlicerInteractiveTubesToTreeTableWidget::selectRow(int rowID, int tubeID, bool isDefault)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-
+  
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  if(tubeID < 0 && rowID >= 0)//Find TubeID for given RowID
+  {
+    QTableWidgetItem* item = d->TableWidget->item(rowID, tubeIDIndex);
+    bool isNumeric;
+    tubeID = item->text().toInt(&isNumeric);
+    if(!isNumeric)
+    {
+      return;
+    }
+  }
   if(rowID == -1)
   {
-    int tubeIDIndex = d->columnIndex("Tube ID");
     for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
     {
       QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
