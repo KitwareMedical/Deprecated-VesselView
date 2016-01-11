@@ -353,6 +353,33 @@ void vtkSlicerInteractiveTubesToTreeLogic
 }
 
 //---------------------------------------------------------------------------
+int vtkSlicerInteractiveTubesToTreeLogic
+::GetSpatialObjectNumberOfTubes(vtkMRMLSpatialObjectsNode* spatialNode)
+{
+  if (!spatialNode)
+  {
+    return -1;
+  }
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+  int count = 0;
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end();++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
+    {
+      continue;
+    }
+    count++;
+  }
+  return count;
+}
+
+//---------------------------------------------------------------------------
 void vtkSlicerInteractiveTubesToTreeLogic
 ::SetSpatialObjectColor(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float green, float blue)
 {
