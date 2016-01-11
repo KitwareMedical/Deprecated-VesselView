@@ -696,47 +696,33 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickDeleteSelected()
 void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-/*
-  vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
-  if(!currentMarkupsNode)
-  {
-    return;
-  }
 
-  int numMarups = currentMarkupsNode->GetNumberOfMarkups();
+  //default color all the previously selected tubes
+  for (std::set<int>::iterator it=d->SpatialObjectsNode->selectTubeIds.begin(); it!=d->SpatialObjectsNode->selectTubeIds.end(); ++it)
+  {
+    std::vector<int> color = this->defaultColorMap.find(*it)->second;
+    qDebug() << color[0]<< " " << color[1] << color[2];
+    QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
+    ChangeTubeColor(defaultColor, *it, -1);
+  }   
+  //color the currently selected tubes
+  d->SpatialObjectsNode->selectTubeIds.clear();
   int tubeIDIndex = d->columnIndex("Tube ID");
   QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
-
-  for(int index = 0; index<numMarups; index++)
+  foreach (QModelIndex index, indexList)
   {
-    int flag = 0;
-    std::string indexLabel = currentMarkupsNode->GetNthMarkupLabel(index);
-    foreach (QModelIndex index, indexList)
+    int curRowID = index.row();
+    ChangeTubeColor(d->SelectTubeColorPicker->color(), -1, curRowID);
+    QTableWidgetItem* item = d->TableWidget->item(curRowID, tubeIDIndex);
+    bool isNumeric;
+    int tubeID = item->text().toInt(&isNumeric);
+    if(!isNumeric)
     {
-      int curRow = index.row();
-      QTableWidgetItem* item = d->TableWidget->item(curRow, tubeIDIndex);
-      std::string currLabel = item->text().toStdString();
-      if(currLabel.compare(indexLabel) == 0)
-      {
-        flag = 1;
-        break;
-      }
+      return;
     }
-    if(flag == 0)
-    {
-      QString label = QString::fromStdString(indexLabel);
-      bool isNumeric;
-      int indexTubeId = label.toInt(&isNumeric);
-      if(isNumeric)
-      {
-        currentMarkupsNode->RemoveMarkup(index);
-        selectRow(-1, indexTubeId, true);
-      }
-    }
+    d->SpatialObjectsNode->selectTubeIds.insert(tubeID);
   }
-
   return;
-  */
 }
 
 //------------------------------------------------------------------------------

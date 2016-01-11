@@ -201,6 +201,7 @@ double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdLi
     qCritical("In logic!! Command Line Module Node error");
     return false;
   }
+  inputNode->selectTubeIds.clear();
   std::string outputfileName = ConstructTemporaryFileName(outputNode->GetID());
   this->SetOutputFileName(outputNode->GetName());
   cmdNode->SetParameterAsString("inputTREFile", SaveSpatialObjectNode(inputNode));
@@ -526,6 +527,11 @@ void vtkSlicerInteractiveTubesToTreeLogic
       TubeNetType::ChildrenListType emptyChildrenList;
       currTube->SetChildren(emptyChildrenList);       
       currTube->GetParent()->RemoveSpatialObject(currTube);
+      std::set<int>::iterator it = spatialNode->selectTubeIds.find(currTubeId);
+      if (it != spatialNode->selectTubeIds.end())
+      {
+          spatialNode->selectTubeIds.erase(it);
+      }
     }
   }
   spatialNode->UpdatePolyDataFromSpatialObject();

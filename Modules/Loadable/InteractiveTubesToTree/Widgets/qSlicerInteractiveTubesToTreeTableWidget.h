@@ -29,6 +29,7 @@ limitations under the License.
 
 //std include
 #include <map>
+#include <set>
 
 // CTK includes
 #include <ctkVTKObject.h>
@@ -109,7 +110,7 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeTableWidget);
   Q_DISABLE_COPY(qSlicerInteractiveTubesToTreeTableWidget);
-  std::map <int, std::vector<int>> defaultColorMap;
+  std::map<int, std::vector<int>> defaultColorMap;
 };
 
 #endif
