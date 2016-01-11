@@ -8,5 +8,12 @@
         <file alias="ShowTree.png">Icons/ShowTree.png</file>
         <file alias="Hide.png">Icons/Hide.png</file>
         <file alias="Show.png">Icons/Show.png</file>
+        <file alias="ColorGreen.png">Icons/ColorGreen.png</file>
+        <file alias="ColorDefault.png">Icons/ColorDefault.png</file>
+        <file alias="ColorYellow.png">Icons/ColorYellow.png</file>
+        <file alias="Select.png">Icons/Select.png</file>
+        <file alias="ColorDefault1.png">Icons/ColorDefault1.png</file>
+        <file alias="ColorGreen1.png">Icons/ColorGreen1.png</file>
+        <file alias="ColorYellow1.png">Icons/ColorYellow1.png</file>
     </qresource>
 </RCC>

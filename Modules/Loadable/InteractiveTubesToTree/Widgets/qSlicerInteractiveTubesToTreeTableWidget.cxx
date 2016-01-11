@@ -155,7 +155,7 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   QObject::connect(this->ShowRootsColorPicker,
         SIGNAL(colorChanged(QColor)), q,
         SLOT(onShowRootsColorChanged(QColor)));
-  pushButtonIcon.addFile(QString::fromUtf8(":AnnotationPointWithArrow.png"), QSize(), QIcon::Normal, QIcon::Off);
+  pushButtonIcon.addFile(QString::fromUtf8(":ColorYellow1.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->ShowRootsPushButton->setIcon(pushButtonIcon);
   this->ShowRootsPushButton->setCheckable(true);
   QObject::connect(
@@ -167,7 +167,7 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   QObject::connect(this->ShowOrphansColorPicker,
         SIGNAL(colorChanged(QColor)), q,
         SLOT(onShowOrphansColorChanged(QColor)));
-  pushButtonIcon.addFile(QString::fromUtf8(":AnnotationPointWithArrow.png"), QSize(), QIcon::Normal, QIcon::Off);
+  pushButtonIcon.addFile(QString::fromUtf8(":ColorGreen1.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->ShowOrphansPushButton->setIcon(pushButtonIcon);
   this->ShowOrphansPushButton->setCheckable(true);
   QObject::connect(
@@ -209,12 +209,12 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   QObject::connect(this->DeleteSelectedPushButton, SIGNAL(clicked()),
     q, SLOT(onClickDeleteSelected()));
 
-  pushButtonIcon.addFile(QString::fromUtf8(":SelectAllRoots.png"), QSize(), QIcon::Normal, QIcon::Off);
+  pushButtonIcon.addFile(QString::fromUtf8(":Select.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->SelectAllRootsPushButton->setIcon(pushButtonIcon);
   QObject::connect(this->SelectAllRootsPushButton, SIGNAL(clicked()),
     q, SLOT(onClickSelectAllRoots()));
 
-  pushButtonIcon.addFile(QString::fromUtf8(":SelectAllOrphans.png"), QSize(), QIcon::Normal, QIcon::Off);
+  pushButtonIcon.addFile(QString::fromUtf8(":Select.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->SelectAllOrphansPushButton->setIcon(pushButtonIcon);
   QObject::connect(this->SelectAllOrphansPushButton, SIGNAL(clicked()),
     q, SLOT(onClickSelectAllOrphans()));
@@ -1009,9 +1009,19 @@ void qSlicerInteractiveTubesToTreeTableWidget::onShowRootsColorChanged(const QCo
 void qSlicerInteractiveTubesToTreeTableWidget::onClickShowRoots(bool value)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  QPushButton* pButton = qobject_cast<QPushButton*>(sender());
+  QIcon pushButtonIcon;
+  if(!pButton)
+  {
+    return;
+  }
+
   if(value)
   {
     this->onShowRootsColorChanged(d->ShowRootsColorPicker->color());
+    pushButtonIcon.addFile(QString::fromUtf8(":ColorDefault1.png"), QSize(), QIcon::Normal, QIcon::Off);
+    pButton->setIcon(pushButtonIcon);
   }
   else
   {
@@ -1032,6 +1042,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowRoots(bool value)
         }
       }
     }
+    pushButtonIcon.addFile(QString::fromUtf8(":ColorYellow1.png"), QSize(), QIcon::Normal, QIcon::Off);
+    pButton->setIcon(pushButtonIcon);
   }
 }
 
@@ -1083,9 +1095,19 @@ void qSlicerInteractiveTubesToTreeTableWidget::onShowOrphansColorChanged(const Q
 void qSlicerInteractiveTubesToTreeTableWidget::onClickShowOrphans(bool value)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  QPushButton* pButton = qobject_cast<QPushButton*>(sender());
+  QIcon pushButtonIcon;
+  if(!pButton)
+  {
+    return;
+  }
+
   if(value)
   {
     this->onShowOrphansColorChanged(d->ShowRootsColorPicker->color());
+    pushButtonIcon.addFile(QString::fromUtf8(":ColorDefault1.png"), QSize(), QIcon::Normal, QIcon::Off);
+    pButton->setIcon(pushButtonIcon);
   }
   else
   {
@@ -1110,6 +1132,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowOrphans(bool value)
         }
       }
     }
+    pushButtonIcon.addFile(QString::fromUtf8(":ColorGreen1.png"), QSize(), QIcon::Normal, QIcon::Off);
+    pButton->setIcon(pushButtonIcon);
   }
 }
 
