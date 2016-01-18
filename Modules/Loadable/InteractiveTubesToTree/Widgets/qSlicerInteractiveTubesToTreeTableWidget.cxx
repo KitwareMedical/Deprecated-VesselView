@@ -653,24 +653,10 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickMarkSelectedAsRoot()
 void qSlicerInteractiveTubesToTreeTableWidget::onClickDeleteSelected()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-
-  int tubeIDIndex = d->columnIndex("Tube ID");
-  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
-  std::set<int> selectedTubeID;
-  foreach (QModelIndex index, indexList)
+ 
+  if(d->SpatialObjectsNode->selectTubeIds.size() != 0)
   {
-    int curRow = index.row();
-    QTableWidgetItem* item = d->TableWidget->item(curRow, tubeIDIndex);
-    bool isNumeric;
-    int tubeID = item->text().toInt(&isNumeric);
-    if(isNumeric)
-    {
-      selectedTubeID.insert(tubeID);      
-    }  
-  } 
-  if(selectedTubeID.size() != 0)
-  {
-    d->logic()->deleteTubeFromSpatialObject(d->SpatialObjectsNode, selectedTubeID);
+    d->logic()->deleteTubeFromSpatialObject(d->SpatialObjectsNode);
     buildTubeDisplayTable();
   }
   //delete corresponding markups.
@@ -683,7 +669,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickDeleteSelected()
       QString indexLabel = QString::fromStdString(currentMarkupsNode->GetNthMarkupLabel(index));
       bool isNumeric;
       int indexTubeId = indexLabel.toInt(&isNumeric);
-      if(isNumeric && selectedTubeID.find(indexTubeId) != selectedTubeID.end())
+      if(isNumeric && d->SpatialObjectsNode->selectTubeIds.find(indexTubeId) != d->SpatialObjectsNode->selectTubeIds.end())
       {
         currentMarkupsNode->RemoveMarkup(index);
       }
@@ -701,7 +687,6 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
   for (std::set<int>::iterator it=d->SpatialObjectsNode->selectTubeIds.begin(); it!=d->SpatialObjectsNode->selectTubeIds.end(); ++it)
   {
     std::vector<int> color = this->defaultColorMap.find(*it)->second;
-    qDebug() << color[0]<< " " << color[1] << color[2];
     QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
     ChangeTubeColor(defaultColor, *it, -1);
   }   

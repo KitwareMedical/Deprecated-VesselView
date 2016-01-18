@@ -487,14 +487,14 @@ void vtkSlicerInteractiveTubesToTreeLogic
 
 //---------------------------------------------------------------------------
 void vtkSlicerInteractiveTubesToTreeLogic
-::deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, std::set<int> tubeIDs)
+::deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode)
 {
   if (!spatialNode)
   {
     return;
   }
   TubeNetType* spatialObject = spatialNode->GetSpatialObject();
-
+  std::set<int> tubeIDs = spatialNode->selectTubeIds;
   char childName[] = "Tube";
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);

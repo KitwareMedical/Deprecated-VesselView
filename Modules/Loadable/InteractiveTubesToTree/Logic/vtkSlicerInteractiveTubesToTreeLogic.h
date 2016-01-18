@@ -84,7 +84,7 @@ public:
     std::vector<bool>& IsRootList);
   int GetSpatialObjectNumberOfTubes(vtkMRMLSpatialObjectsNode* spatialNode);
   void SetSpatialObjectColor(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
-  void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, std::set<int> tubeIDs);
+  void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode);
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
   bool GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
   std::set<int> GetSpatialObjectChildrenData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
