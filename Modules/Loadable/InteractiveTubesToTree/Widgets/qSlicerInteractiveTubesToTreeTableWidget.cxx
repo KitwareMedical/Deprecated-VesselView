@@ -259,7 +259,6 @@ void qSlicerInteractiveTubesToTreeTableWidget
 
   //calling tube display node
   buildTubeDisplayTable();
-  buildDefaultColorMap();
 
 //  qSlicerApplication * app = qSlicerApplication::application();
 //  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
@@ -686,9 +685,14 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
   //default color all the previously selected tubes
   for (std::set<int>::iterator it=d->SpatialObjectsNode->selectTubeIds.begin(); it!=d->SpatialObjectsNode->selectTubeIds.end(); ++it)
   {
-    std::vector<int> color = this->defaultColorMap.find(*it)->second;
-    QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
-    ChangeTubeColor(defaultColor, *it, -1);
+    std::map<int, std::vector<int>>::iterator itDefaultColorMap;
+    itDefaultColorMap = d->SpatialObjectsNode->DefaultColorMap.find(*it);
+    if (itDefaultColorMap != d->SpatialObjectsNode->DefaultColorMap.end())
+    {
+      std::vector<int> color = d->SpatialObjectsNode->DefaultColorMap.find(*it)->second; 
+      QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
+      ChangeTubeColor(defaultColor, *it, -1);
+    }    
   }   
   //color the currently selected tubes
   d->SpatialObjectsNode->selectTubeIds.clear();
@@ -738,6 +742,10 @@ void qSlicerInteractiveTubesToTreeTableWidget::SelectTube(int tubeID, int rowID,
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
   int tubeIDIndex = d->columnIndex("Tube ID");
+  if(tubeID < 0 && rowID < 0)
+  {
+    return;
+  }
   if(tubeID < 0 && rowID >= 0)//Find TubeID for given RowID
   {
     QTableWidgetItem* item = d->TableWidget->item(rowID, tubeIDIndex);
@@ -764,13 +772,18 @@ void qSlicerInteractiveTubesToTreeTableWidget::SelectTube(int tubeID, int rowID,
   }
   if(isDefault)//un select the row and color corresponding tube in default color
   {
-    std::vector<int> color = this->defaultColorMap.find(tubeID)->second;
-    QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
-    ChangeTubeColor(defaultColor, -1, rowID);
-    if(this->isRowSelected(rowID,-1))
+    std::map<int, std::vector<int>>::iterator itDefaultColorMap;
+    itDefaultColorMap = d->SpatialObjectsNode->DefaultColorMap.find(tubeID);
+    if (itDefaultColorMap != d->SpatialObjectsNode->DefaultColorMap.end())
     {
-      d->TableWidget->selectRow(rowID);
-    }
+      std::vector<int> color = d->SpatialObjectsNode->DefaultColorMap.find(tubeID)->second; 
+      QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
+      ChangeTubeColor(defaultColor, tubeID, rowID);
+      if(this->isRowSelected(rowID,tubeID))
+      {
+        d->TableWidget->selectRow(rowID);
+      }
+    }   
   }
   else
   {//select the row and color corresponding tube in default color for selecting tube
@@ -941,9 +954,14 @@ void qSlicerInteractiveTubesToTreeTableWidget::restoreDefaults()
       int currTubeId = item1->text().toInt(&isNumeric);
       if(isNumeric)
       {
-        std::vector<int> color = this->defaultColorMap.find(currTubeId)->second;
-        QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
-        ChangeTubeColor(defaultColor, -1, i);
+        std::map<int, std::vector<int>>::iterator itDefaultColorMap;
+        itDefaultColorMap = d->SpatialObjectsNode->DefaultColorMap.find(currTubeId);
+        if (itDefaultColorMap != d->SpatialObjectsNode->DefaultColorMap.end())
+        {
+          std::vector<int> color = d->SpatialObjectsNode->DefaultColorMap.find(currTubeId)->second; 
+          QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
+          ChangeTubeColor(defaultColor, -1, i);
+        } 
       }
     }
     if(d->MarkupsNode)
@@ -1198,15 +1216,5 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowHideTubes(bool value)
       pushButtonIcon.addFile(QString::fromUtf8(":Show.png"), QSize(), QIcon::Normal, QIcon::Off);
       pButton->setIcon(pushButtonIcon);
     }
-  }
-}
-
-// --------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::buildDefaultColorMap()
-{
-  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  if (d->SpatialObjectsNode != 0)
-  {
-    d->logic()->buildDefaultColorMap(d->SpatialObjectsNode, this->defaultColorMap);
   }
 }

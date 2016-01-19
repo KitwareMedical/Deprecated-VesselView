@@ -63,7 +63,6 @@ public:
   bool getTubeDisplayColor(QColor&, int row);
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
-  void buildDefaultColorMap();
   std::string getSelectedRootIds();  
   void hideColumn(int colID);
   void hideMarkSelectedAsRootPushButton();
@@ -110,7 +109,7 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeTableWidget);
   Q_DISABLE_COPY(qSlicerInteractiveTubesToTreeTableWidget);
-  std::map<int, std::vector<int>> defaultColorMap;
+  
 };
 
 #endif
