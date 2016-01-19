@@ -1218,3 +1218,25 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowHideTubes(bool value)
     }
   }
 }
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::refreshTable()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+  
+  if (d->SpatialObjectsNode != 0 && d->SpatialObjectsDisplayNode != 0)
+  {
+    int tubeIDIndex = d->columnIndex("Tube ID");
+    for(int i = 0; i < d->TableWidget->rowCount(); i++)
+    {
+      QTableWidgetItem* item = d->TableWidget->item(i, tubeIDIndex);
+      bool isNumeric;
+      int currTubeId = item->text().toInt(&isNumeric);
+      if(isNumeric && d->SpatialObjectsNode->selectTubeIds.find(currTubeId) != d->SpatialObjectsNode->selectTubeIds.end())
+      {
+        d->TableWidget->selectRow(currTubeId);
+      }
+    }
+  }
+  return;
+}
