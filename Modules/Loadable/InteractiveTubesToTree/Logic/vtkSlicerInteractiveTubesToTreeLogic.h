@@ -70,6 +70,8 @@ public:
   typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
   typedef VesselTubeType::TubePointType                             VesselTubePointType;
   typedef itk::Point<double, 3>                                     PointType;
+  typedef std::vector< VesselTubePointType >                        PointListType;
+  typedef itk::VesselTubeSpatialObjectPoint<3>                      TestType;
 
 
   bool Apply(vtkMRMLSpatialObjectsNode* inputNode, vtkMRMLSpatialObjectsNode* outputNode, double maxTubeDistanceToRadiusRatio,
@@ -88,6 +90,8 @@ public:
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
   bool GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
   std::set<int> GetSpatialObjectChildrenData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
+  void ConnectTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int, int);
+
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();
   virtual ~vtkSlicerInteractiveTubesToTreeLogic();

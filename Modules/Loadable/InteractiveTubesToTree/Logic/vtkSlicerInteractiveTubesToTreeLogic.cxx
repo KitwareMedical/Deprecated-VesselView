@@ -617,3 +617,82 @@ std::set<int> vtkSlicerInteractiveTubesToTreeLogic
   }
   return childrenIDList;
 }
+
+//---------------------------------------------------------------------------=
+void vtkSlicerInteractiveTubesToTreeLogic
+::ConnectTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int parentTubeID, int childTubeID)
+{
+  if (!spatialNode)
+  {
+    return ;
+  }
+
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+  VesselTubePointType* startPoint;
+  VesselTubePointType* endPoint;
+  VesselTubeType* parentTube;
+  double minDistance = INT32_MAX;
+  VesselTubePointType* childNearestPoint;
+
+
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
+    {
+      continue;
+    }
+    if (currTube->GetId() == parentTubeID)
+    {
+      parentTube = currTube;
+      int numberOfPoints = currTube->GetNumberOfPoints();
+      startPoint =
+        dynamic_cast<VesselTubePointType*>(currTube->GetPoint(0));
+      endPoint =
+        dynamic_cast<VesselTubePointType*>(currTube->GetPoint(numberOfPoints-1));
+     break; 
+    }
+  }
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
+    {
+      continue;
+    }
+    if (currTube->GetId() == childTubeID)
+    {
+      int numberOfPoints = currTube->GetNumberOfPoints();
+      for (int index = 0; index < numberOfPoints; index++)
+      {
+        VesselTubePointType* tubePoint =
+          dynamic_cast<VesselTubePointType*>(currTube->GetPoint(index));
+        PointType tubePointPosition = tubePoint->GetPosition();
+        double distance = tubePointPosition.SquaredEuclideanDistanceTo(startPoint->GetPosition());
+        if (minDistance > distance)
+        {
+          minDistance = distance;
+          childNearestPoint = tubePoint;
+        }
+        distance = tubePointPosition.SquaredEuclideanDistanceTo(endPoint->GetPosition());
+        if (minDistance > distance)
+        {
+          minDistance = distance;
+          childNearestPoint = tubePoint;
+        }
+      }
+     break; 
+    }
+  }
+  PointListType parentTubePoints = parentTube->GetPoints();
+  parentTubePoints.push_back(*childNearestPoint);
+
+  spatialNode->UpdatePolyDataFromSpatialObject();
+  return ;
+}
