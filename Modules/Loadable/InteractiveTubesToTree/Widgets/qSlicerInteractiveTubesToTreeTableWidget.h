@@ -81,8 +81,10 @@ public slots:
   void onClickTubeColorPicker(const QColor&);  
   void onClickHorizontalHeader(int column);
   void onClickDeleteSelected();
-  void onClickShowRoots(bool);
-  void onClickShowOrphans(bool);
+  void onPressedShowRoots();
+  void onReleasedShowRoots();
+  void onPressedShowOrphans();
+  void onReleasedShowOrphans();
   void onClickSelectAllRoots();
   void onClickSelectAllOrphans();
   void onClickShowHideTubes(bool);

@@ -15,5 +15,6 @@
         <file alias="ColorDefault1.png">Icons/ColorDefault1.png</file>
         <file alias="ColorGreen1.png">Icons/ColorGreen1.png</file>
         <file alias="ColorYellow1.png">Icons/ColorYellow1.png</file>
+        <file alias="Highlight.png">Icons/Highlight.png</file>
     </qresource>
 </RCC>

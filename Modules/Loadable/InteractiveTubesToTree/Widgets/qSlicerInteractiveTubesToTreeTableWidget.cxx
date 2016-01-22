@@ -157,24 +157,30 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   QObject::connect(this->ShowRootsColorPicker,
         SIGNAL(colorChanged(QColor)), q,
         SLOT(onShowRootsColorChanged(QColor)));
-  pushButtonIcon.addFile(QString::fromUtf8(":ColorYellow1.png"), QSize(), QIcon::Normal, QIcon::Off);
+  pushButtonIcon.addFile(QString::fromUtf8(":Highlight.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->ShowRootsPushButton->setIcon(pushButtonIcon);
   this->ShowRootsPushButton->setCheckable(true);
   QObject::connect(
-    this->ShowRootsPushButton, SIGNAL(toggled(bool)),
-    q, SLOT(onClickShowRoots(bool)));
-  
+    this->ShowRootsPushButton, SIGNAL(pressed()),
+    q, SLOT(onPressedShowRoots()));
+  QObject::connect(
+    this->ShowRootsPushButton, SIGNAL(released()),
+    q, SLOT(onReleasedShowRoots()));
+
   this->ShowOrphansColorPicker->setColor(QColor(0,255,0));
   this->ShowOrphansColorPicker->setDisplayColorName(false);
   QObject::connect(this->ShowOrphansColorPicker,
         SIGNAL(colorChanged(QColor)), q,
         SLOT(onShowOrphansColorChanged(QColor)));
-  pushButtonIcon.addFile(QString::fromUtf8(":ColorGreen1.png"), QSize(), QIcon::Normal, QIcon::Off);
+  pushButtonIcon.addFile(QString::fromUtf8(":Highlight.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->ShowOrphansPushButton->setIcon(pushButtonIcon);
   this->ShowOrphansPushButton->setCheckable(true);
   QObject::connect(
-    this->ShowOrphansPushButton, SIGNAL(toggled(bool)),
-    q, SLOT(onClickShowOrphans(bool)));
+    this->ShowOrphansPushButton, SIGNAL(pressed()),
+    q, SLOT(onPressedShowOrphans()));
+  QObject::connect(
+    this->ShowOrphansPushButton, SIGNAL(released()),
+    q, SLOT(onReleasedShowOrphans()));
 
  // qSlicerApplication * app = qSlicerApplication::application();
  // vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
@@ -970,47 +976,36 @@ void qSlicerInteractiveTubesToTreeTableWidget::onShowRootsColorChanged(const QCo
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::onClickShowRoots(bool value)
+void qSlicerInteractiveTubesToTreeTableWidget::onPressedShowRoots()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
 
-  QPushButton* pButton = qobject_cast<QPushButton*>(sender());
-  QIcon pushButtonIcon;
-  if(!pButton)
-  {
-    return;
-  }
-
-  if(value)
-  {
-    this->onShowRootsColorChanged(d->ShowRootsColorPicker->color());
-    pushButtonIcon.addFile(QString::fromUtf8(":ColorDefault1.png"), QSize(), QIcon::Normal, QIcon::Off);
-    pButton->setIcon(pushButtonIcon);
-  }
-  else
-  {
-    int isRootIndex = d->columnIndex("Is Root");
-    int rowCount = d->TableWidget->rowCount();
-    for(int rowIndex = 0; rowIndex < rowCount; rowIndex++)
-    {
-      QTableWidgetItem* item = d->TableWidget->item(rowIndex, isRootIndex);
-      if(item->text() != QString(""))
-      {
-        if(this->isRowSelected(rowIndex,-1))
-        {
-          SelectTube(-1, rowIndex, false);
-        }
-        else
-        {
-          SelectTube(-1, rowIndex, true);
-        }
-      }
-    }
-    pushButtonIcon.addFile(QString::fromUtf8(":ColorYellow1.png"), QSize(), QIcon::Normal, QIcon::Off);
-    pButton->setIcon(pushButtonIcon);
-  }
+  this->onShowRootsColorChanged(d->ShowRootsColorPicker->color());
 }
 
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onReleasedShowRoots()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  int isRootIndex = d->columnIndex("Is Root");
+  int rowCount = d->TableWidget->rowCount();
+  for(int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+  {
+    QTableWidgetItem* item = d->TableWidget->item(rowIndex, isRootIndex);
+    if(item->text() != QString(""))
+    {
+      if(this->isRowSelected(rowIndex,-1))
+      {
+        SelectTube(-1, rowIndex, false);
+      }
+      else
+      {
+        SelectTube(-1, rowIndex, true);
+      }
+    }
+  }
+}
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::onClickSelectAllRoots()
 {
@@ -1056,48 +1051,38 @@ void qSlicerInteractiveTubesToTreeTableWidget::onShowOrphansColorChanged(const Q
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::onClickShowOrphans(bool value)
+void qSlicerInteractiveTubesToTreeTableWidget::onPressedShowOrphans()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
 
-  QPushButton* pButton = qobject_cast<QPushButton*>(sender());
-  QIcon pushButtonIcon;
-  if(!pButton)
-  {
-    return;
-  }
+  this->onShowOrphansColorChanged(d->ShowRootsColorPicker->color());
+}
 
-  if(value)
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onReleasedShowOrphans()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  for (int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
   {
-    this->onShowOrphansColorChanged(d->ShowRootsColorPicker->color());
-    pushButtonIcon.addFile(QString::fromUtf8(":ColorDefault1.png"), QSize(), QIcon::Normal, QIcon::Off);
-    pButton->setIcon(pushButtonIcon);
-  }
-  else
-  {
-    int tubeIDIndex = d->columnIndex("Tube ID");
-    for (int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
+    QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
+    bool isNumeric;
+    int currTubeId = item->text().toInt(&isNumeric);
+    if (isNumeric)
     {
-      QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
-      bool isNumeric;
-      int currTubeId = item->text().toInt(&isNumeric);
-      if (isNumeric)
+      if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
       {
-        if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
+        if(this->isRowSelected(rowIndex,-1))
         {
-          if(this->isRowSelected(rowIndex,-1))
-          {
-            SelectTube(-1, rowIndex, false);
-          }
-          else
-          {
-            SelectTube(-1, rowIndex, true);
-          }
+          SelectTube(-1, rowIndex, false);
+        }
+        else
+        {
+          SelectTube(-1, rowIndex, true);
         }
       }
     }
-    pushButtonIcon.addFile(QString::fromUtf8(":ColorGreen1.png"), QSize(), QIcon::Normal, QIcon::Off);
-    pButton->setIcon(pushButtonIcon);
   }
 }
 
