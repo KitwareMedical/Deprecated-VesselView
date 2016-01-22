@@ -62,8 +62,7 @@ public:
 
   bool getTubeDisplayColor(QColor&, int row);
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
-  void buildTubeDisplayTable();
-  std::string getSelectedRootIds();  
+  void buildTubeDisplayTable();  
   void hideColumn(int colID);
   void hideMarkSelectedAsRootPushButton();
   bool isRowSelected(int rowID, int tubeID);
@@ -81,14 +80,13 @@ public slots:
   void onShowOrphansColorChanged(const QColor&);
   void onClickTubeColorPicker(const QColor&);  
   void onClickHorizontalHeader(int column);
-  void onClickMarkSelectedAsRoot();
   void onClickDeleteSelected();
   void onClickShowRoots(bool);
   void onClickShowOrphans(bool);
   void onClickSelectAllRoots();
   void onClickSelectAllOrphans();
   void onClickShowHideTubes(bool);
-  void onActionColorTree(int);
+  void onActionColorTree();
   void setSpatialObjectsDisplayNodeMode();
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
   void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);

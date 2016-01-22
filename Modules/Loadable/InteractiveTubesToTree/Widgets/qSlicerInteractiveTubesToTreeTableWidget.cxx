@@ -87,7 +87,7 @@ qSlicerInteractiveTubesToTreeTableWidgetPrivate
   this->SpatialObjectsNode = 0;
   this->SpatialObjectsDisplayNode = 0;
   this->MarkupsNode = 0;
-  this->columnLabels << "Tube ID" << "Show/Hide" << "Color" << "Is Root" << "Parent Id" << "Select As Root";
+  this->columnLabels << "Tube ID" << "Color" << "Is Root" << "Is Artery" << "Parent Id";
 }
 
 // --------------------------------------------------------------------------
@@ -120,6 +120,7 @@ qSlicerInteractiveTubesToTreeTableWidget
   , d_ptr( new qSlicerInteractiveTubesToTreeTableWidgetPrivate(*this) )
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   d->init();
 
   // disable as there is not MRML Node associated with the widget
@@ -136,6 +137,7 @@ qSlicerInteractiveTubesToTreeTableWidget
 void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
 {
   Q_Q(qSlicerInteractiveTubesToTreeTableWidget);
+
   this->setupUi(q);
 
   this->SelectTubeColorPicker->setColor(QColor(0,0,255));
@@ -184,10 +186,7 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   this->TableWidget->setColumnCount(this->columnLabels.size());
   this->TableWidget->setHorizontalHeaderLabels(this->columnLabels);
   this->TableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-
-  QTableWidgetItem *selectedHeader = this->TableWidget->horizontalHeaderItem(this->columnIndex("Select As Root"));
-  selectedHeader->setToolTip(QString("Click in this column to select/deselect a tube as Root"));
-
+  
   // listen for click on a cell
   QObject::connect(this->TableWidget, SIGNAL(itemClicked(QTableWidgetItem*)),
     q, SLOT(onTableCellClicked(QTableWidgetItem*)));
@@ -200,9 +199,9 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
     q, SLOT(onClickHorizontalHeader(int)));
 
   pushButtonIcon.addFile(QString::fromUtf8(":MarkSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
-  this->MarkSelectedAsRootPushButton->setIcon(pushButtonIcon);
-  QObject::connect(this->MarkSelectedAsRootPushButton, SIGNAL(clicked()),
-    q, SLOT(onClickMarkSelectedAsRoot()));
+  this->ApplyColorPushButton->setIcon(pushButtonIcon);
+//  QObject::connect(this->MarkSelectedAsRootPushButton, SIGNAL(clicked()),
+//    q, SLOT(onClickMarkSelectedAsRoot()));
 
   pushButtonIcon.addFile(QString::fromUtf8(":DeleteSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->DeleteSelectedPushButton->setIcon(pushButtonIcon);
@@ -219,6 +218,13 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   QObject::connect(this->SelectAllOrphansPushButton, SIGNAL(clicked()),
     q, SLOT(onClickSelectAllOrphans()));
 
+  pushButtonIcon.addFile(QString::fromUtf8(":Show.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->ShowHidePushButton->setIcon(pushButtonIcon);
+  this->ShowHidePushButton->setCheckable(true);
+  QObject::connect(this->ShowHidePushButton,
+        SIGNAL(toggled(bool)),
+        q, SLOT(onClickShowHideTubes(bool)));
+
   q->setEnabled(this->SpatialObjectsNode != 0);
 }
 
@@ -227,6 +233,7 @@ vtkMRMLSpatialObjectsDisplayNode* qSlicerInteractiveTubesToTreeTableWidget::
 SpatialObjectsDisplayNode() const
 {
   Q_D(const qSlicerInteractiveTubesToTreeTableWidget);
+
   return d->SpatialObjectsDisplayNode;
 }
 
@@ -243,7 +250,7 @@ void qSlicerInteractiveTubesToTreeTableWidget
 ::setSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  qCritical("\nIn set Spatial Object Node\n");
+
   if (d->SpatialObjectsNode == node)
   {
     return;
@@ -281,6 +288,7 @@ setSpatialObjectsDisplayNode(vtkMRMLSpatialObjectsDisplayNode*
 SpatialObjectsDisplayNode)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   if (d->SpatialObjectsDisplayNode == SpatialObjectsDisplayNode)
   {
     return;
@@ -311,6 +319,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::setSpatialObjectsDisplayNodeMode(
 void qSlicerInteractiveTubesToTreeTableWidget::updateMRMLFromWidget()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   qSlicerApplication * app = qSlicerApplication::application();
 //  vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
  // if (d->SelectTubesPushButton->isChecked())
@@ -327,6 +336,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::updateMRMLFromWidget()
 void qSlicerInteractiveTubesToTreeTableWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
  // qSlicerApplication * app = qSlicerApplication::application();
  // vtkMRMLInteractionNode* interactionNode = app->applicationLogic()->GetInteractionNode();
 //  d->SelectTubesPushButton->setChecked(interactionNode->GetCurrentInteractionMode()== interactionNode->Place);
@@ -350,6 +360,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::updateWidgetFromMRML()
 void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   if (d->SpatialObjectsNode != 0)
   {
     this->setEnabled(1);
@@ -367,7 +378,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       return ;
     }
 
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
+    QIcon pushButtonIcon;
     for (int i = 0; i < TubeIdList.size(); i++)
     {
       int newRow = d->TableWidget->rowCount();
@@ -378,19 +389,6 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       tubeIDItem->setText(QVariant(TubeIdList[i]).toString());
       tubeIDItem->setFlags(tubeIDItem->flags() &  ~Qt::ItemIsEditable);
       d->TableWidget->setItem(newRow, colIndex, tubeIDItem);
-
-      //show/Hide Column
-      colIndex = d->columnIndex("Show/Hide");
-      QPushButton* showHidePushButton = new QPushButton(this);
-      QIcon pushButtonIcon;
-      pushButtonIcon.addFile(QString::fromUtf8(":Show.png"), QSize(), QIcon::Normal, QIcon::Off);
-      showHidePushButton->setIcon(pushButtonIcon);
-      showHidePushButton->setCheckable(true);
-      showHidePushButton->setWindowIconText(QVariant(TubeIdList[i]).toString());
-      QObject::connect(showHidePushButton,
-        SIGNAL(toggled(bool)),
-        this, SLOT(onClickShowHideTubes(bool)));
-      d->TableWidget->setCellWidget(newRow, colIndex, showHidePushButton);
 
       //color column
       colIndex = d->columnIndex("Color");
@@ -411,16 +409,40 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       if(IsRootList[i])
       {
         isRootItem->setText("Root");
-        QPushButton* showTreePushButton = new QPushButton(this);
-        showTreePushButton->setText("Root");
-        pushButtonIcon.addFile(QString::fromUtf8(":ShowTree.png"), QSize(), QIcon::Normal, QIcon::Off);
-        showTreePushButton->setIcon(pushButtonIcon);
-        QMenu *menu = new QMenu(this);
-        QAction* action = menu->addAction("Color Tree Same As Root");
-        showTreePushButton->setMenu(menu);
-        connect (action, SIGNAL(triggered()), signalMapper, SLOT(map())) ;
-        signalMapper->setMapping (action, TubeIdList[i]) ;
-        d->TableWidget->setCellWidget(newRow, colIndex, showTreePushButton);
+        if(d->logic()->GetSpatialObjectChildrenData(d->SpatialObjectsNode, TubeIdList[i]).size() != 0)
+        {      
+          QPushButton* showTreePushButton = new QPushButton(this);
+          showTreePushButton->setText("Root");
+          QMenu *menu = new QMenu(this);
+          QAction* colorAction = menu->addAction("Color Tree");
+          colorAction->setData(QVariant(TubeIdList[i]));
+          QObject::connect(colorAction,
+            SIGNAL(triggered()), this,
+            SLOT(onActionColorTree()));
+          QAction* hideAction = menu->addAction("Hide Tree");
+          hideAction->setData(QVariant(TubeIdList[i]));          
+          QObject::connect(hideAction,
+            SIGNAL(triggered()), this,
+            SLOT(onActionHideTree()));
+          QAction* displayAction = menu->addAction("Propogate Display Properties");
+          displayAction->setData(QVariant(TubeIdList[i]));          
+          QObject::connect(displayAction,
+            SIGNAL(triggered()), this,
+            SLOT(onActionDisplayPropertiesTree()));
+          QAction* propogateOpacityAction = menu->addAction("Propogate Opacity");
+          propogateOpacityAction->setData(QVariant(TubeIdList[i]));          
+          QObject::connect(propogateOpacityAction,
+            SIGNAL(triggered()), this,
+            SLOT(onActionPropogateOpacityTree()));
+          QAction* arteryAction = menu->addAction("Progogate Artery Status");
+          arteryAction->setData(QVariant(TubeIdList[i]));          
+          QObject::connect(arteryAction,
+            SIGNAL(triggered()), this,
+            SLOT(onActionPropogateArteryStatus()));
+
+          showTreePushButton->setMenu(menu);
+          d->TableWidget->setCellWidget(newRow, colIndex, showTreePushButton);
+        }
       }
       else
       {
@@ -435,16 +457,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       parentIdItem->setText(QVariant(ParentIdList[i]).toString());   
       parentIdItem->setFlags(parentIdItem->flags() &  ~Qt::ItemIsEditable);
       d->TableWidget->setItem(newRow, colIndex, parentIdItem);
-
-      // Selected Column
-      colIndex = d->columnIndex("Select As Root");
-      QTableWidgetItem* selectedItem = new QTableWidgetItem();
-      selectedItem->setCheckState(Qt::Unchecked);
-      selectedItem->setFlags(selectedItem->flags() &  ~Qt::ItemIsEditable);
-      selectedItem->setData(Qt::DisplayRole, "");      
-      d->TableWidget->setItem(newRow, colIndex, selectedItem);
     }
-    connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(onActionColorTree(int))) ;
+    
   }
   return ;
 }
@@ -453,24 +467,10 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
 void qSlicerInteractiveTubesToTreeTableWidget::onTableCellClicked(QTableWidgetItem* item)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   if (item == 0)
   {
     return;
-  }
-  int column = item->column();
-  if (column == d->columnIndex(QString("Select As Root")) )
-  {
-    // toggle the user role, the icon update is triggered by this change
-    if (item->checkState() == QVariant(false))
-    {
-      item->setCheckState(Qt::Checked);
-      item->setData(Qt::DisplayRole, "Root");
-    }
-    else
-    {
-      item->setCheckState(Qt::Unchecked);
-      item->setData(Qt::DisplayRole, "");
-    }
   }
 }
 
@@ -478,6 +478,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTableCellClicked(QTableWidgetIt
 bool qSlicerInteractiveTubesToTreeTableWidget::getTubeDisplayColor(QColor &TubeDisplayColor, int row)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   if (!d->SpatialObjectsDisplayNode)
   {
     qCritical("Error while reteriving Spatial Data tube display node !");
@@ -595,57 +596,11 @@ void qSlicerInteractiveTubesToTreeTableWidget::ChangeTubeColor(const QColor &col
 }
 
 //------------------------------------------------------------------------------
-std::string qSlicerInteractiveTubesToTreeTableWidget::getSelectedRootIds()
-{
-  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-
-  std::string selectedRoodtIds = "";
-  int selectedIndex = d->columnIndex("Select As Root");
-  int rowCount = d->TableWidget->rowCount();
-  for (int row = 0; row < rowCount; row++)
-  {
-    QTableWidgetItem *itemSelectRootId = d->TableWidget->item(row, selectedIndex);
-    if (itemSelectRootId->checkState() == Qt::Checked)
-    {
-      int tubeIDIndex = d->columnIndex("Tube ID");
-      QTableWidgetItem *itemTubeId = d->TableWidget->item(row, tubeIDIndex);
-      selectedRoodtIds += itemTubeId->text().toStdString();
-      selectedRoodtIds += ", ";
-    }
-  }
-  return selectedRoodtIds;
-}
-
-//------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::onClickHorizontalHeader(int column)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  if (column == d->columnIndex(QString("Select As Root")))
-  {
-    d->TableWidget->sortByColumn(column, Qt::DescendingOrder);
-  }
+
   d->TableWidget->sortByColumn(column);
-}
-
-//------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::onClickMarkSelectedAsRoot()
-{
-  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-
-  int selectedIndex = d->columnIndex("Select As Root");
-  QList<QTableWidgetItem *> selectedItems = d->TableWidget->selectedItems();
-  QTableWidgetItem * item;
-  for each (item in selectedItems)
-  {
-    int currRow = item->row();
-    int currColumn = item->column();
-    if (currColumn == selectedIndex)
-    {
-      item->setCheckState(Qt::Checked);
-      item->setData(Qt::DisplayRole, "Root");
-    }
-  }
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -718,14 +673,15 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
 void qSlicerInteractiveTubesToTreeTableWidget::hideMarkSelectedAsRootPushButton()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  d->MarkSelectedAsRootPushButton->setHidden(true);
-  d->MarkSelectedLabel->setHidden(true);
+//  d->MarkSelectedAsRootPushButton->setHidden(true);
+//  d->MarkSelectedLabel->setHidden(true);
 }
 
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::hideColumn(int colID)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   d->TableWidget->hideColumn(colID);
 }
 
@@ -733,6 +689,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::hideColumn(int colID)
 int qSlicerInteractiveTubesToTreeTableWidget::getColumnIndex(std::string columnName)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   int index = d->columnIndex(QString(columnName.c_str()));
   return index;
 }
@@ -741,6 +698,7 @@ int qSlicerInteractiveTubesToTreeTableWidget::getColumnIndex(std::string columnN
 void qSlicerInteractiveTubesToTreeTableWidget::SelectTube(int tubeID, int rowID, bool isDefault)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   int tubeIDIndex = d->columnIndex("Tube ID");
   if(tubeID < 0 && rowID < 0)
   {
@@ -769,6 +727,10 @@ void qSlicerInteractiveTubesToTreeTableWidget::SelectTube(int tubeID, int rowID,
         break;
       }
     }
+  }
+  if(rowID < 0 || tubeID < 0)
+  {
+    return;
   }
   if(isDefault)//un select the row and color corresponding tube in default color
   {
@@ -799,6 +761,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::SelectTube(int tubeID, int rowID,
 bool qSlicerInteractiveTubesToTreeTableWidget::isRowSelected(int rowID, int tubeID)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   if(tubeID != -1)
   {
     int tubeIDIndex = d->columnIndex("Tube ID");
@@ -883,6 +846,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onMarkupAddEvent()
 void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs(int index)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   if (d->MarkupsNode)
   {
     vtkMRMLMarkupsNode* currentMarkupsNode = d->MarkupsNode;
@@ -940,15 +904,11 @@ void qSlicerInteractiveTubesToTreeTableWidget::restoreDefaults()
   
   if (d->SpatialObjectsNode != 0 && d->SpatialObjectsDisplayNode != 0)
   {
-    int rootIndex = d->columnIndex("Select As Root");
     int colorIndex = d->columnIndex("Color");
     int tubeIDIndex = d->columnIndex("Tube ID");
     int rowCount = d->TableWidget->rowCount();
     for(int i = 0; i < rowCount; i++)
     {
-      QTableWidgetItem* item = d->TableWidget->item(i, rootIndex);
-      item->setCheckState(Qt::Unchecked);
-      item->setData(Qt::DisplayRole, "");
       QTableWidgetItem* item1 = d->TableWidget->item(i, tubeIDIndex);
       bool isNumeric;
       int currTubeId = item1->text().toInt(&isNumeric);
@@ -1148,9 +1108,20 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickSelectAllOrphans()
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::onActionColorTree(int tubeID)
+void qSlicerInteractiveTubesToTreeTableWidget::onActionColorTree()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  QAction* pAction = qobject_cast<QAction*>(sender());
+  int tubeID;
+  if(pAction)
+  {
+    tubeID = pAction->data().toInt();
+  }
+  else
+  {
+    return;
+  }
   std::set<int> childrenIDList = d->logic()->GetSpatialObjectChildrenData(d->SpatialObjectsNode, tubeID);
   
   if(childrenIDList.size() != 0)
@@ -1194,6 +1165,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::onActionColorTree(int tubeID)
 void qSlicerInteractiveTubesToTreeTableWidget::onClickShowHideTubes(bool value)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
   QPushButton* pButton = qobject_cast<QPushButton*>(sender());
   QIcon pushButtonIcon;
   if(!pButton)
