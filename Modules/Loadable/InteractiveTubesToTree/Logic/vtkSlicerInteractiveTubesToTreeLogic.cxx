@@ -326,7 +326,8 @@ void vtkSlicerInteractiveTubesToTreeLogic
 ::GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode,
   std::vector<int>& TubeIDList,
   std::vector<int>& ParentIDList,
-  std::vector<bool>& IsRootList)
+  std::vector<bool>& IsRootList,
+  std::vector<bool>& IsArtery)
 {
   if (!spatialNode)
   {
@@ -349,6 +350,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
     TubeIDList.push_back(currTube->GetId());
     ParentIDList.push_back(currTube->GetParentId());
     IsRootList.push_back(currTube->GetRoot());
+    IsArtery.push_back(currTube->GetArtery());
   }
 }
 

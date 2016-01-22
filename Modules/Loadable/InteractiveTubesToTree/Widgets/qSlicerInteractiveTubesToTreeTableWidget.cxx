@@ -371,7 +371,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
     std::vector<int> TubeIdList;
     std::vector<int> ParentIdList;
     std::vector<bool> IsRootList;
-    d->logic()->GetSpatialObjectData(d->SpatialObjectsNode, TubeIdList, ParentIdList, IsRootList);
+    std::vector<bool> IsArteryList;
+    d->logic()->GetSpatialObjectData(d->SpatialObjectsNode, TubeIdList, ParentIdList, IsRootList, IsArteryList);
     if (TubeIdList.size() == 0)
     {
       qCritical("Error while reteriving Spatial Data !");
@@ -450,6 +451,20 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       }
       isRootItem->setFlags(isRootItem->flags() &  ~Qt::ItemIsEditable);
       d->TableWidget->setItem(newRow, colIndex, isRootItem);
+
+      //Is Artery Column
+      colIndex = d->columnIndex("Is Artery");
+      QTableWidgetItem* isArteryItem = new QTableWidgetItem();
+      if(IsArteryList[i])
+      {
+        isArteryItem->setText("Artery");
+      }
+      else
+      {
+        isArteryItem->setText("");
+      }
+      isArteryItem->setFlags(isRootItem->flags() &  ~Qt::ItemIsEditable);
+      d->TableWidget->setItem(newRow, colIndex, isArteryItem);
 
       //Parent Id Column
       colIndex = d->columnIndex("Parent Id");

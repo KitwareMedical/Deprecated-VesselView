@@ -83,7 +83,7 @@ public:
   std::string GetOutputFileName();
   void SetOutputFileName(std::string name);
   void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList, std::vector<int>& ParentIDList,
-    std::vector<bool>& IsRootList);
+    std::vector<bool>& IsRootList, std::vector<bool>& IsArteryList);
   int GetSpatialObjectNumberOfTubes(vtkMRMLSpatialObjectsNode* spatialNode);
   void SetSpatialObjectColor(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
   void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode);
