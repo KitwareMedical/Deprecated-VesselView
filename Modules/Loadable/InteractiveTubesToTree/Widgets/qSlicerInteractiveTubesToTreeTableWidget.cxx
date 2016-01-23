@@ -206,8 +206,6 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
 
   pushButtonIcon.addFile(QString::fromUtf8(":MarkSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->ApplyColorPushButton->setIcon(pushButtonIcon);
-//  QObject::connect(this->MarkSelectedAsRootPushButton, SIGNAL(clicked()),
-//    q, SLOT(onClickMarkSelectedAsRoot()));
 
   pushButtonIcon.addFile(QString::fromUtf8(":DeleteSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->DeleteSelectedPushButton->setIcon(pushButtonIcon);
@@ -372,8 +370,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
     this->setEnabled(1);
     //reset the table data
     d->TableWidget->setRowCount(0);
-    //call function in logic to get the tube information
-    //call logic
+
     std::vector<int> TubeIdList;
     std::vector<int> ParentIdList;
     std::vector<bool> IsRootList;
@@ -544,10 +541,11 @@ void qSlicerInteractiveTubesToTreeTableWidget::onSelectTubeColorChanged(const QC
   {
     return;
   }
-  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
+  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedRows();
   foreach (QModelIndex index, indexList)
   {
-    ChangeTubeColor(color, -1, index.row());
+    int tubeID = this->getTubeIDfromRowID(index.row());
+    this->SelectTube(tubeID,index.row());
   }
 }
 
@@ -567,17 +565,14 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickTubeColorPicker(const QCol
   }
   bool isNumeric;
   int tubeID = colorPicker->windowIconText().toInt(&isNumeric);
-  if (isNumeric)
+  if (isNumeric && ChangeSpatialObjectColorMap(color,tubeID))
   {
-    char colorMapName[80];
-    strcpy(colorMapName, d->SpatialObjectsNode->GetName());
-    strcat(colorMapName, "_TubeColor");
-    vtkMRMLNode* colorNode1 = d->SpatialObjectsDisplayNode->GetScene()->GetFirstNodeByName(colorMapName);
-    vtkMRMLProceduralColorNode* colorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode1);
-    vtkColorTransferFunction* colorMap = colorNode->GetColorTransferFunction();
-    colorMap->AddRGBPoint(tubeID, color.redF(), color.greenF(), color.blueF());
-    d->SpatialObjectsDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
     d->logic()->SetSpatialObjectColor(d->SpatialObjectsNode, tubeID, color.redF(), color.greenF(), color.blueF());
+  }
+  int rowID = this->getRowIDfromTubeID(tubeID);
+  if(this->isRowSelected(rowID,tubeID))
+  {
+    this->SelectTube(tubeID, rowID);
   }
 }
 
@@ -591,29 +586,41 @@ void qSlicerInteractiveTubesToTreeTableWidget::ChangeTubeColor(const QColor &col
     return;
   }
   int colorIndex = d->columnIndex("Color");
-  if (rowID >= 0)
-  {    
-    ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowID, colorIndex));
-    t->setColor(color);
-    return;
-  }
-  if(tubeID >=0)
+  if(rowID < 0)
   {
-    //find row corresponding to this tube in the table
-    int tubeIDIndex = d->columnIndex("Tube ID");
-    for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
+    if(tubeID < 0)
     {
-      QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
-      bool isNumeric;
-      int currTubeId = item->text().toInt(&isNumeric);
-      if (isNumeric && currTubeId == tubeID)
-      {
-        ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(indexRow, colorIndex));
-        t->setColor(color);
-        return;
-      }
+      return;
     }
+    rowID = this->getRowIDfromTubeID(tubeID);
   }
+  ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowID, colorIndex));
+  t->setColor(color);
+  return;
+}
+
+//------------------------------------------------------------------------------
+bool qSlicerInteractiveTubesToTreeTableWidget::ChangeSpatialObjectColorMap(const QColor &color, int tubeID)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if (!d->SpatialObjectsDisplayNode)
+  {
+    return false;
+  }
+  char colorMapName[80];
+  strcpy(colorMapName, d->SpatialObjectsNode->GetName());
+  strcat(colorMapName, "_TubeColor");
+  vtkMRMLNode* colorNode1 = d->SpatialObjectsDisplayNode->GetScene()->GetFirstNodeByName(colorMapName);
+  vtkMRMLProceduralColorNode* colorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode1);
+  if(colorNode)
+  {
+    vtkColorTransferFunction* colorMap = colorNode->GetColorTransferFunction();
+    colorMap->AddRGBPoint(tubeID, color.redF(), color.greenF(), color.blueF());
+    d->SpatialObjectsDisplayNode->SetAndObserveColorNodeID(colorNode->GetID());
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -658,44 +665,26 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTableSelectionChanged()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
 
-  //default color all the previously selected tubes
   for (std::set<int>::iterator it=d->SpatialObjectsNode->selectTubeIds.begin(); it!=d->SpatialObjectsNode->selectTubeIds.end(); ++it)
   {
-    std::map<int, std::vector<int>>::iterator itDefaultColorMap;
-    itDefaultColorMap = d->SpatialObjectsNode->DefaultColorMap.find(*it);
-    if (itDefaultColorMap != d->SpatialObjectsNode->DefaultColorMap.end())
-    {
-      std::vector<int> color = d->SpatialObjectsNode->DefaultColorMap.find(*it)->second; 
-      QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
-      ChangeTubeColor(defaultColor, *it, -1);
-    }    
-  }   
-  //color the currently selected tubes
+    int tubeID = *it;
+    int rowID = this->getRowIDfromTubeID(tubeID);
+    int colorIndex = d->columnIndex("Color");
+    ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowID, colorIndex));
+    QColor tubeColor = t->color();
+    this->ChangeSpatialObjectColorMap(tubeColor,tubeID);  
+  }
   d->SpatialObjectsNode->selectTubeIds.clear();
   int tubeIDIndex = d->columnIndex("Tube ID");
-  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
+  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedRows();
   foreach (QModelIndex index, indexList)
   {
     int curRowID = index.row();
-    ChangeTubeColor(d->SelectTubeColorPicker->color(), -1, curRowID);
-    QTableWidgetItem* item = d->TableWidget->item(curRowID, tubeIDIndex);
-    bool isNumeric;
-    int tubeID = item->text().toInt(&isNumeric);
-    if(!isNumeric)
-    {
-      return;
-    }
+    int tubeID = this->getTubeIDfromRowID(curRowID);
     d->SpatialObjectsNode->selectTubeIds.insert(tubeID);
+    this->SelectTube(tubeID,curRowID);   
   }
   return;
-}
-
-//------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::hideMarkSelectedAsRootPushButton()
-{
-  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-//  d->MarkSelectedAsRootPushButton->setHidden(true);
-//  d->MarkSelectedLabel->setHidden(true);
 }
 
 //------------------------------------------------------------------------------
@@ -716,66 +705,95 @@ int qSlicerInteractiveTubesToTreeTableWidget::getColumnIndex(std::string columnN
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::SelectTube(int tubeID, int rowID, bool isDefault)
+void qSlicerInteractiveTubesToTreeTableWidget::SelectTube(int tubeID, int rowID)
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
 
-  int tubeIDIndex = d->columnIndex("Tube ID");
-  if(tubeID < 0 && rowID < 0)
+  if(tubeID < 0)
   {
     return;
   }
-  if(tubeID < 0 && rowID >= 0)//Find TubeID for given RowID
+  if(rowID < 0)
   {
-    QTableWidgetItem* item = d->TableWidget->item(rowID, tubeIDIndex);
-    bool isNumeric;
-    tubeID = item->text().toInt(&isNumeric);
-    if(!isNumeric)
+    rowID = this->getRowIDfromTubeID(tubeID);
+    if (rowID < 0)
     {
       return;
     }
   }
-  if(rowID < 0)// Find RowID for given TubeID
+  
+  QColor selectionColor =  d->SelectTubeColorPicker->color();
+  this->ChangeSpatialObjectColorMap(selectionColor,tubeID);
+  if(!this->isRowSelected(rowID))
   {
-    for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
-    {
-      QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
-      bool isNumeric;
-      int currTubeId = item->text().toInt(&isNumeric);
-      if (isNumeric && currTubeId == tubeID)
-      {
-        rowID = indexRow;
-        break;
-      }
-    }
-  }
-  if(rowID < 0 || tubeID < 0)
+    d->TableWidget->selectRow(rowID);
+  } 
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::unSelectTube(int tubeID, int rowID)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  if(tubeID < 0)
   {
     return;
   }
-  if(isDefault)//un select the row and color corresponding tube in default color
+  if(rowID < 0)
   {
-    std::map<int, std::vector<int>>::iterator itDefaultColorMap;
-    itDefaultColorMap = d->SpatialObjectsNode->DefaultColorMap.find(tubeID);
-    if (itDefaultColorMap != d->SpatialObjectsNode->DefaultColorMap.end())
+    rowID = this->getRowIDfromTubeID(tubeID);
+    if (rowID < 0)
     {
-      std::vector<int> color = d->SpatialObjectsNode->DefaultColorMap.find(tubeID)->second; 
-      QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
-      ChangeTubeColor(defaultColor, tubeID, rowID);
-      if(this->isRowSelected(rowID,tubeID))
-      {
-        d->TableWidget->selectRow(rowID);
-      }
-    }   
+      return;
+    }
+  }
+
+  int colorIndex = d->columnIndex("Color");
+  ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowID, colorIndex));
+  QColor tubeColor = t->color();
+  this->ChangeSpatialObjectColorMap(tubeColor,tubeID);
+  if(this->isRowSelected(rowID))
+  {
+    d->TableWidget->selectRow(rowID);
+  } 
+}
+
+//------------------------------------------------------------------------------
+int qSlicerInteractiveTubesToTreeTableWidget::getTubeIDfromRowID(int rowID)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  QTableWidgetItem* item = d->TableWidget->item(rowID, tubeIDIndex);
+  bool isNumeric;
+  int tubeID = item->text().toInt(&isNumeric);
+  if(!isNumeric)
+  {
+    return -1;
   }
   else
-  {//select the row and color corresponding tube in default color for selecting tube
-    ChangeTubeColor(d->SelectTubeColorPicker->color(), -1, rowID);
-    if(!this->isRowSelected(rowID,-1))
+  {
+    return tubeID;
+  }
+}
+
+//------------------------------------------------------------------------------
+int qSlicerInteractiveTubesToTreeTableWidget::getRowIDfromTubeID(int tubeID)
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  int tubeIDIndex = d->columnIndex("Tube ID");
+  for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
+  {
+    QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
+    bool isNumeric;
+    int currTubeId = item->text().toInt(&isNumeric);
+    if (isNumeric && currTubeId == tubeID)
     {
-      d->TableWidget->selectRow(rowID);
+      return indexRow;
     }
-  }  
+  }
+  return -1;
 }
 
 //------------------------------------------------------------------------------
@@ -783,30 +801,11 @@ bool qSlicerInteractiveTubesToTreeTableWidget::isRowSelected(int rowID, int tube
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
 
-  if(tubeID != -1)
+  if(tubeID < 0)
   {
-    int tubeIDIndex = d->columnIndex("Tube ID");
-    for (int indexRow = 0; indexRow < d->TableWidget->rowCount(); indexRow++)
-    {
-      QTableWidgetItem* item = d->TableWidget->item(indexRow, tubeIDIndex);
-      bool isNumeric;
-      int currTubeId = item->text().toInt(&isNumeric);
-      if (isNumeric && currTubeId == tubeID)
-      {
-        rowID = indexRow;
-        break;
-      }
-    }
+    tubeID = this->getTubeIDfromRowID(rowID);
   }
-  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedIndexes();
-  foreach (QModelIndex index, indexList)
-  {
-    if (rowID == index.row())
-    {
-      return true;
-    }
-  }
-  return false;
+  return (d->SpatialObjectsNode->selectTubeIds.find(tubeID) != d->SpatialObjectsNode->selectTubeIds.end());
 }
 
 // --------------------------------------------------------------------------
@@ -899,7 +898,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs(int index)
           {            
             currentMarkupsNode->RemoveMarkup(i);
             currentMarkupsNode->RemoveMarkup(index-1);
-            SelectTube(TubeID, -1, true); 
+            unSelectTube(TubeID); 
             return;
           }
         }
@@ -912,7 +911,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs(int index)
         {
           currentMarkupsNode->SetNthMarkupVisibility(index, true);
         }
-        SelectTube(TubeID, -1, false);     
+        SelectTube(TubeID);   
       }
     }
   }
@@ -925,21 +924,18 @@ void qSlicerInteractiveTubesToTreeTableWidget::restoreDefaults()
   
   if (d->SpatialObjectsNode != 0 && d->SpatialObjectsDisplayNode != 0)
   {
-    int colorIndex = d->columnIndex("Color");
     int tubeIDIndex = d->columnIndex("Tube ID");
     int rowCount = d->TableWidget->rowCount();
     for(int i = 0; i < rowCount; i++)
     {
-      QTableWidgetItem* item1 = d->TableWidget->item(i, tubeIDIndex);
-      bool isNumeric;
-      int currTubeId = item1->text().toInt(&isNumeric);
-      if(isNumeric)
+      int currTubeId = this->getTubeIDfromRowID(i); 
+      if(currTubeId >= 0)
       {
-        std::map<int, std::vector<int>>::iterator itDefaultColorMap;
+        std::map<int, std::vector<double>>::iterator itDefaultColorMap;
         itDefaultColorMap = d->SpatialObjectsNode->DefaultColorMap.find(currTubeId);
         if (itDefaultColorMap != d->SpatialObjectsNode->DefaultColorMap.end())
         {
-          std::vector<int> color = d->SpatialObjectsNode->DefaultColorMap.find(currTubeId)->second; 
+          std::vector<double> color = d->SpatialObjectsNode->DefaultColorMap.find(currTubeId)->second; 
           QColor defaultColor = QColor::fromRgbF(color[0], color[1], color[2]);
           ChangeTubeColor(defaultColor, -1, i);
         } 
@@ -970,7 +966,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::onShowRootsColorChanged(const QCo
     QTableWidgetItem* item = d->TableWidget->item(rowIndex, isRootIndex);
     if(item->text() != QString(""))
     {
-      ChangeTubeColor(color, -1, rowIndex);
+      int tubeID = this->getTubeIDfromRowID(rowIndex);
+      this->ChangeSpatialObjectColorMap(color, tubeID);
     }
   }
 }
@@ -995,13 +992,14 @@ void qSlicerInteractiveTubesToTreeTableWidget::onReleasedShowRoots()
     QTableWidgetItem* item = d->TableWidget->item(rowIndex, isRootIndex);
     if(item->text() != QString(""))
     {
-      if(this->isRowSelected(rowIndex,-1))
+      int tubeID = this->getTubeIDfromRowID(rowIndex);
+      if(this->isRowSelected(rowIndex))
       {
-        SelectTube(-1, rowIndex, false);
+        SelectTube(tubeID, rowIndex);
       }
       else
       {
-        SelectTube(-1, rowIndex, true);
+        unSelectTube(tubeID, rowIndex);
       }
     }
   }
@@ -1018,7 +1016,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickSelectAllRoots()
     QTableWidgetItem* item = d->TableWidget->item(rowIndex, isRootIndex);
     if(item->text() != QString(""))
     {
-      SelectTube(-1, rowIndex, false);
+      int tubeID = this->getTubeIDfromRowID(rowIndex);
+      SelectTube(tubeID, rowIndex);
     }
   }
 }
@@ -1036,17 +1035,12 @@ void qSlicerInteractiveTubesToTreeTableWidget::onShowOrphansColorChanged(const Q
   int tubeIDIndex = d->columnIndex("Tube ID");
   for (int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
   {
-    QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
-    bool isNumeric;
-    int currTubeId = item->text().toInt(&isNumeric);
-    if (isNumeric)
+    int currTubeId = this->getTubeIDfromRowID(rowIndex);
+    if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
     {
-      bool isSelected = false;
-      if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
-      {
-        ChangeTubeColor(d->ShowOrphansColorPicker->color(), -1, rowIndex);
-      }
-    }
+      int tubeID = this->getTubeIDfromRowID(rowIndex);
+      this->ChangeSpatialObjectColorMap(d->ShowOrphansColorPicker->color(), tubeID);
+    }    
   }
 }
 
@@ -1066,20 +1060,18 @@ void qSlicerInteractiveTubesToTreeTableWidget::onReleasedShowOrphans()
   int tubeIDIndex = d->columnIndex("Tube ID");
   for (int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
   {
-    QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
-    bool isNumeric;
-    int currTubeId = item->text().toInt(&isNumeric);
-    if (isNumeric)
+    int currTubeId = this->getTubeIDfromRowID(rowIndex);
+    if (currTubeId >= 0)
     {
       if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
       {
-        if(this->isRowSelected(rowIndex,-1))
+        if(this->isRowSelected(rowIndex))
         {
-          SelectTube(-1, rowIndex, false);
+          SelectTube(currTubeId, rowIndex);
         }
         else
         {
-          SelectTube(-1, rowIndex, true);
+          unSelectTube(currTubeId, rowIndex);
         }
       }
     }
@@ -1094,15 +1086,10 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickSelectAllOrphans()
   int tubeIDIndex = d->columnIndex("Tube ID");
   for (int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
   {
-    QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
-    bool isNumeric;
-    int currTubeId = item->text().toInt(&isNumeric);
-    if (isNumeric)
+    int currTubeId = this->getTubeIDfromRowID(rowIndex);
+    if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
     {
-      if(d->logic()->GetSpatialObjectOrphanStatusData(d->SpatialObjectsNode, currTubeId))
-      {
-        SelectTube(-1, rowIndex, false);
-      }
+      SelectTube(currTubeId, rowIndex);
     }
   }
 }
@@ -1129,34 +1116,21 @@ void qSlicerInteractiveTubesToTreeTableWidget::onActionColorTree()
     QColor rootColor;
     int tubeIDIndex = d->columnIndex("Tube ID");
     //find color of this tubeID i.e the root
-    for(int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
-    {
-      QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
-      bool isNumeric;
-      int currTubeId = item->text().toInt(&isNumeric);
-      if(isNumeric && currTubeId == tubeID)
-      {
-        int colorIndex = d->columnIndex("Color");
-        ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowIndex, colorIndex));
-        rootColor = t->color();
-        break;
-      }
-    }
+    int rowID = this->getRowIDfromTubeID(tubeID);
+    int colorIndex = d->columnIndex("Color");
+    ctkColorPickerButton* t = qobject_cast<ctkColorPickerButton*>(d->TableWidget->cellWidget(rowID, colorIndex));
+    rootColor = t->color();
+
     //color all the children   
     std::set<int>::iterator it;
     for(int rowIndex = 0; rowIndex < d->TableWidget->rowCount(); rowIndex++)
     {
-      QTableWidgetItem* item = d->TableWidget->item(rowIndex, tubeIDIndex);
-      bool isNumeric;
-      int currTubeId = item->text().toInt(&isNumeric);
-      if (isNumeric)
+      int currTubeId = this->getTubeIDfromRowID(rowIndex);
+      it = childrenIDList.find(currTubeId);
+      if(it != childrenIDList.end())
       {
-        it = childrenIDList.find(currTubeId);
-        if(it != childrenIDList.end())
-        {
-          ChangeTubeColor(rootColor, -1, rowIndex);
-        }
-      }
+        ChangeTubeColor(rootColor, currTubeId, rowIndex);
+      }    
     }
   }
 }
@@ -1202,9 +1176,8 @@ void qSlicerInteractiveTubesToTreeTableWidget::refreshTable()
     for(int i = 0; i < d->TableWidget->rowCount(); i++)
     {
       QTableWidgetItem* item = d->TableWidget->item(i, tubeIDIndex);
-      bool isNumeric;
-      int currTubeId = item->text().toInt(&isNumeric);
-      if(isNumeric && d->SpatialObjectsNode->selectTubeIds.find(currTubeId) != d->SpatialObjectsNode->selectTubeIds.end())
+      int currTubeId = this->getTubeIDfromRowID(i);
+      if(d->SpatialObjectsNode->selectTubeIds.find(currTubeId) != d->SpatialObjectsNode->selectTubeIds.end())
       {
         d->TableWidget->selectRow(currTubeId);
       }

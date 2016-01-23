@@ -62,13 +62,16 @@ public:
 
   bool getTubeDisplayColor(QColor&, int row);
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
-  void buildTubeDisplayTable();  
+  void buildTubeDisplayTable();
   void hideColumn(int colID);
-  void hideMarkSelectedAsRootPushButton();
-  bool isRowSelected(int rowID, int tubeID);
+  bool isRowSelected(int rowID, int tubeID = -1);
   int getColumnIndex(std::string columnName);
-  void ChangeTubeColor(const QColor &color, int tubeID, int rowID);
-  void SelectTube(int tubeID, int rowID, bool isDefault);
+  void ChangeTubeColor(const QColor &color, int tubeID, int rowID = -1);
+  bool ChangeSpatialObjectColorMap(const QColor &color, int tubeID);
+  void SelectTube(int tubeID, int rowID = -1);
+  void unSelectTube(int tubeID, int rowID = -1);
+  int getTubeIDfromRowID(int rowID);
+  int getRowIDfromTubeID(int tubeID);
 
 public slots:
   /// Set the MRML node of interest

@@ -245,7 +245,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
   d->Table->buildTubeDisplayTable();
   for (std::set<int>::iterator it=copySelectedTubeIds.begin(); it!=copySelectedTubeIds.end(); ++it)
   {
-    d->Table->SelectTube(*it,-1,false);
+    d->Table->SelectTube(*it);
   }
   d->ApplyPushButton->setChecked(false);
   d->ApplyPushButton->setEnabled(true);
