@@ -91,6 +91,7 @@ public slots:
   void onClickSelectAllRoots();
   void onClickSelectAllOrphans();
   void onClickShowHideTubes(bool);
+  void onClickApplyColor();
   void onActionColorTree();
   void setSpatialObjectsDisplayNodeMode();
   void onNodeAddedEvent(vtkObject*, vtkObject* node);

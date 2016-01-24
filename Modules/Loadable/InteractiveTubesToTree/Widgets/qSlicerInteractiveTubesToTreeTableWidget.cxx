@@ -206,6 +206,8 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
 
   pushButtonIcon.addFile(QString::fromUtf8(":MarkSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->ApplyColorPushButton->setIcon(pushButtonIcon);
+  QObject::connect(this->ApplyColorPushButton, SIGNAL(clicked()),
+    q, SLOT(onClickApplyColor()));
 
   pushButtonIcon.addFile(QString::fromUtf8(":DeleteSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->DeleteSelectedPushButton->setIcon(pushButtonIcon);
@@ -657,7 +659,6 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickDeleteSelected()
       }
     }
   }
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -1184,4 +1185,16 @@ void qSlicerInteractiveTubesToTreeTableWidget::refreshTable()
     }
   }
   return;
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onClickApplyColor()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  for (std::set<int>::iterator it=d->SpatialObjectsNode->selectTubeIds.begin(); it!=d->SpatialObjectsNode->selectTubeIds.end(); ++it)
+  {
+    QColor tubeColor = d->SelectTubeColorPicker->color();
+    this->ChangeTubeColor(tubeColor,*it); 
+  }
 }
