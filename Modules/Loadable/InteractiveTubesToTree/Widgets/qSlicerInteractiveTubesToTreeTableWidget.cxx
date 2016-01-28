@@ -1147,22 +1147,17 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowHideTubes(bool value)
   {
     return;
   }
-  bool isNumeric;
-  int tubeID = pButton->windowIconText().toInt(&isNumeric);
-  if(isNumeric)
+  if(value) //hide it
   {
-    if(value) //hide it
-    {
-
-      pushButtonIcon.addFile(QString::fromUtf8(":Hide.png"), QSize(), QIcon::Normal, QIcon::Off);
-      pButton->setIcon(pushButtonIcon);         
-    }
-    else //show it
-    {
-      
-      pushButtonIcon.addFile(QString::fromUtf8(":Show.png"), QSize(), QIcon::Normal, QIcon::Off);
-      pButton->setIcon(pushButtonIcon);
-    }
+    d->SpatialObjectsDisplayNode->ScalarVisibilityOff();
+    pushButtonIcon.addFile(QString::fromUtf8(":Hide.png"), QSize(), QIcon::Normal, QIcon::Off);
+    pButton->setIcon(pushButtonIcon);         
+  }
+  else //show it
+  {
+    d->SpatialObjectsDisplayNode->ScalarVisibilityOn(); 
+    pushButtonIcon.addFile(QString::fromUtf8(":Show.png"), QSize(), QIcon::Normal, QIcon::Off);
+    pButton->setIcon(pushButtonIcon);
   }
 }
 
