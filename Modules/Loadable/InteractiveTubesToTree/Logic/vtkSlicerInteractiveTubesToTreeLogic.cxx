@@ -495,7 +495,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
     return;
   }
   TubeNetType* spatialObject = spatialNode->GetSpatialObject();
-  std::set<int> tubeIDs = spatialNode->selectTubeIds;
+  const std::set<int> tubeIDs = spatialNode->GetSelectedTubeIds();
   char childName[] = "Tube";
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
@@ -528,11 +528,7 @@ void vtkSlicerInteractiveTubesToTreeLogic
       TubeNetType::ChildrenListType emptyChildrenList;
       currTube->SetChildren(emptyChildrenList);       
       currTube->GetParent()->RemoveSpatialObject(currTube);
-      std::set<int>::iterator it = spatialNode->selectTubeIds.find(currTubeId);
-      if (it != spatialNode->selectTubeIds.end())
-      {
-          spatialNode->selectTubeIds.erase(it);
-      }
+      spatialNode->EraseSelectedTube(currTubeId);
     }
   }
   spatialNode->UpdatePolyDataFromSpatialObject();

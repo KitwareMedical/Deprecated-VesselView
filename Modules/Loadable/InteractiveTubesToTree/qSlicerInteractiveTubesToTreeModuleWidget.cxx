@@ -218,15 +218,16 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
   double maxTubeDistanceToRadiusRatio = d->MaxTubeDistanceToRadiusSliderWidget->value();
   double maxContinuityAngleError = d->MaxContinuityAngleErrorSliderWidget->value();
   bool removeOrphanTubes = d->RemoveOrphanTubesCheckBox->isChecked();
+  const std::set<int> selectedTubeIds = d->inputSpatialObject->GetSelectedTubeIds();
 
   //getting root ids from the text box
   std::string rootTubeIdList = d->RootTubeIDListLineEdit->text().toStdString();
-  if(rootTubeIdList.compare("") == 0 && d->inputSpatialObject->selectTubeIds.size() == 0)
+  if(rootTubeIdList.compare("") == 0 && selectedTubeIds.size() == 0)
   {
     return;
   }
   //getting root ids from the table
-  std::set<int> copySelectedTubeIds = d->inputSpatialObject->selectTubeIds;
+  std::set<int> copySelectedTubeIds = selectedTubeIds;
   std::string selectedRootIds = "";
   for (std::set<int>::iterator it=copySelectedTubeIds.begin(); it!=copySelectedTubeIds.end(); ++it)
   {
@@ -235,7 +236,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
   rootTubeIdList = rootTubeIdList + " ," + selectedRootIds;
 
   d->ApplyPushButton->setEnabled(false);
-  d->inputSpatialObject->selectTubeIds.clear();
+  d->inputSpatialObject->ClearSelectedTubes();
 
   if (!d->logic()->Apply(d->inputSpatialObject, d->outputSpatialObject, maxTubeDistanceToRadiusRatio,
     maxContinuityAngleError, removeOrphanTubes, rootTubeIdList))
