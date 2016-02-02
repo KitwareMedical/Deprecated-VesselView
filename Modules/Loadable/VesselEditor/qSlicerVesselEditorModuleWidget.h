@@ -38,6 +38,7 @@ public:
   typedef qSlicerAbstractModuleWidget Superclass;
   qSlicerVesselEditorModuleWidget(QWidget *parent=0);
   virtual ~qSlicerVesselEditorModuleWidget();
+  virtual void enter();
 
 public slots:
   void setInputSpatialObjectsNode(vtkMRMLNode* node);
@@ -47,6 +48,7 @@ protected:
   QScopedPointer<qSlicerVesselEditorModuleWidgetPrivate> d_ptr;
 
   virtual void setup();
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerVesselEditorModuleWidget);

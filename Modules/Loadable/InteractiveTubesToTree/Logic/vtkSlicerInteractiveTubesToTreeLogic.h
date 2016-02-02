@@ -41,6 +41,7 @@ class vtkMRMLMarkupsNode;
 
 // STD includes
 #include <cstdlib>
+#include <map>
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
@@ -63,10 +64,14 @@ public:
   vtkSlicerSpatialObjectsLogic* GetSpatialObjectsLogic();
 
   // typdefs
+  typedef itk::GroupSpatialObject<3>                                TubeNetType1;
+  typedef TubeNetType1::Pointer                                     TubeNetPointerType;
   typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
   typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
   typedef VesselTubeType::TubePointType                             VesselTubePointType;
   typedef itk::Point<double, 3>                                     PointType;
+  typedef std::vector< VesselTubePointType >                        PointListType;
+  typedef itk::VesselTubeSpatialObjectPoint<3>                      TestType;
 
 
   bool Apply(vtkMRMLSpatialObjectsNode* inputNode, vtkMRMLSpatialObjectsNode* outputNode, double maxTubeDistanceToRadiusRatio,
@@ -77,10 +82,15 @@ public:
   std::string SaveSpatialObjectNode(vtkMRMLSpatialObjectsNode *spatialObjectsNode);
   std::string GetOutputFileName();
   void SetOutputFileName(std::string name);
-  void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList);
-  void SetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
-  void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, std::set<int> tubeIDs);
+  void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList, std::vector<int>& ParentIDList,
+    std::vector<bool>& IsRootList, std::vector<bool>& IsArteryList);
+  int GetSpatialObjectNumberOfTubes(vtkMRMLSpatialObjectsNode* spatialNode);
+  void SetSpatialObjectColor(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
+  void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode);
   void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
+  bool GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
+  std::set<int> GetSpatialObjectChildrenData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
+  void ConnectTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int, int);
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();

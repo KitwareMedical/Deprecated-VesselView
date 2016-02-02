@@ -57,7 +57,6 @@ public slots:
   void setOutputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
   void restoreDefaults();
   void runConversion();
-  void onNodeAddedEvent(vtkObject*, vtkObject* node);
 
 protected:
   QScopedPointer<qSlicerInteractiveTubesToTreeModuleWidgetPrivate> d_ptr;

@@ -27,6 +27,10 @@ limitations under the License.
 // Qt includes
 #include "qSlicerAbstractModuleWidget.h"
 
+//std include
+#include <map>
+#include <set>
+
 // CTK includes
 #include <ctkVTKObject.h>
 
@@ -56,29 +60,46 @@ public:
   qSlicerInteractiveTubesToTreeTableWidget(QWidget *parent=0);
   virtual ~qSlicerInteractiveTubesToTreeTableWidget();
 
-  bool qSlicerInteractiveTubesToTreeTableWidget::getTubeDisplayColor(QColor&, int row);
+  bool getTubeDisplayColor(QColor&, int row);
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
-  std::string getSelectedRootIds();
-  void selectRow(int rowID, int tubeID, bool isDefault);
-  bool isRowSelected(int rowID, int tubeID);
+  void hideColumn(int colID);
+  bool isRowSelected(int rowID, int tubeID = -1);
+  int getColumnIndex(std::string columnName);
+  void ChangeTubeColor(const QColor &color, int tubeID, int rowID = -1);
+  bool ChangeSpatialObjectColorMap(const QColor &color, int tubeID);
+  void SelectTube(int tubeID, int rowID = -1);
+  void unSelectTube(int tubeID, int rowID = -1);
+  int getTubeIDfromRowID(int rowID);
+  int getRowIDfromTubeID(int tubeID);
 
 public slots:
   /// Set the MRML node of interest
   void setSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
   void setSpatialObjectsNode(vtkMRMLNode* node);
   void onTableCellClicked(QTableWidgetItem* item);
-  void onCurTubeColorChanged(const QColor&);
-  void onRowTubeColorChanged(const QColor &color, int rowID);
+  void onSelectTubeColorChanged(const QColor&);
+  void onShowRootsColorChanged(const QColor&);
+  void onShowOrphansColorChanged(const QColor&);
+  void onClickTubeColorPicker(const QColor&);  
   void onClickHorizontalHeader(int column);
-  void onClickMarkSelectedAsRoot();
   void onClickDeleteSelected();
+  void onPressedShowRoots();
+  void onReleasedShowRoots();
+  void onPressedShowOrphans();
+  void onReleasedShowOrphans();
+  void onClickSelectAllRoots();
+  void onClickSelectAllOrphans();
+  void onClickShowHideTubes(bool);
+  void onClickApplyColor();
+  void onActionColorTree();
   void setSpatialObjectsDisplayNodeMode();
   void onNodeAddedEvent(vtkObject*, vtkObject* node);
   void onNthMarkupModifiedEvent(vtkObject *caller, vtkObject *callData);
   void onMarkupAddEvent();
   void findTubeIDs(int n);
   void restoreDefaults();
+  void refreshTable();
 
 protected slots:
   void updateWidgetFromMRML();
@@ -93,7 +114,7 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeTableWidget);
   Q_DISABLE_COPY(qSlicerInteractiveTubesToTreeTableWidget);
-  QColor defaultColor;
+  
 };
 
 #endif

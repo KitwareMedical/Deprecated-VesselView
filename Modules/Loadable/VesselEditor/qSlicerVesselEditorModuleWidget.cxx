@@ -32,6 +32,7 @@ limitations under the License.
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
+#include "vtkMRMLScene.h"
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -117,6 +118,34 @@ void qSlicerVesselEditorModuleWidgetPrivate::init()
   QObject::connect(
     this->ApplyPushButton, SIGNAL( clicked() ),
     q, SLOT( runConversion() ) );
+
+  QObject::connect(
+    this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
+}
+
+//------------------------------------------------------------------------------
+void qSlicerVesselEditorModuleWidget::enter()
+{
+  this->onEnter();
+  this->Superclass::enter();
+}
+
+//------------------------------------------------------------------------------
+void qSlicerVesselEditorModuleWidget::onEnter()
+{
+  Q_D(qSlicerVesselEditorModuleWidget);
+  if (this->mrmlScene() == 0)
+  {
+    return;
+  }
+  this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
+   d->Table, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
+  vtkMRMLNode* vtkMRMLMarkupFiducialNode = this->mrmlScene()->GetNthNodeByClass(0,"vtkMRMLMarkupsFiducialNode");
+  if(vtkMRMLMarkupFiducialNode)
+  {
+    d->Table->onNodeAddedEvent(NULL, vtkMRMLMarkupFiducialNode);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -148,4 +177,5 @@ void qSlicerVesselEditorModuleWidget::restoreDefaults()
   d->MergeVesselsLineEdit->setText( "" );
   d->DeleteVesselsLineEdit->setText( "" );
   d->ApplyPushButton->setEnabled( d->inputSpatialObject != 0 );
+  d->Table->restoreDefaults();
 }

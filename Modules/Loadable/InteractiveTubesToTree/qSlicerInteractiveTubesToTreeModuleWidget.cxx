@@ -130,6 +130,7 @@ void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
     this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
     this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
 }
+
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget::enter()
 {
@@ -147,6 +148,11 @@ void qSlicerInteractiveTubesToTreeModuleWidget::onEnter()
   }
   this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
    d->Table, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
+  vtkMRMLNode* vtkMRMLMarkupFiducialNode = this->mrmlScene()->GetNthNodeByClass(0,"vtkMRMLMarkupsFiducialNode");
+  if(vtkMRMLMarkupFiducialNode)
+  {
+    d->Table->onNodeAddedEvent(NULL, vtkMRMLMarkupFiducialNode);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -212,22 +218,36 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
   double maxTubeDistanceToRadiusRatio = d->MaxTubeDistanceToRadiusSliderWidget->value();
   double maxContinuityAngleError = d->MaxContinuityAngleErrorSliderWidget->value();
   bool removeOrphanTubes = d->RemoveOrphanTubesCheckBox->isChecked();
+  const std::set<int> selectedTubeIds = d->inputSpatialObject->GetSelectedTubeIds();
 
   //getting root ids from the text box
   std::string rootTubeIdList = d->RootTubeIDListLineEdit->text().toStdString();
+  if(rootTubeIdList.compare("") == 0 && selectedTubeIds.size() == 0)
+  {
+    return;
+  }
   //getting root ids from the table
-  std::string selectedRoodtIds = d->Table->getSelectedRootIds();
-
-  rootTubeIdList = rootTubeIdList + " ," + selectedRoodtIds;
+  std::set<int> copySelectedTubeIds = selectedTubeIds;
+  std::string selectedRootIds = "";
+  for (std::set<int>::iterator it=copySelectedTubeIds.begin(); it!=copySelectedTubeIds.end(); ++it)
+  {
+    selectedRootIds = std::to_string(*it) + " ," + selectedRootIds;
+  }
+  rootTubeIdList = rootTubeIdList + " ," + selectedRootIds;
 
   d->ApplyPushButton->setEnabled(false);
+  d->inputSpatialObject->ClearSelectedTubes();
 
   if (!d->logic()->Apply(d->inputSpatialObject, d->outputSpatialObject, maxTubeDistanceToRadiusRatio,
     maxContinuityAngleError, removeOrphanTubes, rootTubeIdList))
   {
     qCritical("Error while running conversion !");
   }
-
+  d->Table->buildTubeDisplayTable();
+  for (std::set<int>::iterator it=copySelectedTubeIds.begin(); it!=copySelectedTubeIds.end(); ++it)
+  {
+    d->Table->SelectTube(*it);
+  }
   d->ApplyPushButton->setChecked(false);
   d->ApplyPushButton->setEnabled(true);
 }
@@ -237,16 +257,4 @@ vtkMRMLSpatialObjectsNode* qSlicerInteractiveTubesToTreeModuleWidget::mrmlSpatia
 {
   Q_D(const qSlicerInteractiveTubesToTreeModuleWidget);
   return d->inputSpatialObject;
-}
-
-// --------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeModuleWidget::onNodeAddedEvent(vtkObject*, vtkObject* node)
-{
-  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    return;
-  }
-//  d->Table->onNodeAddedEvent(node);
 }
