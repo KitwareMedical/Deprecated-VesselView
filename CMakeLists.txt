@@ -38,7 +38,7 @@ include(OSXVariables) # Must be called before "project"
 project(${kit})
 
 #-----------------------------------------------------------------------------
-# Configure necessaries cmakes
+# Configure necessary cmakes
 #
 
 # Configure Use${kit}.cmake

@@ -32,7 +32,7 @@ set(${APPLICATION_NAME}_DEPENDENCIES Slicer)
 #SET(${APPLICATION_NAME}_EXTERNAL_LIBRARY_DIRS)
 
 #-----------------------------------------------------------------------------
-# Git protocole option
+# Git protocol option
 #
 option(${APPLICATION_NAME}_USE_GIT_PROTOCOL "If behind a firewall turn this OFF to use http instead." ON)
 

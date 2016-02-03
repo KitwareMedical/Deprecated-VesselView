@@ -71,7 +71,7 @@ GutenbergFontAwesomeMacro(
   )
 
 # --------------------------------------------------------------------------
-# Application Library
+# Application library
 # --------------------------------------------------------------------------
 set(APPLIB_NAME "q${PROJECT_NAME}")
 
