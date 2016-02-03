@@ -55,13 +55,6 @@ configure_file(
   @ONLY
   )
 
-# Configure External_${kit}Libs.cmake
-#configure_file(
-#  ${${kit}_CMAKE_SOURCE_DIR}/External_ApplicationLibs.cmake.in
-# ${${kit}_CMAKE_BINARY_DIR}/Superbuild/External_${kit}Libs.cmake
-#  @ONLY
-#  )
-
 #-----------------------------------------------------------------------------
 include(CTest)
 
@@ -166,8 +159,7 @@ add_subdirectory(Modules)
 
 #-----------------------------------------------------------------------------
 # Superbuild script
-#
-
+#-----------------------------------------------------------------------------
 if(${kit}_SUPERBUILD)
   add_subdirectory(${${kit}_SUPERBUILD_DIR})
   return()

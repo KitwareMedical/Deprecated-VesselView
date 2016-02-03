@@ -121,42 +121,6 @@ set(APPLIB_INCLUDE_DIRECTORIES
   ${FONT_AWESOME_DIR}
   )
 
-
-
-
-
-
-# --------------------------------------------------------------------------
-# Translation
-# --------------------------------------------------------------------------
-set(KIT_LIBRARY_NAME "q${PROJECT_NAME}")
-
-if(Slicer_BUILD_I18N_SUPPORT)
-  set(TS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Translations/")
-  get_property(Slicer_LANGUAGES GLOBAL PROPERTY Slicer_LANGUAGES)
-
-  include(${Slicer_SOURCE_DIR}/CMake/SlicerMacroTranslation.cmake)
-  SlicerMacroTranslation(
-    SRCS ${SlicerApp_SRCS}
-    UI_SRCS ${SlicerApp_UI_SRCS}
-    TS_DIR ${TS_DIR}
-    TS_BASEFILENAME ${KIT_LIBRARY_NAME}
-    TS_LANGUAGES ${Slicer_LANGUAGES}
-    QM_OUTPUT_DIR_VAR QM_OUTPUT_DIR
-    QM_OUTPUT_FILES_VAR QM_OUTPUT_FILES
-    )
-
-  set_property(GLOBAL APPEND PROPERTY Slicer_QM_OUTPUT_DIRS ${QM_OUTPUT_DIR})
-endif()
-
-
-if(Q_WS_MAC)
-  set(apple_icon_file App.icns)
-  set(apple_bundle_sources "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Icons/Medium/${apple_icon_file}")
-endif()
-
-
-
 configure_file(
   qSlicerAppExport.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/qSlicerAppExport.h

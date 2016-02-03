@@ -16,22 +16,15 @@
 #
 #============================================================================
 
-#
-# Slicer
-#
 set(proj Slicer)
 
-# Set dependency list
 set(${proj}_DEPENDENCIES "")
-
-# Include dependent projects if any
 ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj DEPENDS_VAR ${proj}_DEPENDENCIES)
 
 if(${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   message(FATAL_ERROR "Enabling ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj} is not supported")
 endif()
 
-# Sanity checks
 if(DEFINED ${proj}_DIR AND NOT EXISTS ${${proj}_DIR})
   message(FATAL_ERROR "${proj}_DIR variable is defined but corresponds to nonexistent directory")
 endif()
@@ -46,10 +39,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 
   find_package(Qt4 REQUIRED)
 
-  # Retrieve modules
   get_property(${APPLICATION_NAME}_MODULES GLOBAL PROPERTY ${APPLICATION_NAME}_MODULES)
-
-  # Set slicer build directory
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/S-bld)
 
   set(Slicer_QTLOADABLEMODULES_DISABLED

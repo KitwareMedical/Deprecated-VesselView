@@ -24,14 +24,6 @@ set(${APPLICATION_NAME}_DEPENDENCIES Slicer)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Declare ${APPLICATION_NAME}_EXTERNAL_LIBRARY_DIRS variable - This variable stores
-# the library output directory associated with the different external project
-# It's then used in Utilities/LastConfigureStep/${APPLICATION_NAME}Generate${APPLICATION_NAME}Config.cmake to
-# configure ${APPLICATION_NAME}Config.cmake.in
-# This variable would then be exposed to project building against ${APPLICATION_NAME}
-#SET(${APPLICATION_NAME}_EXTERNAL_LIBRARY_DIRS)
-
-#-----------------------------------------------------------------------------
 # Git protocol option
 #
 option(${APPLICATION_NAME}_USE_GIT_PROTOCOL "If behind a firewall turn this OFF to use http instead." ON)
