@@ -29,26 +29,30 @@ if(DEFINED ${proj}_DIR AND NOT EXISTS ${${proj}_DIR})
   message(FATAL_ERROR "${proj}_DIR variable is defined but corresponds to nonexistent directory")
 endif()
 
-if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
+if(NOT DEFINED ${proj}_DIR)
 
   if(NOT DEFINED git_protocol)
       set(git_protocol "git")
   endif()
 
-  set(${proj}_INTERNAL_DEPENDENCIES_LIST ${APPLICATION_NAME} TubeTK Gutenberg)
+  set(${proj}_DIR ${CMAKE_BINARY_DIR}/S-bld)
+  set(${proj}_PREFIX ${CMAKE_BINARY_DIR}/${proj}-prefix)
+  set(${proj}_INTERNAL_DEPENDENCIES_LIST ${APPLICATION_NAME}
+    # List here additional external projects
+    TubeTK
+    Gutenberg
+    )
 
   find_package(Qt4 REQUIRED)
 
   get_property(${APPLICATION_NAME}_MODULES GLOBAL PROPERTY ${APPLICATION_NAME}_MODULES)
-  set(${proj}_DIR ${CMAKE_BINARY_DIR}/S-bld)
-
-  set(Slicer_QTLOADABLEMODULES_DISABLED
+  set(${proj}_QTLOADABLEMODULES_DISABLED
     SlicerWelcome
     )
-  set(Slicer_QTSCRIPTEDMODULES_DISABLED
+  set(${proj}_QTSCRIPTEDMODULES_DISABLED
     Endoscopy
     )
-  set(Slicer_CLIMODULES_DISABLED
+  set(${proj}_CLIMODULES_DISABLED
     ExecutionModelTour
     FiberTractMeasurements
     )
@@ -76,57 +80,62 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 
   ExternalProject_Add(${proj}
     ${${proj}_EP_ARGS}
-    SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
+    SOURCE_DIR ${${proj}_SOURCE_DIR}
     BINARY_DIR ${${proj}_DIR}
-    PREFIX ${proj}${ep_suffix}
+    PREFIX ${${proj}_PREFIX}
     INSTALL_COMMAND ""
     #${${APPLICATION_NAME}_external_update}
     CMAKE_CACHE_ARGS
-      -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
-      -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
+      # Compile options
       -DADDITIONAL_C_FLAGS:STRING=${ADDITIONAL_C_FLAGS}
       -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
+      -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+      -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
+      -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+      -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
+      -DCMAKE_EXE_LINKER_FLAGS:STRING=${CMAKE_EXE_LINKER_FLAGS}
+      -DCMAKE_SHARED_LINKER_FLAGS:STRING=${CMAKE_SHARED_LINKER_FLAGS}
       -DBUILD_TESTING:BOOL=OFF
+      # Install paths
       -D${proj}_INSTALL_BIN_DIR:STRING=${${APPLICATION_NAME}_INSTALL_BIN_DIR}
       -D${proj}_INSTALL_LIB_DIR:STRING=${${APPLICATION_NAME}_INSTALL_BIN_DIR}
-      -D${proj}_USE_GIT_PROTOCOL:BOOL=${${APPLICATION_NAME}_USE_GIT_PROTOCOL}
       # Qt
-      -DSlicer_ADDITIONAL_REQUIRED_QT_MODULES:STRING=QTDECLARATIVE;QTSCRIPT
       -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-      -DSlicer_REQUIRED_QT_VERSION:STRING=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
+      -D${proj}_REQUIRED_QT_VERSION:STRING=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
+      -D${proj}_ADDITIONAL_REQUIRED_QT_MODULES:STRING=QTDECLARATIVE;QTSCRIPT
       # External projects
       -DEXTERNAL_PROJECT_ADDITIONAL_DIR:PATH=${${APPLICATION_NAME}_SUPERBUILD_DIR}
-      -DSlicer_ADDITIONAL_DEPENDENCIES:STRING=${${proj}_INTERNAL_DEPENDENCIES_LIST}
+      -D${proj}_ADDITIONAL_DEPENDENCIES:STRING=${${proj}_INTERNAL_DEPENDENCIES_LIST}
+      -D${proj}_USE_GIT_PROTOCOL:BOOL=${${APPLICATION_NAME}_USE_GIT_PROTOCOL}
+      -D${proj}_DIR:PATH=${${proj}_DIR} # Required by External_<APPLICATION_NAME>.cmake
       # Application
       -D${APPLICATION_NAME}_SOURCE_DIR:PATH=${${APPLICATION_NAME}_SOURCE_DIR} # needed by External_${APPLICATION_NAME}.cmake 
-      -DSlicer_MAIN_PROJECT:STRING=${APPLICATION_NAME}App
       -D${APPLICATION_NAME}App_APPLICATION_NAME:STRING=${APPLICATION_NAME}
-      -DSlicer_APPLICATIONS_DIR:PATH=${${APPLICATION_NAME}_SOURCE_DIR}/Applications
+      -D${proj}_APPLICATIONS_DIR:PATH=${${APPLICATION_NAME}_SOURCE_DIR}/Applications
+      -D${proj}_MAIN_PROJECT:STRING=${APPLICATION_NAME}App
       # Slicer features
-      -DSlicer_BUILD_DICOM_SUPPORT:BOOL=ON
-      -DSlicer_BUILD_DIFFUSION_SUPPORT:BOOL=OFF
-      -DSlicer_BUILD_EXTENSIONMANAGER_SUPPORT:BOOL=OFF
-      -DSlicer_BUILD_MULTIVOLUME_SUPPORT:BOOL=OFF
-      -DSlicer_USE_OpenIGTLink:BOOL=OFF
-      -DSlicer_USE_QtTesting:BOOL=OFF
-      -DSlicer_USE_PYTHONQT:BOOL=ON
-      -DSlicer_USE_PYTHONQT_WITH_TCL:BOOL=OFF
-      -DSlicer_USE_SimpleITK:BOOL=OFF
-      -DSlicer_USE_NUMPY:BOOL=OFF
+      -D${proj}_BUILD_DICOM_SUPPORT:BOOL=ON
+      -D${proj}_BUILD_DIFFUSION_SUPPORT:BOOL=OFF
+      -D${proj}_BUILD_EXTENSIONMANAGER_SUPPORT:BOOL=OFF
+      -D${proj}_BUILD_MULTIVOLUME_SUPPORT:BOOL=OFF
+      -D${proj}_USE_NUMPY:BOOL=ON
+      -D${proj}_USE_OpenIGTLink:BOOL=OFF
+      -D${proj}_USE_PYTHONQT_WITH_TCL:BOOL=OFF
+      -D${proj}_USE_PYTHONQT:BOOL=ON
+      -D${proj}_USE_QtTesting:BOOL=OFF
+      -D${proj}_USE_SimpleITK:BOOL=OFF
       # Slicer built-in modules
-      -DSlicer_CLIMODULES_DISABLED:STRING=${Slicer_CLIMODULES_DISABLED}
-      -DSlicer_QTLOADABLEMODULES_DISABLED:STRING=${Slicer_QTLOADABLEMODULES_DISABLED}
-      -DSlicer_QTSCRIPTEDMODULES_DISABLED:STRING=${Slicer_QTSCRIPTEDMODULES_DISABLED}
+      -D${proj}_CLIMODULES_DISABLED:STRING=${${proj}_CLIMODULES_DISABLED}
+      -D${proj}_QTLOADABLEMODULES_DISABLED:STRING=${${proj}_QTLOADABLEMODULES_DISABLED}
+      -D${proj}_QTSCRIPTEDMODULES_DISABLED:STRING=${${proj}_QTSCRIPTEDMODULES_DISABLED}
       # Slicer remote modules
-      -DSlicer_BUILD_BRAINSTOOLS:BOOL=OFF
-      -DSlicer_BUILD_ChangeTrackerPy:BOOL=OFF
-      -DSlicer_BUILD_CompareVolumes:BOOL=OFF
-      -DSlicer_BUILD_EMSegment:BOOL=OFF
-      -DSlicer_BUILD_DataStore:BOOL=OFF
-      -DSlicer_BUILD_LandmarkRegistration:BOOL=OFF
-      -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${${APPLICATION_NAME}_MODULES_IN_BUILD_ORDER}
-      # Required by External_<APPLICATION_NAME>.cmake
-      -DSlicer_DIR:PATH=${${proj}_DIR}
+      -D${proj}_BUILD_BRAINSTOOLS:BOOL=OFF
+      -D${proj}_BUILD_ChangeTrackerPy:BOOL=OFF
+      -D${proj}_BUILD_CompareVolumes:BOOL=OFF
+      -D${proj}_BUILD_DataStore:BOOL=OFF
+      -D${proj}_BUILD_EMSegment:BOOL=OFF
+      -D${proj}_BUILD_LandmarkRegistration:BOOL=OFF
+      -D${proj}_EXTENSION_SOURCE_DIRS:STRING=${${APPLICATION_NAME}_MODULES_IN_BUILD_ORDER}
       # Required by TubeTK modules
       -DSlicer_SOURCE_DIR:PATH=${Slicer_SOURCE_DIR}
       # Use VTKv6
