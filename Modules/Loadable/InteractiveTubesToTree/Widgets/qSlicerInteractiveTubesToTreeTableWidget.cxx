@@ -377,7 +377,10 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
     std::vector<int> ParentIdList;
     std::vector<bool> IsRootList;
     std::vector<bool> IsArteryList;
-    d->logic()->GetSpatialObjectData(d->SpatialObjectsNode, TubeIdList, ParentIdList, IsRootList, IsArteryList);
+    std::vector<double> RedColorList;
+    std::vector<double> GreenColorList;
+    std::vector<double> BlueColorList;
+    d->logic()->GetSpatialObjectData(d->SpatialObjectsNode, TubeIdList, ParentIdList, IsRootList, IsArteryList, RedColorList, GreenColorList, BlueColorList);
     if (TubeIdList.size() == 0)
     {
       qCritical("Error while reteriving Spatial Data !");
@@ -398,8 +401,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
 
       //color column
       colIndex = d->columnIndex("Color");
-      QColor TubeDisplayColor;
-      getTubeDisplayColor(TubeDisplayColor, newRow);
+      QColor TubeDisplayColor = QColor::fromRgbF(RedColorList[i], GreenColorList[i], BlueColorList[i]);;
       ctkColorPickerButton* colorPicker = new ctkColorPickerButton(this);
       colorPicker->setDisplayColorName(false);
       colorPicker->setColor(TubeDisplayColor);
@@ -492,46 +494,6 @@ void qSlicerInteractiveTubesToTreeTableWidget::onTableCellClicked(QTableWidgetIt
   {
     return;
   }
-}
-
-// --------------------------------------------------------------------------
-bool qSlicerInteractiveTubesToTreeTableWidget::getTubeDisplayColor(QColor &TubeDisplayColor, int row)
-{
-  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-
-  if (!d->SpatialObjectsDisplayNode)
-  {
-    qCritical("Error while reteriving Spatial Data tube display node !");
-    return false;
-  }
-  double rgb[3];
-  char colorMapName[80];
-  strcpy(colorMapName, d->SpatialObjectsNode->GetName());
-  strcat(colorMapName, "_TubeColor");
-  vtkMRMLNode* colorNode1 = d->SpatialObjectsDisplayNode->GetScene()->GetFirstNodeByName(colorMapName);
-  vtkMRMLProceduralColorNode* colorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode1);
-  if (colorNode != NULL)
-  {
-    vtkColorTransferFunction* colorMap = colorNode->GetColorTransferFunction();
-    if (colorMap != NULL)
-    {
-      int tubeIDIndex = d->columnIndex("Tube ID");
-      QTableWidgetItem *tubeIDItem = d->TableWidget->item(row, tubeIDIndex);
-      int tubeID = tubeIDItem->text().toInt();
-
-      colorMap->GetColor(tubeID, rgb);
-      TubeDisplayColor = QColor::fromRgbF(rgb[0], rgb[1], rgb[2]);
-    }
-    else
-    {
-      qCritical("No ColorMap");
-    }
-  }
-  else
-  {
-    qCritical("No ColorNode");
-  }
-  return true;
 }
 
 //------------------------------------------------------------------------------

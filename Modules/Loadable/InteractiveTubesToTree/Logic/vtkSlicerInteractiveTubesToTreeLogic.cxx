@@ -327,7 +327,10 @@ void vtkSlicerInteractiveTubesToTreeLogic
   std::vector<int>& TubeIDList,
   std::vector<int>& ParentIDList,
   std::vector<bool>& IsRootList,
-  std::vector<bool>& IsArtery)
+  std::vector<bool>& IsArtery,
+  std::vector<double>& RedColorList,
+  std::vector<double>& GreenColorList,
+  std::vector<double>& BlueColorList)
 {
   if (!spatialNode)
   {
@@ -351,6 +354,9 @@ void vtkSlicerInteractiveTubesToTreeLogic
     ParentIDList.push_back(currTube->GetParentId());
     IsRootList.push_back(currTube->GetRoot());
     IsArtery.push_back(currTube->GetArtery());
+    RedColorList.push_back(currTube->GetProperty()->GetColor().GetRed());
+    GreenColorList.push_back(currTube->GetProperty()->GetColor().GetGreen());
+    BlueColorList.push_back(currTube->GetProperty()->GetColor().GetBlue());
   }
 }
 
