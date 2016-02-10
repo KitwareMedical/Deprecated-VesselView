@@ -45,12 +45,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${vtkSlicerSpatialObjectsModuleMRML_BINARY_DIR}
   ${vtkSlicerSpatialObjectsModuleLogic_SOURCE_DIR}
   ${vtkSlicerSpatialObjectsModuleLogic_BINARY_DIR}
-  ${qSlicerInteractiveTubesToTreeModuleWidgets_SOURCE_DIR}
+	${qSlicerInteractiveTubesToTreeModuleWidgets_SOURCE_DIR}
   ${qSlicerInteractiveTubesToTreeModuleWidgets_BINARY_DIR}
-  #${qSlicerInteractiveTubesToTreeTableWidget_SOURCE_DIR}
-  #${qSlicerInteractiveTubesToTreeTableWidget_BINARY_DIR}
-  #${vtkSlicerInteractiveTubesToTreeLogic_SOURCE_DIR}
-  #${vtkSlicerInteractiveTubesToTreeLogic_BINARY_DIR}
   )
 
 set(MODULE_SRCS
@@ -71,12 +67,10 @@ set(MODULE_UI_SRCS
 
 set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
-  qSlicer${MODULE_NAME}ModuleWidgets
+  #qSlicer${MODULE_NAME}ModuleWidgets
   vtkSlicerSpatialObjectsModuleLogic
-  qSlicerInteractiveTubesToTreeModuleWidgets
-  #vtkSlicerInteractiveTubesToTreeLogic
   vtkSlicerMarkupsModuleMRML
-  #qSlicerInteractiveTubesToTreeTableWidget
+  qSlicerInteractiveTubesToTreeModuleWidgets
   ${MRML_LIBRARIES}
   )
 

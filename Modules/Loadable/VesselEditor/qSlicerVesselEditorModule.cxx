@@ -110,7 +110,6 @@ QStringList qSlicerVesselEditorModule::dependencies() const
   moduleDependencies << "SpatialObjects";
   moduleDependencies << "InteractiveTubesToTree";
   return moduleDependencies;
-  return QStringList();
 }
 
 //-----------------------------------------------------------------------------

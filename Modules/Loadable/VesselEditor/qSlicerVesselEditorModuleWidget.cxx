@@ -116,10 +116,6 @@ void qSlicerVesselEditorModuleWidgetPrivate::init()
     q, SLOT( restoreDefaults() ) );
 
   QObject::connect(
-    this->ApplyPushButton, SIGNAL( clicked() ),
-    q, SLOT( runConversion() ) );
-
-  QObject::connect(
     this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
     this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
 }
@@ -140,7 +136,8 @@ void qSlicerVesselEditorModuleWidget::onEnter()
     return;
   }
   this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
-   d->Table, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
+    d->Table, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
+
   vtkMRMLNode* vtkMRMLMarkupFiducialNode = this->mrmlScene()->GetNthNodeByClass(0,"vtkMRMLMarkupsFiducialNode");
   if(vtkMRMLMarkupFiducialNode)
   {
