@@ -98,7 +98,6 @@ public slots:
   void onMarkupAddEvent();
   void findTubeIDs(int n);
   void restoreDefaults();
-  void refreshTable();
 
 protected slots:
   void updateWidgetFromMRML();

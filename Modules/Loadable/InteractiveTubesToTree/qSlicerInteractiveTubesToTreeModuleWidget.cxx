@@ -153,6 +153,7 @@ void qSlicerInteractiveTubesToTreeModuleWidget::onEnter()
   {
     d->Table->onNodeAddedEvent(NULL, vtkMRMLMarkupFiducialNode);
   }
+  d->Table->buildTubeDisplayTable();
 }
 
 //------------------------------------------------------------------------------

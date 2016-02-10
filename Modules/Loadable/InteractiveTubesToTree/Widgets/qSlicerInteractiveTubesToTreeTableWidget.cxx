@@ -1138,28 +1138,6 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickShowHideTubes(bool value)
 }
 
 //------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeTableWidget::refreshTable()
-{
-  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
-  
-  if (d->SpatialObjectsNode != 0 && d->SpatialObjectsDisplayNode != 0)
-  {
-    int tubeIDIndex = d->columnIndex("Tube ID");
-    for(int i = 0; i < d->TableWidget->rowCount(); i++)
-    {
-      QTableWidgetItem* item = d->TableWidget->item(i, tubeIDIndex);
-      int currTubeId = this->getTubeIDfromRowID(i);
-      const std::set<int> selectedTubeIds = d->SpatialObjectsNode->GetSelectedTubeIds();
-      if(selectedTubeIds.find(currTubeId) != selectedTubeIds.end())
-      {
-        d->TableWidget->selectRow(currTubeId);
-      }
-    }
-  }
-  return;
-}
-
-//------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeTableWidget::onClickApplyColor()
 {
   Q_D(qSlicerInteractiveTubesToTreeTableWidget);
