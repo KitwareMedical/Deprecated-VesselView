@@ -371,6 +371,9 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
   {
     this->setEnabled(1);
     //reset the table data
+    const std::set<int> selectedTubeIds = d->SpatialObjectsNode->GetSelectedTubeIds();
+    std::set<int> copySelectedTubeIds = selectedTubeIds;
+    d->SpatialObjectsNode->ClearSelectedTubes();
     d->TableWidget->setRowCount(0);
 
     std::vector<int> TubeIdList;
@@ -481,6 +484,11 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
       d->TableWidget->setItem(newRow, colIndex, parentIdItem);
     }
     
+    //Select rows if required
+    for (std::set<int>::iterator it=copySelectedTubeIds.begin(); it!=copySelectedTubeIds.end(); ++it)
+    {
+      this->SelectTube(*it);
+    }
   }
   return ;
 }
@@ -689,10 +697,15 @@ void qSlicerInteractiveTubesToTreeTableWidget::SelectTube(int tubeID, int rowID)
   
   QColor selectionColor =  d->SelectTubeColorPicker->color();
   this->ChangeSpatialObjectColorMap(selectionColor,tubeID);
-  if(!this->isRowSelected(rowID))
+  QModelIndexList indexList = d->TableWidget->selectionModel()->selectedRows();
+  foreach (QModelIndex index, indexList)
   {
-    d->TableWidget->selectRow(rowID);
-  } 
+    if(index.row() == rowID)
+    {
+      return;
+    }
+  }
+  d->TableWidget->selectRow(rowID);
 }
 
 //------------------------------------------------------------------------------

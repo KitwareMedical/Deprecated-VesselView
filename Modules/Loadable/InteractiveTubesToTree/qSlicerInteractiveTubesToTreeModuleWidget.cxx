@@ -222,21 +222,15 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
 
   //getting root ids from the text box
   std::string rootTubeIdList = d->RootTubeIDListLineEdit->text().toStdString();
-  if(rootTubeIdList.compare("") == 0 && selectedTubeIds.size() == 0)
-  {
-    return;
-  }
+
   //getting root ids from the table
-  std::set<int> copySelectedTubeIds = selectedTubeIds;
   std::string selectedRootIds = "";
-  for (std::set<int>::iterator it=copySelectedTubeIds.begin(); it!=copySelectedTubeIds.end(); ++it)
+  for (std::set<int>::iterator it=selectedTubeIds.begin(); it!=selectedTubeIds.end(); ++it)
   {
     selectedRootIds = std::to_string(*it) + " ," + selectedRootIds;
   }
   rootTubeIdList = rootTubeIdList + " ," + selectedRootIds;
-
   d->ApplyPushButton->setEnabled(false);
-  d->inputSpatialObject->ClearSelectedTubes();
 
   if (!d->logic()->Apply(d->inputSpatialObject, d->outputSpatialObject, maxTubeDistanceToRadiusRatio,
     maxContinuityAngleError, removeOrphanTubes, rootTubeIdList))
@@ -244,10 +238,6 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
     qCritical("Error while running conversion !");
   }
   d->Table->buildTubeDisplayTable();
-  for (std::set<int>::iterator it=copySelectedTubeIds.begin(); it!=copySelectedTubeIds.end(); ++it)
-  {
-    d->Table->SelectTube(*it);
-  }
   d->ApplyPushButton->setChecked(false);
   d->ApplyPushButton->setEnabled(true);
 }
