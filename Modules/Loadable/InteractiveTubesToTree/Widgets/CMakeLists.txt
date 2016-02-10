@@ -31,7 +31,6 @@ set(${KIT}_UI_SRCS
 set(${KIT}_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   vtkSlicerSpatialObjectsModuleLogic
-  qSlicer${MODULE_NAME}ModuleWidgets
   ${MRML_LIBRARIES}
   )
 
