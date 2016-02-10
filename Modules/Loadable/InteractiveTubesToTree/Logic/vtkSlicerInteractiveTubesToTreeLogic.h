@@ -82,8 +82,9 @@ public:
   std::string SaveSpatialObjectNode(vtkMRMLSpatialObjectsNode *spatialObjectsNode);
   std::string GetOutputFileName();
   void SetOutputFileName(std::string name);
-  void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList, std::vector<int>& ParentIDList,
-    std::vector<bool>& IsRootList, std::vector<bool>& IsArteryList);
+  void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList,
+    std::vector<int>& ParentIDList, std::vector<bool>& IsRootList, std::vector<bool>& IsArteryList,
+    std::vector<double>& RedColorList, std::vector<double>& GreenColorList, std::vector<double>& BlueColorList);
   int GetSpatialObjectNumberOfTubes(vtkMRMLSpatialObjectsNode* spatialNode);
   void SetSpatialObjectColor(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
   void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode);

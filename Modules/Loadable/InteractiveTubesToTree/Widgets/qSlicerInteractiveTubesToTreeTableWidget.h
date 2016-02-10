@@ -60,7 +60,6 @@ public:
   qSlicerInteractiveTubesToTreeTableWidget(QWidget *parent=0);
   virtual ~qSlicerInteractiveTubesToTreeTableWidget();
 
-  bool getTubeDisplayColor(QColor&, int row);
   vtkMRMLSpatialObjectsDisplayNode* SpatialObjectsDisplayNode() const;
   void buildTubeDisplayTable();
   void hideColumn(int colID);
@@ -99,7 +98,6 @@ public slots:
   void onMarkupAddEvent();
   void findTubeIDs(int n);
   void restoreDefaults();
-  void refreshTable();
 
 protected slots:
   void updateWidgetFromMRML();
