@@ -71,6 +71,7 @@ public:
   void unSelectTube(int tubeID, int rowID = -1);
   int getTubeIDfromRowID(int rowID);
   int getRowIDfromTubeID(int tubeID);
+  vtkMRMLMarkupsNode* getMRMLMarkupsNode();
 
 public slots:
   /// Set the MRML node of interest
