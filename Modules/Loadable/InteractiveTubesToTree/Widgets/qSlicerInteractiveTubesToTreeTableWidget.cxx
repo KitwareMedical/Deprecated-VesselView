@@ -1149,3 +1149,11 @@ void qSlicerInteractiveTubesToTreeTableWidget::onClickApplyColor()
     this->ChangeTubeColor(tubeColor,*it); 
   }
 }
+
+//------------------------------------------------------------------------------
+vtkMRMLMarkupsNode* qSlicerInteractiveTubesToTreeTableWidget::getMRMLMarkupsNode()
+{
+  Q_D(qSlicerInteractiveTubesToTreeTableWidget);
+
+  return d->MarkupsNode;
+}

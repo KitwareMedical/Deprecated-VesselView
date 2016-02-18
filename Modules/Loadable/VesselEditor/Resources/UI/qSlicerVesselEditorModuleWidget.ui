@@ -78,49 +78,63 @@
       <string>Edit Vessels</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <property name="horizontalSpacing">
-       <number>9</number>
-      </property>      
-       <item row="0" column="0">
-         <widget class="QLabel" name="MergeLabel">
-           <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-             </sizepolicy>
-           </property>
-           <property name="toolTip">
-             <string>Merge vessels</string>
-           </property>
-           <property name="text">
-             <string>Merge</string>
-           </property>
-         </widget>
-       </item>
-       <item row="0" column="1">
-         <spacer name="horizontalSpacer">
-           <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-             <size>
-               <width>40</width>
-               <height>20</height>
-             </size>
-           </property>
-         </spacer>
-       </item>
-      <item row="0" column="2">
-       <widget class="QLineEdit" name="MergeVesselsLineEdit"/>
+      <item row="0" column="3">
+       <widget class="QLabel" name="PrimaryTubeLabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
-       <item row="1" column="0">
-         <widget class="QLabel" name="DeleteLabel">
-           <property name="text">
-             <string>Delete</string>
-           </property>
-         </widget>
-       </item>
-       <item row="1" column="1">
+      <item row="0" column="7">
+       <widget class="QLabel" name="SecondaryTubeLabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLabel" name="SplitTubeLabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="8">
+       <widget class="QPushButton" name="SplitPushButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="SelectTubeToSplitPushButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="8">
+       <widget class="QPushButton" name="ConnectPushButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QPushButton" name="ConnectTargetTubePushButton">
+        <property name="text">
+         <string>Target Tube</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="ConnectSourceTubePushButton">
+        <property name="text">
+         <string>Source Tube</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -133,15 +147,94 @@
         </property>
        </spacer>
       </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="ConnectLabel">
+        <property name="text">
+         <string>Connect</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="SplitLabel">
+        <property name="text">
+         <string>Split</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="1" column="2">
-       <widget class="QLineEdit" name="DeleteVesselsLineEdit"/>
+       <widget class="QPushButton" name="DisconnectSourceTubePushButton">
+        <property name="text">
+         <string>Source Tube</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="DisconnectLabel">
+        <property name="text">
+         <string>Disconnect</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QPushButton" name="DisconnectTargetTubePushButton">
+        <property name="text">
+         <string>Target Tube</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="8">
+       <widget class="QPushButton" name="DisconnectPushButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string> To </string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string> From </string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
-  <item>
+   <item>
     <widget class="qSlicerInteractiveTubesToTreeTableWidget" name="Table" native="true"/>
-  </item>
+   </item>
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
@@ -156,58 +249,58 @@
     </spacer>
    </item>
    <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-          <widget class="QPushButton" name="RestoreDefaultsPushButton">
-            <property name="enabled">
-              <bool>true</bool>
-            </property>
-            <property name="text">
-              <string>Restore Defaults</string>
-            </property>
-          </widget>
-        </item>
-        <item>
-          <spacer name="horizontalSpacer">
-            <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-              <size>
-                <width>40</width>
-                <height>20</height>
-              </size>
-            </property>
-          </spacer>
-        </item>
-        <item>
-          <widget class="QPushButton" name="CancelPushButton">
-            <property name="enabled">
-              <bool>true</bool>
-            </property>
-            <property name="text">
-              <string>Cancel</string>
-            </property>
-            <property name="checkable">
-              <bool>true</bool>
-            </property>
-          </widget>
-        </item>
-        <item>
-          <widget class="QPushButton" name="ApplyPushButton">
-            <property name="enabled">
-              <bool>false</bool>
-            </property>
-            <property name="text">
-              <string>Apply</string>
-            </property>
-            <property name="checkable">
-              <bool>true</bool>
-            </property>
-          </widget>
-        </item>
-      </layout>
-    </item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="RestoreDefaultsPushButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Restore Defaults</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="CancelPushButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ApplyPushButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Apply</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -227,6 +320,11 @@
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerInteractiveTubesToTreeTableWidget</class>
+   <extends>QWidget</extends>
+   <header>qslicerinteractivetubestotreetablewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

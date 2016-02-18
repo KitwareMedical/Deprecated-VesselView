@@ -44,6 +44,15 @@ public slots:
   void setInputSpatialObjectsNode(vtkMRMLNode* node);
   void setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
   void restoreDefaults();
+  void onApplySplitTube();
+  void onApplyConnectTubes();
+  void onApplyDisconnectTubes();
+  void onClickConnectSourceTube();
+  void onClickConnectTargetTube();
+  void onClickDisconnectSourceTube();
+  void onClickDisconnectTargetTube();
+  void onClickSelectTubeToSplit();
+
 protected:
   QScopedPointer<qSlicerVesselEditorModuleWidgetPrivate> d_ptr;
 

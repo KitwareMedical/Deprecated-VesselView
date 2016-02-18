@@ -1,5 +1,9 @@
-<!DOCTYPE RCC><RCC version="1.0">
-  <qresource>
-    <file>Icons/VesselEditor.png</file>
-  </qresource>
+<RCC>
+    <qresource prefix="/">
+        <file>Icons/VesselEditor.png</file>
+        <file alias="Connect.png">Icons/Connect.png</file>
+        <file alias="Disconnect.png">Icons/Disconnect.png</file>
+        <file alias="Split.png">Icons/Split.png</file>
+        <file alias="Select.png">Icons/Select.png</file>
+    </qresource>
 </RCC>
