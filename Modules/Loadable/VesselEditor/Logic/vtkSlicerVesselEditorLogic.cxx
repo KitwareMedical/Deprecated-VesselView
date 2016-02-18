@@ -323,7 +323,7 @@ void vtkSlicerVesselEditorLogic
   char childName[] = "Tube";
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
-
+  
   for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
   {
     VesselTubeType* currTube =
@@ -354,7 +354,7 @@ void vtkSlicerVesselEditorLogic
         meanRadius += tubePoint->GetRadius();
       }
       meanRadius = meanRadius/numberOfPoints;
-      if(minDistance < meanRadius)
+      if(minDistance < meanRadius && nearestPoint != -1)
       {
         VesselTubeType::Pointer newTube = VesselTubeType::New();
         newTube->CopyInformation(currTube);
@@ -369,9 +369,12 @@ void vtkSlicerVesselEditorLogic
         newTube->ComputeObjectToWorldTransform();
         newTube->ComputeTangentAndNormals();
         newTube->SetRoot( false );
+        newTube->SetId( tubeList->size() + 1 );
         newTube->SetParentId(currTube->GetId());
+
+
         newTube->Clear();
-        for (int index = nearestPoint; index < numberOfPoints; index++)
+        for (int index = nearestPoint + 1; index < numberOfPoints; index++)
         {
           VesselTubePointType* tubePoint =
             dynamic_cast<VesselTubePointType*>(currTube->GetPoint(index));
@@ -384,6 +387,7 @@ void vtkSlicerVesselEditorLogic
         currTube->AddSpatialObject(newTube);
       }
       spatialNode->UpdatePolyDataFromSpatialObject();
+      break;
     }
   }
 }

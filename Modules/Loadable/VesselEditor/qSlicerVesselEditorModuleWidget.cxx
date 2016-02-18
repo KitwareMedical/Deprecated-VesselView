@@ -284,7 +284,6 @@ void qSlicerVesselEditorModuleWidget::onApplySplitTube()
           double xyz[3];
           MarkupsNode->GetMarkupPointLPS(index, 0, xyz);
           d->logic()->SplitTubeInSpatialObject(d->inputSpatialObject, tubeId, xyz);
-          int i = 0;
         }
       }
     }
