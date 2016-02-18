@@ -57,6 +57,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   void SetSpatialObjectsLogic(vtkSlicerSpatialObjectsLogic* logic);
   vtkSlicerSpatialObjectsLogic* GetSpatialObjectsLogic();
+
+  typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
+  typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
+  typedef VesselTubeType::TubePointType                             VesselTubePointType;
+  typedef itk::Point<double, 3>                                     PointType;
+  typedef std::vector< VesselTubePointType >                        PointListType;
+  typedef itk::VesselTubeSpatialObjectPoint<3>                      TestType;
+
+  void ConnectTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int parentTubeID, int childTubeID);
+  void DisconnectTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int parentTubeID, int childTubeID);
+  void SplitTubeInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int tubeID, double* splittingPoint);
+
 protected:
 
   vtkSlicerVesselEditorLogic();
@@ -68,6 +80,7 @@ protected:
   virtual void UpdateFromMRMLScene();
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
+
 private:
 
   vtkSlicerVesselEditorLogic(const vtkSlicerVesselEditorLogic&); // Not implemented
