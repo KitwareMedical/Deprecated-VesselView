@@ -34,6 +34,8 @@ limitations under the License.
 #include <vtkMRMLSpatialObjectsDisplayNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 
+#include "itkNumericTraits.h"
+
 //Spatial Objects includes
 #include "vtkSlicerSpatialObjectsLogic.h"
 
@@ -135,7 +137,7 @@ void vtkSlicerVesselEditorLogic
   VesselTubePointType* targetStartPoint;
   VesselTubePointType* targetEndPoint;
   VesselTubeType* targetTube;
-  double minDistance = INT32_MAX;
+  double minDistance = itk::NumericTraits<double>::max();
   VesselTubePointType* sourceNearestPoint;
 
   char childName[] = "Tube";
@@ -227,7 +229,7 @@ void vtkSlicerVesselEditorLogic
   VesselTubePointType* targetStartPoint;
   VesselTubePointType* targetEndPoint;
   VesselTubeType* targetTube;
-  double minDistance = INT32_MAX;
+  double minDistance = itk::NumericTraits<double>::max();
   VesselTubePointType* sourceNearestPoint;
 
   char childName[] = "Tube";
@@ -333,7 +335,7 @@ void vtkSlicerVesselEditorLogic
     if (currTube->GetId() == tubeID)
     {
       int numberOfPoints = currTube->GetNumberOfPoints();
-      double minDistance = INT32_MAX;
+      double minDistance = itk::NumericTraits<double>::max();
       int nearestPoint = -1;
       double meanRadius = 0;
       for (int index = 0; index < numberOfPoints; index++)

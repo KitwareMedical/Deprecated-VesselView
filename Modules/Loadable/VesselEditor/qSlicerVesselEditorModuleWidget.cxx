@@ -354,6 +354,7 @@ void qSlicerVesselEditorModuleWidget::onClickDisconnectTargetTube()
   if( selectedTubeIds.size() == 1)
   {
     std::set<int>::iterator it=selectedTubeIds.begin();
+    d->DisconnectTargetTubePushButton->setText(QString(std::to_string(*it).c_str()));
   }
   else
   {
