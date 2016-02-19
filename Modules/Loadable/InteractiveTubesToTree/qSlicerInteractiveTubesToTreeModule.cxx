@@ -11,7 +11,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,7 +39,8 @@ limitations under the License.
 #include "qSlicerInteractiveTubesToTreeModuleWidget.h"
 
 //-----------------------------------------------------------------------------
-Q_EXPORT_PLUGIN2(qSlicerInteractiveTubesToTreeModule, qSlicerInteractiveTubesToTreeModule);
+Q_EXPORT_PLUGIN2
+  ( qSlicerInteractiveTubesToTreeModule, qSlicerInteractiveTubesToTreeModule );
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -58,12 +59,12 @@ qSlicerInteractiveTubesToTreeModulePrivate::qSlicerInteractiveTubesToTreeModuleP
 }
 
 //-----------------------------------------------------------------------------
-// qSlicerInteractiveTubesToTreeModule methods
+//qSlicerInteractiveTubesToTreeModule methods
 
 //-----------------------------------------------------------------------------
-qSlicerInteractiveTubesToTreeModule::qSlicerInteractiveTubesToTreeModule(QObject* _parent)
-  : Superclass(_parent)
-  , d_ptr(new qSlicerInteractiveTubesToTreeModulePrivate)
+qSlicerInteractiveTubesToTreeModule::qSlicerInteractiveTubesToTreeModule
+  ( QObject* _parent ) : Superclass( _parent ),
+  d_ptr( new qSlicerInteractiveTubesToTreeModulePrivate )
 {
 }
 
@@ -75,27 +76,28 @@ qSlicerInteractiveTubesToTreeModule::~qSlicerInteractiveTubesToTreeModule()
 //-----------------------------------------------------------------------------
 QString qSlicerInteractiveTubesToTreeModule::helpText() const
 {
-  return "This is a loadable module that can be bundled in an extension";
+  return "This module helps user to interactively build Tube-Tree from tubes,"
+    " i.e assign a parent child relationship to the tubes.";
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerInteractiveTubesToTreeModule::acknowledgementText() const
 {
-  return "This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN";
+  return "This work is part of the VesselView project at Kitware.";
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerInteractiveTubesToTreeModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("John Doe (AnyWare Corp.)");
+  moduleContributors << QString( "Sumedha Singla (Kitware Inc)" );
   return moduleContributors;
 }
 
 //-----------------------------------------------------------------------------
 QIcon qSlicerInteractiveTubesToTreeModule::icon() const
 {
-  return QIcon(":/Icons/InteractiveTubesToTree.png");
+  return QIcon( ":/Icons/InteractiveTubesToTree.png" );
 }
 
 //-----------------------------------------------------------------------------
@@ -110,6 +112,7 @@ QStringList qSlicerInteractiveTubesToTreeModule::dependencies() const
   QStringList moduleDependencies;
   moduleDependencies << "SpatialObjects";
   moduleDependencies << "ConvertTubesToTubeTree";
+
   return moduleDependencies;
 }
 
@@ -118,30 +121,31 @@ void qSlicerInteractiveTubesToTreeModule::setup()
 {
   this->Superclass::setup();
   vtkSlicerInteractiveTubesToTreeLogic* interactiveTubeToTreeLogic =
-	  vtkSlicerInteractiveTubesToTreeLogic::SafeDownCast(this->logic());
+    vtkSlicerInteractiveTubesToTreeLogic::SafeDownCast( this->logic() );
 
   qSlicerAbstractCoreModule* conversionModule =
-    qSlicerCoreApplication::application()->moduleManager()->module("ConvertTubesToTubeTree");
+    qSlicerCoreApplication::application()->moduleManager()->module
+    ( "ConvertTubesToTubeTree" );
 
   qSlicerAbstractCoreModule* spatialObjectsModule =
-    qSlicerCoreApplication::application()->moduleManager()->module("SpatialObjects");
+    qSlicerCoreApplication::application()->moduleManager()->module( "SpatialObjects" );
 
-  if (conversionModule  && spatialObjectsModule)
-  {
+  if ( conversionModule  && spatialObjectsModule )
+    {
     vtkSlicerCLIModuleLogic* conversionLogic =
-      vtkSlicerCLIModuleLogic::SafeDownCast(conversionModule->logic());
-    interactiveTubeToTreeLogic->SetConversionLogic(conversionLogic);
+      vtkSlicerCLIModuleLogic::SafeDownCast( conversionModule->logic() );
+    interactiveTubeToTreeLogic->SetConversionLogic( conversionLogic );
 
     vtkSlicerSpatialObjectsLogic* spatialObjectsLogic =
-      vtkSlicerSpatialObjectsLogic::SafeDownCast(spatialObjectsModule->logic());
-    interactiveTubeToTreeLogic->SetSpatialObjectsLogic(spatialObjectsLogic);
+      vtkSlicerSpatialObjectsLogic::SafeDownCast( spatialObjectsModule->logic() );
+    interactiveTubeToTreeLogic->SetSpatialObjectsLogic( spatialObjectsLogic );
 
     qWarning() << "ConvertTubesToTubeTree module is found";
-  }
+    }
   else
-  {
+    {
     qWarning() << "ConvertTubesToTubeTree module is not found";
-  }
+    }
 }
 
 //-----------------------------------------------------------------------------

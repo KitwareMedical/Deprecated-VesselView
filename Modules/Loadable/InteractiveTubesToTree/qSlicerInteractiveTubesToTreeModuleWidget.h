@@ -11,7 +11,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,12 +30,14 @@ limitations under the License.
 #include "qSlicerInteractiveTubesToTreeModuleExport.h"
 
 class qSlicerInteractiveTubesToTreeModuleWidgetPrivate;
+class vtkMRMLMarkupsNode;
 class vtkMRMLNode;
 class vtkMRMLSpatialObjectsNode;
-class vtkMRMLMarkupsNode;
+
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
-class Q_SLICER_QTMODULES_INTERACTIVETUBESTOTREE_EXPORT qSlicerInteractiveTubesToTreeModuleWidget :
+class Q_SLICER_QTMODULES_INTERACTIVETUBESTOTREE_EXPORT
+  qSlicerInteractiveTubesToTreeModuleWidget :
   public qSlicerAbstractModuleWidget
 {
   Q_OBJECT
@@ -43,7 +45,7 @@ class Q_SLICER_QTMODULES_INTERACTIVETUBESTOTREE_EXPORT qSlicerInteractiveTubesTo
 public:
 
   typedef qSlicerAbstractModuleWidget Superclass;
-  qSlicerInteractiveTubesToTreeModuleWidget(QWidget *parent=0);
+  qSlicerInteractiveTubesToTreeModuleWidget( QWidget *parent = 0 );
   virtual ~qSlicerInteractiveTubesToTreeModuleWidget();
 
   /// Return the current MRML node of interest
@@ -51,21 +53,21 @@ public:
   virtual void enter();
 
 public slots:
-  void setInputSpatialObjectsNode(vtkMRMLNode* node);
-  void setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
-  void setOutputSpatialObjectsNode(vtkMRMLNode* node);
-  void setOutputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node);
   void restoreDefaults();
   void runConversion();
+  void setInputSpatialObjectsNode( vtkMRMLNode* node );
+  void setInputSpatialObjectsNode( vtkMRMLSpatialObjectsNode* node );
+  void setOutputSpatialObjectsNode( vtkMRMLNode* node );
+  void setOutputSpatialObjectsNode( vtkMRMLSpatialObjectsNode* node );
 
 protected:
-  QScopedPointer<qSlicerInteractiveTubesToTreeModuleWidgetPrivate> d_ptr;
-  virtual void setup();
+  QScopedPointer< qSlicerInteractiveTubesToTreeModuleWidgetPrivate > d_ptr;
   void onEnter();
+  virtual void setup();
 
 private:
-  Q_DECLARE_PRIVATE(qSlicerInteractiveTubesToTreeModuleWidget);
-  Q_DISABLE_COPY(qSlicerInteractiveTubesToTreeModuleWidget);
+  Q_DECLARE_PRIVATE( qSlicerInteractiveTubesToTreeModuleWidget );
+  Q_DISABLE_COPY( qSlicerInteractiveTubesToTreeModuleWidget );
 };
 
 #endif
