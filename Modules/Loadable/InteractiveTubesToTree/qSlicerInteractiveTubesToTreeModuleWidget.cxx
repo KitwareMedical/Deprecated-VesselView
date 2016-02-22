@@ -11,7 +11,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,55 +31,61 @@ limitations under the License.
 #include "ui_qSlicerInteractiveTubesToTreeModuleWidget.h"
 
 // MRML includes
-#include "vtkMRMLSpatialObjectsNode.h"
 #include "vtkMRMLScene.h"
+#include "vtkMRMLSpatialObjectsNode.h"
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
-class qSlicerInteractiveTubesToTreeModuleWidgetPrivate: public Ui_qSlicerInteractiveTubesToTreeModuleWidget
+class qSlicerInteractiveTubesToTreeModuleWidgetPrivate:
+  public Ui_qSlicerInteractiveTubesToTreeModuleWidget
 {
 
-  Q_DECLARE_PUBLIC(qSlicerInteractiveTubesToTreeModuleWidget);
+  Q_DECLARE_PUBLIC( qSlicerInteractiveTubesToTreeModuleWidget );
 
-protected:
-  qSlicerInteractiveTubesToTreeModuleWidget* const q_ptr;
 public:
-  qSlicerInteractiveTubesToTreeModuleWidgetPrivate(qSlicerInteractiveTubesToTreeModuleWidget& object);
+  qSlicerInteractiveTubesToTreeModuleWidgetPrivate
+    ( qSlicerInteractiveTubesToTreeModuleWidget& object );
   ~qSlicerInteractiveTubesToTreeModuleWidgetPrivate();
   vtkSlicerInteractiveTubesToTreeLogic* logic() const;
 
   void init();
   vtkMRMLSpatialObjectsNode* inputSpatialObject;
   vtkMRMLSpatialObjectsNode* outputSpatialObject;
+
+protected:
+  qSlicerInteractiveTubesToTreeModuleWidget* const q_ptr;
 };
 
 //-----------------------------------------------------------------------------
 // qSlicerInteractiveTubesToTreeModuleWidgetPrivate methods
 
 //-----------------------------------------------------------------------------
-qSlicerInteractiveTubesToTreeModuleWidgetPrivate::qSlicerInteractiveTubesToTreeModuleWidgetPrivate(
-	qSlicerInteractiveTubesToTreeModuleWidget& object) : q_ptr(&object)
+qSlicerInteractiveTubesToTreeModuleWidgetPrivate::
+  qSlicerInteractiveTubesToTreeModuleWidgetPrivate(
+  qSlicerInteractiveTubesToTreeModuleWidget& object ) : q_ptr( &object )
 {
   this->inputSpatialObject = 0;
   this->outputSpatialObject = 0;
 }
 
 //-----------------------------------------------------------------------------
-qSlicerInteractiveTubesToTreeModuleWidgetPrivate::~qSlicerInteractiveTubesToTreeModuleWidgetPrivate()
+qSlicerInteractiveTubesToTreeModuleWidgetPrivate::
+  ~qSlicerInteractiveTubesToTreeModuleWidgetPrivate()
 {
 }
 
 //-----------------------------------------------------------------------------
-vtkSlicerInteractiveTubesToTreeLogic* qSlicerInteractiveTubesToTreeModuleWidgetPrivate::logic() const
+vtkSlicerInteractiveTubesToTreeLogic* qSlicerInteractiveTubesToTreeModuleWidgetPrivate::
+  logic() const
 {
-	Q_Q(const qSlicerInteractiveTubesToTreeModuleWidget);
-	return vtkSlicerInteractiveTubesToTreeLogic::SafeDownCast(q->logic());
+  Q_Q( const qSlicerInteractiveTubesToTreeModuleWidget );
+  return vtkSlicerInteractiveTubesToTreeLogic::SafeDownCast( q->logic() );
 }
 
 //-----------------------------------------------------------------------------
-qSlicerInteractiveTubesToTreeModuleWidget::qSlicerInteractiveTubesToTreeModuleWidget(QWidget* _parent)
-  : Superclass( _parent )
-  , d_ptr( new qSlicerInteractiveTubesToTreeModuleWidgetPrivate(*this) )
+qSlicerInteractiveTubesToTreeModuleWidget::qSlicerInteractiveTubesToTreeModuleWidget
+  ( QWidget* _parent ) : Superclass( _parent ),
+  d_ptr( new qSlicerInteractiveTubesToTreeModuleWidgetPrivate( *this ) )
 {
 }
 
@@ -93,7 +99,7 @@ qSlicerInteractiveTubesToTreeModuleWidget::~qSlicerInteractiveTubesToTreeModuleW
 //-----------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget::setup()
 {
-  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
+  Q_D( qSlicerInteractiveTubesToTreeModuleWidget );
   d->init();
 
   this->Superclass::setup();
@@ -102,33 +108,33 @@ void qSlicerInteractiveTubesToTreeModuleWidget::setup()
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidgetPrivate::init()
 {
-  Q_Q(qSlicerInteractiveTubesToTreeModuleWidget);
+  Q_Q( qSlicerInteractiveTubesToTreeModuleWidget );
 
   this->setupUi(q);
 
-  QRegExp rx("[0-9]+([0-9]*[ ]*,[ ]*)*");
-  QValidator *validator = new QRegExpValidator(rx);
-  this->RootTubeIDListLineEdit->setValidator(validator);
+  QObject::connect(
+    this->InputSpacialObjectsNodeComboBox, SIGNAL( currentNodeChanged( vtkMRMLNode* ) ),
+    q, SLOT( setInputSpatialObjectsNode( vtkMRMLNode* ) ) );
 
   QObject::connect(
-    this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-    q, SLOT(setInputSpatialObjectsNode(vtkMRMLNode*)));
+    this->OutputSpacialObjectsNodeComboBox, SIGNAL( currentNodeChanged( vtkMRMLNode* ) ),
+    q, SLOT( setOutputSpatialObjectsNode( vtkMRMLNode* ) ) );
 
   QObject::connect(
-    this->OutputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-    q, SLOT(setOutputSpatialObjectsNode(vtkMRMLNode*)));
+    this->InputSpacialObjectsNodeComboBox, SIGNAL( currentNodeChanged( vtkMRMLNode* ) ),
+    this->Table, SLOT( setSpatialObjectsNode( vtkMRMLNode*) ) );
+
+  QRegExp rx( "[0-9]+([0-9]*[ ]*,[ ]*)*" );
+  QValidator *validator = new QRegExpValidator( rx );
+  this->RootTubeIDListLineEdit->setValidator( validator );
 
   QObject::connect(
-    this->RestoreDefaultsPushButton, SIGNAL(clicked()),
-    q, SLOT(restoreDefaults()));
+    this->RestoreDefaultsPushButton, SIGNAL( clicked() ),
+    q, SLOT( restoreDefaults() ) );
 
   QObject::connect(
-    this->ApplyPushButton, SIGNAL(clicked()),
-    q, SLOT(runConversion()));
-
-  QObject::connect(
-    this->InputSpacialObjectsNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-    this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
+    this->ApplyPushButton, SIGNAL( clicked() ),
+    q, SLOT( runConversion() ) );
 }
 
 //------------------------------------------------------------------------------
@@ -141,61 +147,66 @@ void qSlicerInteractiveTubesToTreeModuleWidget::enter()
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget::onEnter()
 {
-  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
-  if (this->mrmlScene() == 0)
-  {
+  Q_D( qSlicerInteractiveTubesToTreeModuleWidget );
+  if ( this->mrmlScene() == 0 )
+    {
     return;
-  }
-  this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
-   d->Table, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
-  vtkMRMLNode* vtkMRMLMarkupFiducialNode = this->mrmlScene()->GetNthNodeByClass(0,"vtkMRMLMarkupsFiducialNode");
-  if(vtkMRMLMarkupFiducialNode)
-  {
-    d->Table->onNodeAddedEvent(NULL, vtkMRMLMarkupFiducialNode);
-  }
+    }
+  this->qvtkConnect( this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
+   d->Table, SLOT( onNodeAddedEvent( vtkObject*, vtkObject* ) ) );
+  vtkMRMLNode* vtkMRMLMarkupFiducialNode =
+    this->mrmlScene()->GetNthNodeByClass( 0,"vtkMRMLMarkupsFiducialNode" );
+  if( vtkMRMLMarkupFiducialNode )
+    {
+    d->Table->onNodeAddedEvent( NULL, vtkMRMLMarkupFiducialNode );
+    }
   d->Table->buildTubeDisplayTable();
 }
 
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget
-::setInputSpatialObjectsNode(vtkMRMLNode* node)
+::setInputSpatialObjectsNode( vtkMRMLNode* node )
 {
   this->setInputSpatialObjectsNode(
-    vtkMRMLSpatialObjectsNode::SafeDownCast(node));
+    vtkMRMLSpatialObjectsNode::SafeDownCast( node ) );
 }
 
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget
-::setInputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node)
+::setInputSpatialObjectsNode( vtkMRMLSpatialObjectsNode* node )
+{
+  Q_D( qSlicerInteractiveTubesToTreeModuleWidget );
+
+  if ( d->inputSpatialObject == node )
+    {
+    return;
+    }
+  d->inputSpatialObject = node;
+  d->ApplyPushButton->setEnabled
+    ( d->inputSpatialObject != 0 && d->outputSpatialObject != 0 );
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::setOutputSpatialObjectsNode
+  ( vtkMRMLNode* node )
+{
+  this->setOutputSpatialObjectsNode(
+    vtkMRMLSpatialObjectsNode::SafeDownCast( node ) );
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeModuleWidget::setOutputSpatialObjectsNode
+  ( vtkMRMLSpatialObjectsNode* node )
 {
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
 
-  if (d->inputSpatialObject == node)
-  {
-    return;
-  }
-  d->inputSpatialObject = node;
-  d->ApplyPushButton->setEnabled(d->inputSpatialObject != 0 && d->outputSpatialObject != 0);
-}
-
-//------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeModuleWidget::setOutputSpatialObjectsNode(vtkMRMLNode* node)
-{
-  this->setOutputSpatialObjectsNode(
-    vtkMRMLSpatialObjectsNode::SafeDownCast(node));
-}
-
-//------------------------------------------------------------------------------
-void qSlicerInteractiveTubesToTreeModuleWidget::setOutputSpatialObjectsNode(vtkMRMLSpatialObjectsNode* node)
-{
-	Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
-
   if (d->outputSpatialObject == node)
-  {
+    {
     return;
-  }
+    }
   d->outputSpatialObject = node;
-  d->ApplyPushButton->setEnabled(d->inputSpatialObject != 0 && d->outputSpatialObject != 0);
+  d->ApplyPushButton->setEnabled
+    ( d->inputSpatialObject != 0 && d->outputSpatialObject != 0 );
 }
 
 //------------------------------------------------------------------------------
@@ -203,48 +214,52 @@ void qSlicerInteractiveTubesToTreeModuleWidget::restoreDefaults()
 {
   Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
 
-  d->MaxContinuityAngleErrorSliderWidget->setValue(180);
-  d->MaxTubeDistanceToRadiusSliderWidget->setValue(2);
-  d->RemoveOrphanTubesCheckBox->setChecked(false);
-  d->RootTubeIDListLineEdit->setText("");
-  d->ApplyPushButton->setEnabled(d->inputSpatialObject != 0 && d->outputSpatialObject != 0);
+  d->MaxContinuityAngleErrorSliderWidget->setValue( 180 );
+  d->MaxTubeDistanceToRadiusSliderWidget->setValue( 2 );
+  d->RemoveOrphanTubesCheckBox->setChecked( false );
+  d->RootTubeIDListLineEdit->setText( "" );
+  d->ApplyPushButton->setEnabled
+    ( d->inputSpatialObject != 0 && d->outputSpatialObject != 0 );
   d->Table->restoreDefaults();
 }
 
 //------------------------------------------------------------------------------
 void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
 {
-  Q_D(qSlicerInteractiveTubesToTreeModuleWidget);
+  Q_D( qSlicerInteractiveTubesToTreeModuleWidget );
 
-  double maxTubeDistanceToRadiusRatio = d->MaxTubeDistanceToRadiusSliderWidget->value();
   double maxContinuityAngleError = d->MaxContinuityAngleErrorSliderWidget->value();
+  double maxTubeDistanceToRadiusRatio = d->MaxTubeDistanceToRadiusSliderWidget->value();
   bool removeOrphanTubes = d->RemoveOrphanTubesCheckBox->isChecked();
-  const std::set<int> selectedTubeIds = d->inputSpatialObject->GetSelectedTubeIds();
+  const std::set< int > selectedTubeIds = d->inputSpatialObject->GetSelectedTubeIds();
 
   //getting root ids from the text box
   std::string rootTubeIdList = d->RootTubeIDListLineEdit->text().toStdString();
 
   //getting root ids from the table
   std::string selectedRootIds = "";
-  for (std::set<int>::iterator it=selectedTubeIds.begin(); it!=selectedTubeIds.end(); ++it)
-  {
-    selectedRootIds = std::to_string(*it) + " ," + selectedRootIds;
-  }
+  for ( std::set< int >::iterator it = selectedTubeIds.begin();
+      it != selectedTubeIds.end(); ++it )
+    {
+    selectedRootIds = std::to_string( *it ) + " ," + selectedRootIds;
+    }
   rootTubeIdList = rootTubeIdList + " ," + selectedRootIds;
-  d->ApplyPushButton->setEnabled(false);
+  d->ApplyPushButton->setEnabled( false );
 
-  if (!d->logic()->Apply(d->inputSpatialObject, d->outputSpatialObject, maxTubeDistanceToRadiusRatio,
-    maxContinuityAngleError, removeOrphanTubes, rootTubeIdList))
-  {
-    qCritical("Error while running conversion !");
-  }
+  if ( !d->logic()->Apply( d->inputSpatialObject, d->outputSpatialObject,
+    maxTubeDistanceToRadiusRatio, maxContinuityAngleError, removeOrphanTubes,
+    rootTubeIdList ) )
+    {
+    qCritical( "Error while running conversion !" );
+    }
   d->Table->buildTubeDisplayTable();
-  d->ApplyPushButton->setChecked(false);
-  d->ApplyPushButton->setEnabled(true);
+  d->ApplyPushButton->setChecked( false );
+  d->ApplyPushButton->setEnabled( true );
 }
 
 // --------------------------------------------------------------------------
-vtkMRMLSpatialObjectsNode* qSlicerInteractiveTubesToTreeModuleWidget::mrmlSpatialObjectNode()const
+vtkMRMLSpatialObjectsNode* qSlicerInteractiveTubesToTreeModuleWidget::
+  mrmlSpatialObjectNode() const
 {
   Q_D(const qSlicerInteractiveTubesToTreeModuleWidget);
   return d->inputSpatialObject;

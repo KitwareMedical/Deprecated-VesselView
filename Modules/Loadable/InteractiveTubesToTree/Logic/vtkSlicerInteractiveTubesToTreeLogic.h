@@ -1,43 +1,42 @@
-/*==============================================================================
+/*=========================================================================
 
-  Program: 3D Slicer
+Library:   VesselView
 
-  Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
+Copyright 2010 Kitware Inc. 28 Corporate Drive,
+Clifton Park, NY, 12065, USA.
 
-  See COPYRIGHT.txt
-  or http://www.slicer.org/copyright/copyright.txt for details.
+All rights reserved.
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-==============================================================================*/
+    http://www.apache.org/licenses/LICENSE-2.0
 
-// .NAME vtkSlicerInteractiveTubesToTreeLogic - slicer logic class for volumes manipulation
-// .SECTION Description
-// This class manages the logic associated with reading, saving,
-// and changing propertied of the volumes
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
+=========================================================================*/
 
 #ifndef __vtkSlicerInteractiveTubesToTreeLogic_h
 #define __vtkSlicerInteractiveTubesToTreeLogic_h
 
-// Slicer includes
-#include "vtkSlicerModuleLogic.h"
-class vtkSlicerCLIModuleLogic;
-class vtkSlicerSpatialObjectsLogic;
-class vtkMRMLSpatialObjectsDisplayNode;
-class vtkMRMLVolumeNode;
 class vtkColorTransferFunction;
 class vtkMRMLMarkupsNode;
+class vtkMRMLSpatialObjectsDisplayNode;
+class vtkMRMLVolumeNode;
+class vtkSlicerCLIModuleLogic;
+class vtkSlicerSpatialObjectsLogic;
+
+// Slicer includes
+#include "vtkSlicerModuleLogic.h"
 
 // ITK includes
-#include "itkVesselTubeSpatialObject.h"
 #include "itkVector.h"
-
-// MRML includes
+#include "itkVesselTubeSpatialObject.h"
 
 // STD includes
 #include <cstdlib>
@@ -45,72 +44,81 @@ class vtkMRMLMarkupsNode;
 
 // MRML includes
 #include "vtkMRMLSpatialObjectsNode.h"
-
 #include "vtkSlicerInteractiveTubesToTreeModuleLogicExport.h"
 
-
 /// \ingroup Slicer_QtModules_ExtensionTemplate
-class VTK_SLICER_INTERACTIVETUBESTOTREE_MODULE_LOGIC_EXPORT vtkSlicerInteractiveTubesToTreeLogic :
+class VTK_SLICER_INTERACTIVETUBESTOTREE_MODULE_LOGIC_EXPORT
+  vtkSlicerInteractiveTubesToTreeLogic :
   public vtkSlicerModuleLogic
 {
 public:
 
   static vtkSlicerInteractiveTubesToTreeLogic *New();
-  vtkTypeMacro(vtkSlicerInteractiveTubesToTreeLogic, vtkSlicerModuleLogic);
-  void PrintSelf(ostream& os, vtkIndent indent);
-  void SetConversionLogic(vtkSlicerCLIModuleLogic* logic);
+  vtkTypeMacro( vtkSlicerInteractiveTubesToTreeLogic, vtkSlicerModuleLogic );
+  void PrintSelf( ostream& os, vtkIndent indent );
+  void SetConversionLogic( vtkSlicerCLIModuleLogic* logic );
   vtkSlicerCLIModuleLogic* GetConversionLogic();
-  void SetSpatialObjectsLogic(vtkSlicerSpatialObjectsLogic* logic);
+  void SetSpatialObjectsLogic( vtkSlicerSpatialObjectsLogic* logic );
   vtkSlicerSpatialObjectsLogic* GetSpatialObjectsLogic();
 
   // typdefs
-  typedef itk::GroupSpatialObject<3>                                TubeNetType1;
+  typedef itk::GroupSpatialObject< 3 >                              TubeNetType1;
   typedef TubeNetType1::Pointer                                     TubeNetPointerType;
   typedef vtkMRMLSpatialObjectsNode::TubeNetType                    TubeNetType;
-  typedef itk::VesselTubeSpatialObject<3>                           VesselTubeType;
+  typedef itk::VesselTubeSpatialObject< 3 >                         VesselTubeType;
   typedef VesselTubeType::TubePointType                             VesselTubePointType;
-  typedef itk::Point<double, 3>                                     PointType;
+  typedef itk::Point< double, 3 >                                   PointType;
   typedef std::vector< VesselTubePointType >                        PointListType;
-  typedef itk::VesselTubeSpatialObjectPoint<3>                      TestType;
+  typedef itk::VesselTubeSpatialObjectPoint< 3 >                    TestType;
 
-
-  bool Apply(vtkMRMLSpatialObjectsNode* inputNode, vtkMRMLSpatialObjectsNode* outputNode, double maxTubeDistanceToRadiusRatio,
-    double maxContinuityAngleError, bool removeOrphanTubes, std::string rootTubeIdList);
-  int FindNearestTube(vtkMRMLSpatialObjectsNode* inputNode, double*);
-  void setActivePlaceNodeID(vtkMRMLMarkupsNode* node);
-  std::string ConstructTemporaryFileName(const std::string& name);
-  std::string SaveSpatialObjectNode(vtkMRMLSpatialObjectsNode *spatialObjectsNode);
+  bool Apply( vtkMRMLSpatialObjectsNode* inputNode, vtkMRMLSpatialObjectsNode* outputNode,
+    double maxTubeDistanceToRadiusRatio,
+    double maxContinuityAngleError,
+    bool removeOrphanTubes,
+    std::string rootTubeIdList );
+  void ConnectTubesInSpatialObject( vtkMRMLSpatialObjectsNode* spatialNode, int, int );
+  std::string ConstructTemporaryFileName( const std::string& name );
+  void CreateTubeColorColorMap( vtkMRMLSpatialObjectsNode* spatialNode,
+    vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode );
+  void deleteTubeFromSpatialObject( vtkMRMLSpatialObjectsNode* spatialNode );
+  int FindNearestTube( vtkMRMLSpatialObjectsNode* inputNode, double* );
   std::string GetOutputFileName();
-  void SetOutputFileName(std::string name);
-  void GetSpatialObjectData(vtkMRMLSpatialObjectsNode* spatialNode, std::vector<int>& TubeIDList,
-    std::vector<int>& ParentIDList, std::vector<bool>& IsRootList, std::vector<bool>& IsArteryList,
-    std::vector<double>& RedColorList, std::vector<double>& GreenColorList, std::vector<double>& BlueColorList);
-  int GetSpatialObjectNumberOfTubes(vtkMRMLSpatialObjectsNode* spatialNode);
-  void SetSpatialObjectColor(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID, float red, float blue, float green);
-  void deleteTubeFromSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode);
-  void CreateTubeColorColorMap(vtkMRMLSpatialObjectsNode* spatialNode, vtkMRMLSpatialObjectsDisplayNode* spatialDisplayNode);
-  bool GetSpatialObjectOrphanStatusData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
-  std::set<int> GetSpatialObjectChildrenData(vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID);
-  void ConnectTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int, int);
+  std::set< int > GetSpatialObjectChildrenData
+    ( vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID );
+  void GetSpatialObjectData( vtkMRMLSpatialObjectsNode* spatialNode,
+    std::vector< int >& TubeIDList, std::vector< int >& ParentIDList,
+    std::vector< bool >& IsRootList, std::vector< bool >& IsArteryList,
+    std::vector< double >& RedColorList, std::vector< double >& GreenColorList,
+    std::vector< double >& BlueColorList );
+  bool GetSpatialObjectOrphanStatusData
+     ( vtkMRMLSpatialObjectsNode* spatialNode, int currTubeID );
+  int GetSpatialObjectNumberOfTubes( vtkMRMLSpatialObjectsNode* spatialNode );
+  void setActivePlaceNodeID(vtkMRMLMarkupsNode* node);
+  void SetSpatialObjectColor( vtkMRMLSpatialObjectsNode* spatialNode,
+    int currTubeID,
+    float red,
+    float blue,
+    float green );
+  void SetOutputFileName( std::string name );
+  std::string SaveSpatialObjectNode( vtkMRMLSpatialObjectsNode *spatialObjectsNode );
 
 protected:
   vtkSlicerInteractiveTubesToTreeLogic();
   virtual ~vtkSlicerInteractiveTubesToTreeLogic();
-
   virtual void SetMRMLSceneInternal(vtkMRMLScene* newScene);
-  /// Register MRML Node classes to Scene. Gets called automatically when the MRMLScene is attached to this logic class.
+  /// Register MRML Node classes to Scene.
+  //Gets called automatically when the MRMLScene is attached to this logic class.
   virtual void RegisterNodes();
   virtual void UpdateFromMRMLScene();
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
 
 private:
-
-  vtkSlicerInteractiveTubesToTreeLogic(const vtkSlicerInteractiveTubesToTreeLogic&); // Not implemented
-  void operator=(const vtkSlicerInteractiveTubesToTreeLogic&); // Not implemented
+  vtkSlicerInteractiveTubesToTreeLogic( const vtkSlicerInteractiveTubesToTreeLogic& );
+  void operator= ( const vtkSlicerInteractiveTubesToTreeLogic& );
   class vtkInternal;
-  vtkInternal* Internal;
-  std::string OutputFileName;
+  vtkInternal* m_Internal;
+  std::string  m_OutputFileName;
 };
 
 #endif
