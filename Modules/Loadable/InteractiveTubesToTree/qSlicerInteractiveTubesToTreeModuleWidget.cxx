@@ -243,7 +243,14 @@ void qSlicerInteractiveTubesToTreeModuleWidget::runConversion()
     {
     selectedRootIds = std::to_string( *it ) + " ," + selectedRootIds;
     }
-  rootTubeIdList = rootTubeIdList + " ," + selectedRootIds;
+  if( rootTubeIdList.compare( "" ) == 0 && selectedTubeIds.size() == 0 )
+    {
+    rootTubeIdList = "";
+    }
+  else
+    {
+    rootTubeIdList = rootTubeIdList + " ," + selectedRootIds;
+    }
   d->ApplyPushButton->setEnabled( false );
 
   if ( !d->logic()->Apply( d->inputSpatialObject, d->outputSpatialObject,

@@ -218,7 +218,10 @@ bool vtkSlicerInteractiveTubesToTreeLogic
   cmdNode->SetParameterAsDouble
     ( "maxTubeDistanceToRadiusRatio", maxTubeDistanceToRadiusRatio );
   cmdNode->SetParameterAsDouble( "maxContinuityAngleError", maxContinuityAngleError );
-  cmdNode->SetParameterAsString( "rootTubeIdList", rootTubeIdList );
+  if( rootTubeIdList.compare( "" ) != 0 )
+    {
+    cmdNode->SetParameterAsString( "rootTubeIdList", rootTubeIdList );
+    }
   this->m_Internal->ConversionLogic->ApplyAndWait( cmdNode );
 
   this->m_Internal->SpatialObjectsLogic->SetSpatialObject
