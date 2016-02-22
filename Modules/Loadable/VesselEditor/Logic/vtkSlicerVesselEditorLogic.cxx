@@ -324,6 +324,22 @@ void vtkSlicerVesselEditorLogic
   TubeNetType::ChildrenListType* tubeList =
     spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
   
+  int maxTubeId = -1;
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
+    {
+      continue;
+    }
+    int currTubeId = currTube->GetId();
+    if(  currTubeId > maxTubeId )
+    {
+      maxTubeId = currTubeId;
+    }
+  }
+
   for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
   {
     VesselTubeType* currTube =
@@ -369,12 +385,11 @@ void vtkSlicerVesselEditorLogic
         newTube->ComputeObjectToWorldTransform();
         newTube->ComputeTangentAndNormals();
         newTube->SetRoot( false );
-        newTube->SetId( tubeList->size() + 1 );
+        newTube->SetId( maxTubeId + 1 );
         newTube->SetParentId(currTube->GetId());
 
-
         newTube->Clear();
-        for (int index = nearestPoint + 1; index < numberOfPoints; index++)
+        for (int index = nearestPoint; index < numberOfPoints; index++)
         {
           VesselTubePointType* tubePoint =
             dynamic_cast<VesselTubePointType*>(currTube->GetPoint(index));
