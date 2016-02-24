@@ -909,6 +909,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::findTubeIDs( int index )
           {
           std::string currMarkupLabel = currentMarkupsNode->GetNthMarkupLabel( i );
           bool isVisibleCurrMarkup = currentMarkupsNode->GetNthMarkupVisibility( i );
+          if( i != index && currMarkupLabel.compare( newLabel ) == 0 && isVisibleCurrMarkup )
             {
             currentMarkupsNode->RemoveMarkup( i );
             currentMarkupsNode->RemoveMarkup( index-1 );
