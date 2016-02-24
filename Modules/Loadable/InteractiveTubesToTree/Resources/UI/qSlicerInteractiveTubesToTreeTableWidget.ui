@@ -53,6 +53,16 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="4">
+      <widget class="QPushButton" name="RefreshTablePushButton">
+       <property name="toolTip">
+        <string>Refresh table</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

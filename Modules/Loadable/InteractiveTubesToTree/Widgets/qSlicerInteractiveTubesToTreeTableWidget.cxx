@@ -150,13 +150,19 @@ void qSlicerInteractiveTubesToTreeTableWidgetPrivate::init()
   this->SelectTubeColorPicker->setDisplayColorName( false );
   QObject::connect( this->SelectTubeColorPicker,
         SIGNAL( colorChanged( QColor ) ), q,
-        SLOT( onSelectTubeColorChanged( QColor ) ) );
+        SLOT( onSelectTubeColorChanged( QColor ) ) );  
   pushButtonIcon.addFile( QString::fromUtf8( ":AnnotationPointWithArrow.png" ),
     QSize(), QIcon::Normal, QIcon::Off );
   this->SelectTubesPushButton->setIcon( pushButtonIcon );
   QObject::connect(
     this->SelectTubesPushButton, SIGNAL( toggled( bool ) ),
     q, SLOT( updateMRMLFromWidget() ) );
+  pushButtonIcon.addFile( QString::fromUtf8( ":Refresh.png" ),
+    QSize(), QIcon::Normal, QIcon::Off );
+  this->RefreshTablePushButton->setIcon( pushButtonIcon );
+  QObject::connect(
+    this->RefreshTablePushButton, SIGNAL( clicked() ),
+    q, SLOT( onClickRefreshTable() ) );
 
   //Table Widget
   this->TableWidget->setSelectionBehavior( QAbstractItemView::SelectRows );
@@ -388,6 +394,7 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
 
   if ( d->SpatialObjectsNode != 0 )
   {
+    qCritical( "HERE ");
     this->setEnabled( true );
     //reset the table data
     const std::set< int > selectedTubeIds = d->SpatialObjectsNode->GetSelectedTubeIds();
@@ -1200,4 +1207,12 @@ vtkMRMLMarkupsNode* qSlicerInteractiveTubesToTreeTableWidget::getMRMLMarkupsNode
   Q_D( qSlicerInteractiveTubesToTreeTableWidget );
 
   return d->MarkupsNode;
+}
+
+//------------------------------------------------------------------------------
+void qSlicerInteractiveTubesToTreeTableWidget::onClickRefreshTable()
+{
+  Q_D( qSlicerInteractiveTubesToTreeTableWidget );
+
+  this->buildTubeDisplayTable();
 }
