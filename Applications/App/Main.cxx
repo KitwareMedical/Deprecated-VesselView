@@ -1,9 +1,8 @@
 /*==============================================================================
 
-  Copyright (c) Kitware Inc.
+  Copyright (c) Kitware, Inc.
 
-  See COPYRIGHT.txt
-  or http://www.slicer.org/copyright/copyright.txt for details.
+  See http://www.slicer.org/copyright/copyright.txt for details.
 
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
@@ -11,7 +10,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc.
+  This file was originally developed by Jean-Christophe Fillion-Robin, Kitware, Inc.
   and was partially funded by NIH grant 3P41RR013218-12S1
 
 ==============================================================================*/
@@ -85,7 +84,6 @@ void splashMessage(QScopedPointer<QSplashScreen>& splashScreen, const QString& m
     return;
     }
   splashScreen->showMessage(message, Qt::AlignBottom | Qt::AlignHCenter);
-  //splashScreen->repaint();
 }
 
 //----------------------------------------------------------------------------
@@ -117,15 +115,17 @@ int SlicerAppMain(int argc, char* argv[])
 
   QCoreApplication::setApplicationVersion(qSlicerApp_VERSION_FULL);
 
-  //vtkObject::SetGlobalWarningDisplay(false);
   QApplication::setDesktopSettingsAware(false);
 
+  // Instantiate the settings that are being used everywhere in the application.
   QSettings settings(
     QSettings::IniFormat,
     QSettings::UserScope,
     Slicer_ORGANIZATION_NAME,
     Slicer_MAIN_PROJECT_APPLICATION_NAME);
 
+  // Instantiate the built-in application settings located in the resources
+  // system.
   if (!settings.contains("SlicerWikiURL"))
     {
     QString defaultPath = QString(":/DefaultSettings.ini");
@@ -257,8 +257,6 @@ int SlicerAppMain(int argc, char* argv[])
 
   // Process command line argument after the event loop is started
   QTimer::singleShot(0, &app, SLOT(handleCommandLineArguments()));
-
-  // qSlicerApplicationHelper::showMRMLEventLoggerWidget();
 
   // Look at QApplication::exec() documentation, it is recommended to connect
   // clean up code to the aboutToQuit() signal

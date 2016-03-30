@@ -109,7 +109,7 @@ mark_as_superbuild(VARS Slicer_BUILD_WIN32_CONSOLE:BOOL PROJECTS Slicer)
 #-----------------------------------------------------------------------------
 # Superbuild Option - Enabled by default
 #
-option(${kit}_SUPERBUILD "Build ${kit} and the projects it depends on via SuperBuild.cmake." ON)
+option(${kit}_SUPERBUILD "Build ${kit} and the projects it depends on." ON)
 mark_as_advanced(${kit}_SUPERBUILD)
 
 #-----------------------------------------------------------------------------
