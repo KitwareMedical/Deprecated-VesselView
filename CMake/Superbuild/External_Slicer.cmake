@@ -74,7 +74,7 @@ if(NOT DEFINED ${proj}_DIR)
     set(${proj}_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
     list(APPEND ${proj}_EP_ARGS
       GIT_REPOSITORY "${git_protocol}://github.com/KitwareMedical/Slicer.git"
-      GIT_TAG "4f28c60a20a314d9ae725c8853c527182c6832aa"
+      GIT_TAG "85ab6af69643258125fd2614d267eb98afbc2956"
       )
   endif()
 
@@ -85,6 +85,8 @@ if(NOT DEFINED ${proj}_DIR)
     PREFIX ${${proj}_PREFIX}
     INSTALL_COMMAND ""
     CMAKE_CACHE_ARGS
+      -DSlicer_ORGANIZATION_DOMAIN:STRING=${APPLICATION_DOMAIN}
+      -DSlicer_ORGANIZATION_NAME:STRING=${APPLICATION_VENDOR}
       -DBUILD_TESTING:BOOL=OFF
       # Compile options
       -DADDITIONAL_C_FLAGS:STRING=${ADDITIONAL_C_FLAGS}

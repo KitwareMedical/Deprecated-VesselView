@@ -71,9 +71,18 @@ GutenbergFontAwesomeMacro(
   )
 
 # --------------------------------------------------------------------------
+# Folder
+# --------------------------------------------------------------------------
+set(${PROJECT_NAME}_FOLDER "App-${PROJECT_NAME}")
+
+# --------------------------------------------------------------------------
 # Application library
 # --------------------------------------------------------------------------
 set(APPLIB_NAME "q${PROJECT_NAME}")
+
+set(APPLIB_DESCRIPTION_SUMMARY
+  "VesselView" # XXX Add a proper description
+  )
 
 set(APPLIB_SRCS
   qAppLayoutViewFactory.cxx
@@ -110,6 +119,7 @@ set(APPLIB_UI_SRCS
 
 set(APPLIB_RESOURCES
   Resources/App.qrc
+  ${Slicer_SOURCE_DIR}/Applications/SlicerApp/Resources/SlicerApp.qrc
   ${qSlicerBaseQTGUI_SOURCE_DIR}/Resources/qSlicerBaseQTGUI.qrc
   ${${APPLICATION_NAME}_SOURCE_DIR}/Utilities/Qt/Resources.qrc
   ${GUTENBERG_RESOURCE_FILE}
@@ -128,6 +138,8 @@ configure_file(
 
 slicerMacroBuildAppLibrary(
   NAME ${APPLIB_NAME}
+  DESCRIPTION_SUMMARY ${APPLIB_DESCRIPTION_SUMMARY}
+  DESCRIPTION_FILE ${Slicer_SOURCE_DIR}/README.txt
   APPLICATION_NAME ${SlicerApp_APPLICATION_NAME}
   EXPORT_DIRECTIVE "Q_SLICER_APP_EXPORT"
   FOLDER ${${PROJECT_NAME}_FOLDER}
