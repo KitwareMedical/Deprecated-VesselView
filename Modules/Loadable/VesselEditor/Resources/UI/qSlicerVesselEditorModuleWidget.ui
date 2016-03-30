@@ -78,6 +78,13 @@
       <string>Edit Vessels</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="ConnectLabel">
+        <property name="text">
+         <string>Connect</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="3">
        <widget class="QLabel" name="PrimaryTubeLabel">
         <property name="text">
@@ -146,13 +153,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="ConnectLabel">
-        <property name="text">
-         <string>Connect</string>
-        </property>
-       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="SplitLabel">
@@ -226,6 +226,33 @@
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string> From </string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="RenumberLabel">
+        <property name="text">
+         <string>Renumber Tubes</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="8">
+       <widget class="QPushButton" name="RenumberTubesPushButton">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

@@ -112,6 +112,8 @@ void qSlicerVesselEditorModuleWidgetPrivate::init()
     this->Table, SLOT(setSpatialObjectsNode(vtkMRMLNode*)));
 
   QIcon pushButtonIcon;
+  pushButtonIcon.addFile(QString::fromUtf8(":MarkSelected.png"), QSize(), QIcon::Normal, QIcon::Off);
+  this->RenumberTubesPushButton->setIcon(pushButtonIcon);
   pushButtonIcon.addFile(QString::fromUtf8(":Connect.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->ConnectPushButton->setIcon(pushButtonIcon);
   pushButtonIcon.addFile(QString::fromUtf8(":Disconnect.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -120,8 +122,7 @@ void qSlicerVesselEditorModuleWidgetPrivate::init()
   this->SelectTubeToSplitPushButton->setIcon(pushButtonIcon);
   pushButtonIcon.addFile(QString::fromUtf8(":Split.png"), QSize(), QIcon::Normal, QIcon::Off);
   this->SplitPushButton->setIcon(pushButtonIcon);
-  
-  
+
   QObject::connect(
     this->ConnectSourceTubePushButton, SIGNAL( clicked() ),
     q, SLOT( onClickConnectSourceTube() ) );
@@ -148,6 +149,9 @@ void qSlicerVesselEditorModuleWidgetPrivate::init()
   QObject::connect(
     this->DisconnectPushButton, SIGNAL( clicked() ),
     q, SLOT( onApplyDisconnectTubes() ) );
+  QObject::connect(
+    this->RenumberTubesPushButton, SIGNAL( clicked() ),
+    q, SLOT( onApplyRenumberTubes() ) );
 
   QObject::connect(
     this->RestoreDefaultsPushButton, SIGNAL( clicked() ),
@@ -288,6 +292,15 @@ void qSlicerVesselEditorModuleWidget::onApplySplitTube()
       }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerVesselEditorModuleWidget::onApplyRenumberTubes()
+{
+  Q_D( qSlicerVesselEditorModuleWidget );
+
+  d->logic()->RenumberTubesInSpatialObject(d->inputSpatialObject);
+  d->Table->buildTubeDisplayTable();
 }
 
 //------------------------------------------------------------------------------

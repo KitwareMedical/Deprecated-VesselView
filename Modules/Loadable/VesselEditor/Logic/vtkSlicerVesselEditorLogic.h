@@ -64,11 +64,12 @@ public:
   typedef itk::Point<double, 3>                                     PointType;
   typedef std::vector< VesselTubePointType >                        PointListType;
   typedef itk::VesselTubeSpatialObjectPoint<3>                      TestType;
+  typedef itk::IndexValueType                                       TubeIdType;
 
   void ConnectTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int parentTubeID, int childTubeID);
   void DisconnectTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int parentTubeID, int childTubeID);
   void SplitTubeInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode, int tubeID, double* splittingPoint);
-
+  void RenumberTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode);
 protected:
 
   vtkSlicerVesselEditorLogic();

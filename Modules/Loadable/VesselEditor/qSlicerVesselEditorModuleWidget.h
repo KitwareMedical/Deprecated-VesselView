@@ -47,6 +47,7 @@ public slots:
   void onApplySplitTube();
   void onApplyConnectTubes();
   void onApplyDisconnectTubes();
+  void onApplyRenumberTubes();
   void onClickConnectSourceTube();
   void onClickConnectTargetTube();
   void onClickDisconnectSourceTube();

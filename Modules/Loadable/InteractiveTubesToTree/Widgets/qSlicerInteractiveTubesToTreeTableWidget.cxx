@@ -394,7 +394,6 @@ void qSlicerInteractiveTubesToTreeTableWidget::buildTubeDisplayTable()
 
   if ( d->SpatialObjectsNode != 0 )
   {
-    qCritical( "HERE ");
     this->setEnabled( true );
     //reset the table data
     const std::set< int > selectedTubeIds = d->SpatialObjectsNode->GetSelectedTubeIds();
