@@ -57,17 +57,6 @@ if(NOT DEFINED ${proj}_DIR)
     FiberTractMeasurements
     )
 
-  # Add TubeTK Modules
-  # For now, TubeTK modules are added by hand.
-  if(NOT DEFINED TubeTK_SOURCE_DIR)
-    set(TubeTK_SOURCE_DIR "${${proj}_DIR}/TubeTK")
-  endif()
-  set(${APPLICATION_NAME}_MODULES_IN_BUILD_ORDER
-    ${TubeTK_SOURCE_DIR}/Applications
-    ${TubeTK_SOURCE_DIR}/SlicerModules
-    ${${APPLICATION_NAME}_MODULES}
-    )
-
   if(DEFINED ${proj}_SOURCE_DIR)
     list(APPEND ${proj}_EP_ARGS DOWNLOAD_COMMAND "")
   else()
@@ -136,11 +125,7 @@ if(NOT DEFINED ${proj}_DIR)
       -D${proj}_BUILD_DataStore:BOOL=OFF
       -D${proj}_BUILD_EMSegment:BOOL=OFF
       -D${proj}_BUILD_LandmarkRegistration:BOOL=OFF
-      -D${proj}_EXTENSION_SOURCE_DIRS:STRING=${${APPLICATION_NAME}_MODULES_IN_BUILD_ORDER}
-      # Required by TubeTK modules
-      -DSlicer_SOURCE_DIR:PATH=${Slicer_SOURCE_DIR}
-      # Use VTKv6
-      -DVTK_VERSION_MAJOR:STRING=6
+      -D${proj}_EXTENSION_SOURCE_DIRS:STRING=${${APPLICATION_NAME}_MODULES}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )

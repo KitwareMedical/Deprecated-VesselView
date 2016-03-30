@@ -26,12 +26,15 @@ set(MODULE_TITLE "Vessel Editor")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
-find_package( TubeTK REQUIRED )
-include( ${TubeTK_USE_FILE} )
+if(NOT TubeTK_SOURCE_DIR)
+  find_package( TubeTK REQUIRED )
+  include( ${TubeTK_USE_FILE} )
+endif()
 
 #-----------------------------------------------------------------------------
 add_subdirectory(Logic)
 add_subdirectory(Widgets)
+
 #-----------------------------------------------------------------------------
 set(MODULE_EXPORT_DIRECTIVE "Q_SLICER_QTMODULES_${MODULE_NAME_UPPER}_EXPORT")
 
