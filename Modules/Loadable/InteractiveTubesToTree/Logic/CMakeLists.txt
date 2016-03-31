@@ -29,10 +29,9 @@ set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_LOGIC_EXPORT
 
 set(${KIT}_INCLUDE_DIRECTORIES
   ${MRML_LIBRARIES}
-  ${vtkSlicer${MODULE_NAME}ModuleMRML_SOURCE_DIR}
-  ${vtkSlicer${MODULE_NAME}ModuleMRML_BINARY_DIR}
-  ${vtkSlicerSpatialObjectsModuleMRML_SOURCE_DIR}
-  ${vtkSlicerSpatialObjectsModuleMRML_BINARY_DIR}
+  ${vtkSlicer${MODULE_NAME}ModuleMRML_INCLUDE_DIRS}
+  ${vtkSlicerSpatialObjectsModuleMRML_INCLUDE_DIRS}
+  ${vtkSlicerSpatialObjectsModuleLogic_INCLUDE_DIRS}
   )
 
 set(${KIT}_SRCS
