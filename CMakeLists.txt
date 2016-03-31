@@ -1,6 +1,6 @@
 #============================================================================
 #
-# Copyright (c) Kitware Inc.
+# Copyright (c) Kitware, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 #
 #============================================================================
 
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.0)
 
 set(APPLICATION_NAME VesselView)
+set(APPLICATION_DOMAIN "kitware.com")
+set(APPLICATION_VENDOR "Kitware, Inc.")
 
 #-----------------------------------------------------------------------------
 set(kit ${APPLICATION_NAME})
@@ -38,7 +40,7 @@ include(OSXVariables) # Must be called before "project"
 project(${kit})
 
 #-----------------------------------------------------------------------------
-# Configure necessaries cmakes
+# Configure necessary cmakes
 #
 
 # Configure Use${kit}.cmake
@@ -54,13 +56,6 @@ configure_file(
   ${${kit}_CMAKE_BINARY_DIR}/Superbuild/External_${kit}.cmake
   @ONLY
   )
-
-# Configure External_${kit}Libs.cmake
-#configure_file(
-#  ${${kit}_CMAKE_SOURCE_DIR}/External_ApplicationLibs.cmake.in
-# ${${kit}_CMAKE_BINARY_DIR}/Superbuild/External_${kit}Libs.cmake
-#  @ONLY
-#  )
 
 #-----------------------------------------------------------------------------
 include(CTest)
@@ -96,6 +91,11 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 #-----------------------------------------------------------------------------
+option(${APPLICATION_NAME}_USE_VTK_DEBUG_LEAKS "Enable VTK debug leaks." ON)
+set(Slicer_USE_VTK_DEBUG_LEAKS ${${APPLICATION_NAME}_USE_VTK_DEBUG_LEAKS})
+mark_as_superbuild(VARS Slicer_USE_VTK_DEBUG_LEAKS:BOOL PROJECTS Slicer)
+
+#-----------------------------------------------------------------------------
 option(${APPLICATION_NAME}_USE_PYTHONQT_WITH_OPENSSL "Enable PythonQt SSL support." OFF)
 set(Slicer_USE_PYTHONQT_WITH_OPENSSL ${${APPLICATION_NAME}_USE_PYTHONQT_WITH_OPENSSL})
 mark_as_superbuild(VARS Slicer_USE_PYTHONQT_WITH_OPENSSL:BOOL PROJECTS Slicer)
@@ -111,7 +111,7 @@ mark_as_superbuild(VARS Slicer_BUILD_WIN32_CONSOLE:BOOL PROJECTS Slicer)
 #-----------------------------------------------------------------------------
 # Superbuild Option - Enabled by default
 #
-option(${kit}_SUPERBUILD "Build ${kit} and the projects it depends on via SuperBuild.cmake." ON)
+option(${kit}_SUPERBUILD "Build ${kit} and the projects it depends on." ON)
 mark_as_advanced(${kit}_SUPERBUILD)
 
 #-----------------------------------------------------------------------------
@@ -166,8 +166,7 @@ add_subdirectory(Modules)
 
 #-----------------------------------------------------------------------------
 # Superbuild script
-#
-
+#-----------------------------------------------------------------------------
 if(${kit}_SUPERBUILD)
   add_subdirectory(${${kit}_SUPERBUILD_DIR})
   return()
@@ -214,7 +213,7 @@ endif()
 
 get_property(${kit}_LIBRARY_DIRS GLOBAL PROPERTY ${kit}_LIBRARY_DIRS)
 if (${kit}_LIBRARY_DIRS)
-  ist(REMOVE_DUPLICATES ${kit}_LIBRARY_DIRS)
+  list(REMOVE_DUPLICATES ${kit}_LIBRARY_DIRS)
 endif()
 
 # --------------------------------------------------------------------------

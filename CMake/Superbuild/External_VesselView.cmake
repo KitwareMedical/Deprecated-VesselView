@@ -1,6 +1,6 @@
 #============================================================================
 #
-# Copyright (c) Kitware Inc.
+# Copyright (c) Kitware, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     CMAKE_CACHE_ARGS
       -D${proj}_SUPERBUILD:BOOL=OFF
       -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DDOCUMENTATION_ARCHIVES_OUTPUT_DIRECTORY:PATH=${DOCUMENTATION_ARCHIVES_OUTPUT_DIRECTORY}
       -D${proj}_INSTALL_BIN_DIR:STRING=${Slicer_INSTALL_BIN_DIR}
       -D${proj}_INSTALL_LIB_DIR:STRING=${Slicer_INSTALL_LIB_DIR}

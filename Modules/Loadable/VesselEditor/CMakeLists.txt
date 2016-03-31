@@ -26,12 +26,15 @@ set(MODULE_TITLE "Vessel Editor")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
-find_package( TubeTK REQUIRED )
-include( ${TubeTK_USE_FILE} )
+if(NOT TubeTK_SOURCE_DIR)
+  find_package( TubeTK REQUIRED )
+  include( ${TubeTK_USE_FILE} )
+endif()
 
 #-----------------------------------------------------------------------------
 add_subdirectory(Logic)
 add_subdirectory(Widgets)
+
 #-----------------------------------------------------------------------------
 set(MODULE_EXPORT_DIRECTIVE "Q_SLICER_QTMODULES_${MODULE_NAME_UPPER}_EXPORT")
 
@@ -41,12 +44,9 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
-  ${vtkSlicerSpatialObjectsModuleMRML_SOURCE_DIR}
-  ${vtkSlicerSpatialObjectsModuleMRML_BINARY_DIR}
-  ${vtkSlicerSpatialObjectsModuleLogic_SOURCE_DIR}
-  ${vtkSlicerSpatialObjectsModuleLogic_BINARY_DIR}
-	${qSlicerInteractiveTubesToTreeModuleWidgets_SOURCE_DIR}
-  ${qSlicerInteractiveTubesToTreeModuleWidgets_BINARY_DIR}
+  ${vtkSlicerSpatialObjectsModuleMRML_INCLUDE_DIRS}
+  ${vtkSlicerSpatialObjectsModuleLogic_INCLUDE_DIRS}
+  ${qSlicerInteractiveTubesToTreeModuleWidgets_INCLUDE_DIRS}
   )
 
 set(MODULE_SRCS

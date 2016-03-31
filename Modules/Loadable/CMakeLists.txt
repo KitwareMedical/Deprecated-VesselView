@@ -1,6 +1,6 @@
 #============================================================================
 #
-# Copyright (c) Kitware Inc.
+# Copyright (c) Kitware, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 
 # List all the modules (ordered by dependencies ) to build by Slicer
 set(modules
-  TortuosityModule
   InteractiveTubesToTree
   VesselEditor
   )

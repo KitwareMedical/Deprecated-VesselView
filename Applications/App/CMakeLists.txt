@@ -1,6 +1,6 @@
 #============================================================================
 #
-# Copyright (c) Kitware Inc.
+# Copyright (c) Kitware, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #============================================================================
 
 set(APPLICATION_NAME ${Slicer_MAIN_PROJECT_APPLICATION_NAME})
+
 project(${APPLICATION_NAME}App)
 
 include(SlicerMacroBuildApplication)
@@ -70,9 +71,18 @@ GutenbergFontAwesomeMacro(
   )
 
 # --------------------------------------------------------------------------
-# Application Library
+# Folder
+# --------------------------------------------------------------------------
+set(${PROJECT_NAME}_FOLDER "App-${PROJECT_NAME}")
+
+# --------------------------------------------------------------------------
+# Application library
 # --------------------------------------------------------------------------
 set(APPLIB_NAME "q${PROJECT_NAME}")
+
+set(APPLIB_DESCRIPTION_SUMMARY
+  "VesselView" # XXX Add a proper description
+  )
 
 set(APPLIB_SRCS
   qAppLayoutViewFactory.cxx
@@ -109,6 +119,7 @@ set(APPLIB_UI_SRCS
 
 set(APPLIB_RESOURCES
   Resources/App.qrc
+  ${Slicer_SOURCE_DIR}/Applications/SlicerApp/Resources/SlicerApp.qrc
   ${qSlicerBaseQTGUI_SOURCE_DIR}/Resources/qSlicerBaseQTGUI.qrc
   ${${APPLICATION_NAME}_SOURCE_DIR}/Utilities/Qt/Resources.qrc
   ${GUTENBERG_RESOURCE_FILE}
@@ -120,42 +131,6 @@ set(APPLIB_INCLUDE_DIRECTORIES
   ${FONT_AWESOME_DIR}
   )
 
-
-
-
-
-
-# --------------------------------------------------------------------------
-# Translation
-# --------------------------------------------------------------------------
-set(KIT_LIBRARY_NAME "q${PROJECT_NAME}")
-
-if(Slicer_BUILD_I18N_SUPPORT)
-  set(TS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Translations/")
-  get_property(Slicer_LANGUAGES GLOBAL PROPERTY Slicer_LANGUAGES)
-
-  include(${Slicer_SOURCE_DIR}/CMake/SlicerMacroTranslation.cmake)
-  SlicerMacroTranslation(
-    SRCS ${SlicerApp_SRCS}
-    UI_SRCS ${SlicerApp_UI_SRCS}
-    TS_DIR ${TS_DIR}
-    TS_BASEFILENAME ${KIT_LIBRARY_NAME}
-    TS_LANGUAGES ${Slicer_LANGUAGES}
-    QM_OUTPUT_DIR_VAR QM_OUTPUT_DIR
-    QM_OUTPUT_FILES_VAR QM_OUTPUT_FILES
-    )
-
-  set_property(GLOBAL APPEND PROPERTY Slicer_QM_OUTPUT_DIRS ${QM_OUTPUT_DIR})
-endif()
-
-
-if(Q_WS_MAC)
-  set(apple_icon_file App.icns)
-  set(apple_bundle_sources "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Icons/Medium/${apple_icon_file}")
-endif()
-
-
-
 configure_file(
   qSlicerAppExport.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/qSlicerAppExport.h
@@ -163,6 +138,8 @@ configure_file(
 
 slicerMacroBuildAppLibrary(
   NAME ${APPLIB_NAME}
+  DESCRIPTION_SUMMARY ${APPLIB_DESCRIPTION_SUMMARY}
+  DESCRIPTION_FILE ${Slicer_SOURCE_DIR}/README.txt
   APPLICATION_NAME ${SlicerApp_APPLICATION_NAME}
   EXPORT_DIRECTIVE "Q_SLICER_APP_EXPORT"
   FOLDER ${${PROJECT_NAME}_FOLDER}
