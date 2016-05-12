@@ -69,6 +69,7 @@ set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   #qSlicer${MODULE_NAME}ModuleWidgets
   vtkSlicerSpatialObjectsModuleLogic
+  vtkSlicerSpatialObjectsModuleMRML
   vtkSlicerMarkupsModuleMRML
   qSlicerInteractiveTubesToTreeModuleWidgets
   ${MRML_LIBRARIES}
