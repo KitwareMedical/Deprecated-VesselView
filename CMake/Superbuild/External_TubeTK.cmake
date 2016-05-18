@@ -29,7 +29,7 @@ set(_source_dir ${CMAKE_BINARY_DIR}/${proj})
 ExternalProject_Add(${proj}
   ${${proj}_EP_ARGS}
   GIT_REPOSITORY "${git_protocol}://github.com/KitwareMedical/TubeTK.git"
-  GIT_TAG "d408dcf6f6db2cb4223acc36096a90c2df885385"
+  GIT_TAG "9d14ee3b202c7165ca876e560e67cb1f1524cc6d"
   CONFIGURE_COMMAND ""
   PREFIX ${CMAKE_BINARY_DIR}/${proj}-prefix
   SOURCE_DIR ${_source_dir}
@@ -61,7 +61,7 @@ _set(SlicerExecutionModel_CLI_INSTALL_ARCHIVE_DESTINATION STRING ${SlicerExecuti
 _set(TubeTK_BUILD_IMAGE_VIEWER BOOL OFF)
 _set(TubeTK_USE_SUPERBUILD BOOL OFF)
 _set(TubeTK_USE_JsonCpp BOOL OFF)
-_set(TubeTK_USE_LIBSVM BOOL OFF)
+_set(TubeTK_USE_LIBSVM BOOL ON)
 _set(TubeTK_USE_KWSTYLE BOOL OFF)
 _set(TubeTK_USE_CPPCHECK BOOL OFF)
 _set(TubeTK_USE_GPU_ARRAYFIRE BOOL OFF)
