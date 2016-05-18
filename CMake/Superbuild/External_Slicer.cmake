@@ -41,6 +41,7 @@ if(NOT DEFINED ${proj}_DIR)
     # List here additional external projects
     TubeTK
     Gutenberg
+    LIBSVM
     )
 
   find_package(Qt4 REQUIRED)
