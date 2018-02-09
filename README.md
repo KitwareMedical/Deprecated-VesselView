@@ -1,7 +1,14 @@
+# DEPRECATED!
+
+Please refer to 
+
+KitwareMedical/vtkVolViewVessels
+
+for the continued development of this project.
+
+# OLD INFO
 VesselView by Kitware, Inc.
 ==========================
-
-![VesselView by Kitware, Inc.](https://raw.githubusercontent.com/KitwareMedical/VesselView/master/Applications/App/Resources/Images/SplashScreen.png)
 
 Prerequisites
 -------------
