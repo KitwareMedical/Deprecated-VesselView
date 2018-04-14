@@ -406,3 +406,35 @@ void vtkSlicerVesselEditorLogic
     }
   }
 }
+
+//---------------------------------------------------------------------------
+void vtkSlicerVesselEditorLogic
+::RenumberTubesInSpatialObject(vtkMRMLSpatialObjectsNode* spatialNode)
+{
+  if (!spatialNode)
+  {
+    return ;
+  }
+
+  TubeNetType* spatialObject = spatialNode->GetSpatialObject();
+  char childName[] = "Tube";
+  TubeNetType::ChildrenListType* tubeList =
+    spatialObject->GetChildren(spatialObject->GetMaximumDepth(), childName);
+  int numberOfTubes = tubeList->size();
+  TubeIdType parentTubeId = numberOfTubes + 1000;
+  TubeIdType tubeIdIndex = 0;
+  for (TubeNetType::ChildrenListType::iterator tubeIt = tubeList->begin(); tubeIt != tubeList->end(); ++tubeIt)
+  {
+    VesselTubeType* currTube =
+      dynamic_cast<VesselTubeType*>((*tubeIt).GetPointer());
+    if (!currTube || currTube->GetNumberOfPoints() < 1)
+    {
+      continue;
+    }
+    currTube->SetId( tubeIdIndex );
+    currTube->SetParentId( parentTubeId );
+    tubeIdIndex++;
+  }
+  spatialNode->UpdatePolyDataFromSpatialObject();
+  return ;
+}
