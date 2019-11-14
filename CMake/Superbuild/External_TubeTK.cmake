@@ -29,7 +29,7 @@ set(_source_dir ${CMAKE_BINARY_DIR}/${proj})
 ExternalProject_Add(${proj}
   ${${proj}_EP_ARGS}
   GIT_REPOSITORY "${git_protocol}://github.com/KitwareMedical/TubeTK.git"
-  GIT_TAG "9d14ee3b202c7165ca876e560e67cb1f1524cc6d"
+  GIT_TAG "c85719c147651dcd69c461a3ecb7383e72eb29d6"
   CONFIGURE_COMMAND ""
   PREFIX ${CMAKE_BINARY_DIR}/${proj}-prefix
   SOURCE_DIR ${_source_dir}
